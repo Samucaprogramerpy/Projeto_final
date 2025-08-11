@@ -1,13 +1,29 @@
-import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+
+import telaAluno from './screens/telaAluno';
+import telaLogin from './screens/telaLogin';
+
+const pilha = createNativeStackNavigator();
+
 
 export default function App() {
+  const [autenticado, setAutenticado] = useState<boolean | null>(null);
+
+
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+    <NavigationContainer>
+      <pilha.Navigator initialRouteName='Home'>
+        <pilha.Screen name='Tela de Login' options={{title: 'tela Login'}}>
+          {(props) => <telaLogin {...props}/>}
+        </pilha.Screen>
+      </pilha.Navigator>
+    </NavigationContainer>
+  )
 }
 
 const styles = StyleSheet.create({
