@@ -8,7 +8,7 @@ import { obterToken, removerToken } from './services/servicoTokken';
 import api from './api/api';
 
 import telaAluno from './screens/telaAluno';
-import telaLogin from './screens/telaLogin';
+import TelaLogin from './screens/telaLogin';
 import telaProfessor from './screens/telaProfessor';
 
 const pilha = createNativeStackNavigator();
@@ -58,7 +58,8 @@ export default function App() {
         </pilha.Group>
       ) : (
         <pilha.Group>
-          <pilha.Screen name='Login' component={telaLogin}>
+          <pilha.Screen name='Login' options={{title : 'login'}}> 
+            {(props) => <TelaLogin {...props} aoLoginSucesso={() => setAutenticado(true)} />}
           </pilha.Screen>
         </pilha.Group>
       )}
