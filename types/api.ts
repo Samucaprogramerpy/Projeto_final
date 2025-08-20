@@ -1,6 +1,7 @@
 export interface CredenciaisLogin {  
     usuario: string;  
-    senha: string; } 
+    senha: string; 
+} 
 
 export interface RespostaLoginAPI {  
     token: string; 

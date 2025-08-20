@@ -7,9 +7,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { obterToken, removerToken } from './services/servicoTokken';
 import api from './api/api';
 
-import telaAluno from './screens/telaAluno';
+import TelaColaborador from './screens/telaColaborador';
 import TelaLogin from './screens/telaLogin';
-import telaProfessor from './screens/telaProfessor';
 
 const pilha = createNativeStackNavigator();
 
@@ -53,8 +52,9 @@ export default function App() {
       <pilha.Navigator>
       {autenticado ? (
         <pilha.Group>
-          <pilha.Screen name='Aluno' component={telaAluno}></pilha.Screen>
-          <pilha.Screen name='Professor' component={telaProfessor}></pilha.Screen>
+          <pilha.Screen name='App' options={{title : 'App' }}>
+            {(props) => <TelaColaborador {...props} aoLogout={Logout} />}
+          </pilha.Screen>
         </pilha.Group>
       ) : (
         <pilha.Group>

@@ -3,8 +3,8 @@ import { obterToken, removerToken } from "../services/servicoTokken";
 
 
 const api = axios.create({
-    baseURL: 'https://zeladoria.tsr.net.br/api/accounts/login/',
-    timeout : 1000,
+    baseURL: "https://zeladoria.tsr.net.br/api",
+    timeout : 10000,
     headers: {
         'Content-Type' : 'application/json',
     },
@@ -14,7 +14,7 @@ api.interceptors.request.use(
     async (config) => {
         const token = await obterToken();
         if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+            config.headers.Authorization = `Token ${token}`;
         }
         return config;
     },

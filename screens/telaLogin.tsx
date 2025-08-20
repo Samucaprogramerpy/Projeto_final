@@ -11,7 +11,7 @@ const image = require('../img/senac.jpg')
 
 
 
-export default function TelaLogin() {
+export default function TelaLogin({aoLoginSucesso} : telaLoginProps)  {
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
     const [carregando, setCarregando] = useState(false)
@@ -22,9 +22,10 @@ export default function TelaLogin() {
         setErro('');
         try {
             const resposta = await realizarLogin({usuario : login, senha : password});
-            await salvarToken(resposta.token);
-            aoLoginSucesso();
+            await salvarToken(resposta.token); 
+            aoLoginSucesso() 
         } catch (erro : any) {
+            console.log(erro)
             setErro(erro.mensage || 'Erro inesperado. Tente Novamente');
         } finally {
             setCarregando(false);
@@ -42,8 +43,9 @@ export default function TelaLogin() {
                                 <TextInput style={style.input}
                                 placeholder="Digite a senha"
                                 value={password}
-                                secureTextEntry
-                                onChangeText={setPassword}/>
+                                onChangeText={setPassword}
+                                secureTextEntry 
+                                />
                             </View>
                             {carregando ? (
                                 <ActivityIndicator size="large"/>
@@ -100,7 +102,7 @@ const style = StyleSheet.create({
         backgroundColor : 'white',
         padding : 15,
         borderRadius : 15,
-        color : 'lightblue',
+        color : 'black',
         height : 45,
         fontSize : 12
 
@@ -123,6 +125,9 @@ const style = StyleSheet.create({
         
     },
     TextoBotao : {
+        color : 'white'
+    },
+    Erro : {
         color : 'white'
     }
 });
