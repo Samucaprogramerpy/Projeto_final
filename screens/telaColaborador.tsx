@@ -1,21 +1,23 @@
-import { Text, View } from "react-native";
+import { Text, View, StyleSheet } from "react-native";
 import { TouchableOpacity } from "react-native";
 import { Image } from "react-native";
 
-interface telaColaboradorProps {
-    aoLogout : () => void
-}
 
-function telaColaborador({aoLogout}: telaColaboradorProps){
+function telaColaborador(){
 
     return(
-            <View>
-                <TouchableOpacity onPress={aoLogout}>
-                    <Image source={require("../img/logout.png")}></Image>
-                </TouchableOpacity>
-            </View>
-
+        <View>
+            <Text>
+                ola
+            </Text>
+        </View>
     )
 }
 
 export default telaColaborador;
+
+const style = StyleSheet.create({
+    cabecalho : {
+        justifyContent : 'space-around'
+    },
+})

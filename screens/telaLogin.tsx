@@ -23,6 +23,7 @@ export default function TelaLogin({aoLoginSucesso} : telaLoginProps)  {
         try {
             const resposta = await realizarLogin({usuario : login, senha : password});
             await salvarToken(resposta.token); 
+
             aoLoginSucesso() 
         } catch (erro : any) {
             console.log(erro)
