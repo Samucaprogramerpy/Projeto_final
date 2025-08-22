@@ -4,6 +4,7 @@ import { StyleSheet, Text, View, ActivityIndicator, Touchable, TouchableOpacity,
 import { useState, useEffect } from 'react';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { obterToken, removerToken } from './services/servicoTokken';
 import api from './api/api';
@@ -16,31 +17,21 @@ import { Axios, AxiosError } from 'axios';
 
 const pilha = createNativeStackNavigator();
 
-interface VerificarAdm {
-  id : number,
-  email : string,
-  is_staff : boolean,
-  is_superuser : boolean,
-  username : string
-}
-
-
 
 export default function App() {
   const [autenticado, setAutenticado] = useState<boolean | null>(null);
   const [carregandoInicial, setCarregandoInicial] = useState(true);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
+
   useEffect(() => {
     const verificarAutenticacao = async () =>{
       const token = await obterToken();
       if (token) {
         api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-        const resposta = await api.get<VerificarAdm>('accounts/current_user');
-        const superUser = resposta.data.is_superuser
-        if (superUser === true) {
-          console.log("ola")
-        }
+
+
+        setAutenticado(true)
       } else {
         setAutenticado(false);
         setIsAdmin(false)
@@ -70,7 +61,13 @@ export default function App() {
       {autenticado ? (
         <pilha.Group>
           {isAdmin ? (
-            <pilha.Screen name='Admin'>
+            <pilha.Screen name='Admin' options={({navigation}) => ({
+              headerLeft : () => (
+                <TouchableOpacity>
+                  <Image style={styles.menu} source={require("./img/menu.png")}/>
+                </TouchableOpacity>
+              )
+            })}>
               {(props) => <Admin {...props} aoLogout={Logout} />}
             </pilha.Screen>
           ) : (
@@ -95,7 +92,7 @@ export default function App() {
       ) : (
         <pilha.Group>
           <pilha.Screen name='login'  options={{title : 'login'}}> 
-            {(props) => <TelaLogin {...props} aoLoginSucesso={() => setAutenticado(true)} />}
+            {(props) => <TelaLogin {...props} aoLoginSucesso={() => setAutenticado(true)} LoginAdmin={(eAdmin : boolean) => setIsAdmin(eAdmin)}/>}
           </pilha.Screen>
         </pilha.Group>
       )}
@@ -115,5 +112,12 @@ const styles = StyleSheet.create({
     width : 25,
     height : 25,
     marginRight : 5
+  },
+  menu : {
+    width : 25,
+    height : 25,
+    marginRight : 15
   }
 });
+
+

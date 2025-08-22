@@ -5,5 +5,5 @@ export interface CredenciaisLogin {
 
 export interface RespostaLoginAPI {  
     token: string; 
-    is_superuser : boolean;
+    is_superuser : boolean
 }
