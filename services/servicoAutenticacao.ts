@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import api from "../api/api";
 import { CredenciaisLogin, RespostaLoginAPI } from "../types/api";
 
@@ -9,6 +10,8 @@ export async function realizarLogin(credenciais : CredenciaisLogin) : Promise<Re
             password : credenciais.senha
         });
         return resposta.data
+        
+
     } catch (error : any) {
         if (error.response && error.response.status === 401) {      
             throw new Error('Credenciais inválidas. Verifique seu usuário e senha.');    

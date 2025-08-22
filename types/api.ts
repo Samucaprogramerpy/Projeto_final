@@ -5,16 +5,5 @@ export interface CredenciaisLogin {
 
 export interface RespostaLoginAPI {  
     token: string; 
-}
-
-export interface ProdutoAPI {  
-    id: number;  
-    title: string;  
-    price: number;  
-    description: string;  
-    category: string;  
-    image: string;  
-    rating: {    
-        rate: number;    
-        count: number;  }; 
+    is_superuser : boolean
 }

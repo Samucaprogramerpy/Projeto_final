@@ -1,29 +1,49 @@
-import { Text, View, TextInput, StyleSheet, TouchableOpacity, KeyboardAvoidingView, ImageBackground, ActivityIndicator} from "react-native";
+import { Text, View, StyleSheet, TouchableOpacity, KeyboardAvoidingView, ImageBackground, ActivityIndicator} from "react-native";
 import { useState } from "react";
+import { TextInput, IconButton } from "react-native-paper";
 import { realizarLogin } from "../services/servicoAutenticacao";
 import { salvarToken } from "../services/servicoTokken";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import api from "../api/api";
+import { useNavigation } from "@react-navigation/native";
+import axios from "axios";
 
 interface telaLoginProps{
     aoLoginSucesso: () => void;
+    LoginAdmin: (eAdmin : boolean) => void
 }
 
 const image = require('../img/senac.jpg')
 
 
-
-export default function TelaLogin({aoLoginSucesso} : telaLoginProps)  {
+export default function TelaLogin({aoLoginSucesso,LoginAdmin } : telaLoginProps)  {
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false)
     const [carregando, setCarregando] = useState(false)
     const [Erro, setErro] = useState('');
+
+
+    const mostrarSenha = () => {
+        setShowPassword(!showPassword)
+    }
 
     const Login = async () => {
         setCarregando(true);
         setErro('');
         try {
             const resposta = await realizarLogin({usuario : login, senha : password});
-            await salvarToken(resposta.token); 
-            aoLoginSucesso() 
+            await salvarToken(resposta.token);
+            
+            const super_user = await api.get('/accounts/current_user', {})
+            const verificacao = super_user.data.is_superuser
+            if (verificacao === true) {
+                LoginAdmin(verificacao)
+                aoLoginSucesso()
+            } else {
+                LoginAdmin(verificacao)
+                aoLoginSucesso()
+            }
         } catch (erro : any) {
             console.log(erro)
             setErro(erro.mensage || 'Erro inesperado. Tente Novamente');
@@ -36,17 +56,33 @@ export default function TelaLogin({aoLoginSucesso} : telaLoginProps)  {
                 <View style={style.geral}>
                     <KeyboardAvoidingView behavior="padding" style={style.container}>
                         <View style={style.child}>
-                            <View style={style.controls}>
-                                <TextInput style={style.input} placeholder="Insira o ID" value={login} onChangeText={setLogin}></TextInput>
-                            </View>
-                            <View style ={style.controls}>
-                                <TextInput style={style.input}
-                                placeholder="Digite a senha"
-                                value={password}
-                                onChangeText={setPassword}
-                                secureTextEntry 
-                                />
-                            </View>
+                                <View style={style.container_input}>
+                                    <TextInput style={style.input}
+                                    label={"ID"}
+                                    mode="outlined"
+                                    placeholder="Insira o ID"
+                                    value={login}
+                                    onChangeText={setLogin}>
+                                    </TextInput>
+                                </View>
+                                <View style={style.container_input}>
+                                    <TextInput style={style.input}
+                                    mode="outlined"
+                                    label="Senha"
+                                    value={password}
+                                    onChangeText={setPassword}
+                                    secureTextEntry={!showPassword}
+                                    contentStyle={style.input}
+                                    right={
+                                        <TextInput.Icon 
+                                        style={style.password} 
+                                        icon={showPassword ? 'eye-off' : 'eye'}
+                                        onPress={mostrarSenha}
+                                        />
+                                    }
+                                    />
+                                </View>
+                                
                             {carregando ? (
                                 <ActivityIndicator size="large"/>
                             ) : (
@@ -81,6 +117,9 @@ const style = StyleSheet.create({
         height : 'auto'
 
     },
+    password : {
+        margin : 'auto'
+    },
     container : {
         margin : 'auto',
         width : 300,
@@ -91,20 +130,21 @@ const style = StyleSheet.create({
         flexDirection : 'column',
         backgroundColor : 'rgba(17,0,0,0.3)'
     },
+    container_input : {
+        paddingVertical : 30
+    },
     child : {
         paddingBottom : 50,
+        padding : 20,
+        margin : 10
     },
     text : {
         color : 'white'
     },
     input : {
-        borderWidth: 1,
-        backgroundColor : 'white',
-        padding : 15,
-        borderRadius : 15,
-        color : 'black',
-        height : 45,
-        fontSize : 12
+        paddingVertical : 40,
+        flex : 1,
+        justifyContent : 'center'
 
     },
     controls : {
