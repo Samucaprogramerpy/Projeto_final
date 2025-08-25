@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React from 'react';
-import { StyleSheet, Text, View, ActivityIndicator, Touchable, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity, Image } from 'react-native';
 import { useState, useEffect } from 'react';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -14,7 +14,6 @@ import TelaLogin from './screens/telaLogin';
 import Settings from './screens/telaConfigurações';
 import Admin from './screens/telaAdm';
 import Salas from './screens/telaAdminSalas';
-import { Axios, AxiosError } from 'axios';
 
 const pilha = createNativeStackNavigator();
 
@@ -23,6 +22,9 @@ export default function App() {
   const [autenticado, setAutenticado] = useState<boolean | null>(null);
   const [carregandoInicial, setCarregandoInicial] = useState(true);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+
+
+
 
 
   useEffect(() => {
@@ -90,9 +92,12 @@ export default function App() {
               <pilha.Screen name='Sala' options={({ navigation }) => ({
                 title: 'Salas',
                 headerRight : () => (
-                  <TouchableOpacity onPress={() => navigation.navigate("Configurações")}>
-                    <Image style={styles.settings} source={require("./img/settings.png")}></Image>
-                  </TouchableOpacity>
+                  <>
+                      <TouchableOpacity onPress={() => navigation.navigate("Configurações")}>
+                        <Image style={styles.settings} source={require("./img/settings.png")}></Image>
+                      </TouchableOpacity>
+                      
+                  </>
                 )
               })}>
                 {(props) => <TelaColaborador {...props} />}
@@ -132,7 +137,7 @@ const styles = StyleSheet.create({
     width : 25,
     height : 25,
     marginRight : 15
-  }
+  },
 });
 
 

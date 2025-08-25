@@ -1,8 +1,7 @@
-import 'react-native-gesture-handler';
-import { View, Text, TouchableOpacity, Image, StyleSheet, FlatList, ScrollView } from "react-native"
+import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet, FlatList, Modal } from "react-native"
 import { useState, useEffect } from "react"
 import { CarregarSalas } from "../types/salas"
-import { obterSalas } from "../services/servicoSalas"
+import { criarSalas, obterSalas } from "../services/servicoSalas"
 
 
 
@@ -10,6 +9,12 @@ import { obterSalas } from "../services/servicoSalas"
 export default function Salas () {
     const [carregando, setCarregando] = useState(true)
     const [salas, setSalas] = useState<CarregarSalas[]>([])
+      const [visivel, setVisivel] = useState(false)
+
+      
+    const mostrarModal = () => {
+        setVisivel(!visivel)
+  }
     useEffect(() => {
         
         
@@ -26,9 +31,9 @@ export default function Salas () {
             }
         };
         carregarSalas()
-    })
+    });
     
-    const renderizarSala = ({item} : {item: CarregarSalas}) => (
+     const renderizarSala = ({item} : {item: CarregarSalas}) => (
             <View style={style.CardSala}>
                 <Text>{item.nome_numero}</Text>
                 <Text>{item.capacidade}</Text>
@@ -39,9 +44,24 @@ export default function Salas () {
 
 
     return (
-        <>
+        <>  
+            <Modal 
+            animationType="slide"
+            transparent={true}
+            visible={visivel}
+            onRequestClose={mostrarModal}>
+                <View style={style.containerModal}>
+                    <View style={style.modal}>
+                        <TouchableOpacity onPress={mostrarModal}>
+                            <Text>
+                                ola
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
             <View style={style.headerAdd}>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={mostrarModal}>
                     <Image source={require("../img/add.png")}/>
                 </TouchableOpacity>
 
@@ -72,11 +92,25 @@ const style = StyleSheet.create({
         margin : 10,
         alignItems : 'center',
         height : 180,
-        width : 180
+        width : 143
     },
     centralizado : {
         flexGrow : 1,
         alignItems : 'center',
         marginTop : 30
+    },
+    modal : {
+        padding : 30,
+        backgroundColor : 'white',
+        width : 300,
+        height : 430,
+        flexDirection : 'column',
+        alignItems : 'center'
+    },
+    containerModal : {
+        justifyContent : 'center',
+        alignItems : 'center',
+        flex : 1,
     }
-})
+});
+
