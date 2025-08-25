@@ -4,7 +4,7 @@ import { StyleSheet, Text, View, ActivityIndicator, Touchable, TouchableOpacity,
 import { useState, useEffect } from 'react';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 import { obterToken, removerToken } from './services/servicoTokken';
 import api from './api/api';
@@ -30,9 +30,17 @@ export default function App() {
       const token = await obterToken();
       if (token) {
         api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        const veriricacao = await api.get('accounts/current_user', {})
+        const superUser =  veriricacao.data.is_superuser
 
+        if (superUser === true) {
+          setIsAdmin(true)
+          setAutenticado(true)
+        } else {
+          setIsAdmin(false)
+          setAutenticado(true)
+        }
 
-        setAutenticado(true)
       } else {
         setAutenticado(false);
         setIsAdmin(false)

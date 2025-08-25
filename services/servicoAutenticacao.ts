@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import api from "../api/api";
 import { CredenciaisLogin, RespostaLoginAPI } from "../types/api";
 
