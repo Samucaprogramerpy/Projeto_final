@@ -2,16 +2,32 @@ import { Text, View, StyleSheet, FlatList } from "react-native";
 import { TouchableOpacity } from "react-native";
 import { useState, useEffect } from "react";
 import { CarregarSalas } from "../types/salas"
-import { criarSalas, obterSalas } from "../services/servicoSalas"
+import { obterSalas, obterSalasporID } from "../services/servicoSalas"
+import api from "../api/api";
+import React from "react";
 
 
 function telaColaborador(){
     const [salas, setSalas] = useState<CarregarSalas[]>([])
-        const [carregando, setCarregando] = useState(true)
+    const [carregando, setCarregando] = useState(true)
+    const [cordoTexto, setCordoTexto] = useState('red')
+    const [limpo, setLimpo] = useState('limpo')
+
+
+    const printID = async (id) => {
+        const StatusLimpo = {
+            status_limpeza : 'limpa'
+        }
+        const salainfo = await api.get(`salas/${id}/`)
+        const resposta = salainfo.data.status_limpeza
+        if (resposta === 'Limpeza Pendente') {
+            resposta === 'limpo'
+        } else {
+            resposta === 'Limpeza Pendente'
+        }
+    }
 
     useEffect(() => {
-        
-        
         
         const carregarSalas = async () => {
             setCarregando(true);
@@ -33,13 +49,15 @@ function telaColaborador(){
                 <Text>{item.capacidade}</Text>
                 <Text>{item.localizacao}</Text>
                 <Text>{item.descricao}</Text>
+                <Text>Status : {item.status_limpeza}</Text>
+                <TouchableOpacity onPress={()=> printID(item.id)}><Text>Limpar</Text></TouchableOpacity>
             </View>
         );
     return(
         <>
             <FlatList
                 data={salas}
-                keyExtractor={(item) => item.nome_numero.toString()}
+                keyExtractor={(item) => item.id.toString()}
                 numColumns={2}
                 renderItem={renderizarSala}
                 contentContainerStyle={style.centralizado}
@@ -60,12 +78,15 @@ const style = StyleSheet.create({
         alignItems : 'center',
     },
     CardSala : {
+        display : 'flex',
         backgroundColor : "white",
         borderRadius : 10,
-        padding : 10,
         margin : 10,
         alignItems : 'center',
         height : 180,
         width : 143
     },
+    limparSala : {
+        backgroundColor : '#004A8D'
+    }
 })

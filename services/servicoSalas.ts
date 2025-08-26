@@ -26,6 +26,15 @@ export async function obterSalas() : Promise<CarregarSalas[]> {
         const resposta = await api.get<CarregarSalas[]>('salas/');
         return resposta.data
     } catch (error : any) {
-        throw new Error(error.mensage || 'Erro ao buscar produtos.');
+        throw new Error(error.mensage || 'Erro ao buscar Salas.');
+    }
+}
+
+export async function obterSalasporID(id : number) : Promise<CarregarSalas> {
+    try {
+        const resposta = await api.get<CarregarSalas>(`salas/${id}`);
+        return resposta.data
+    } catch (error : any) {
+        throw new Error(error.mensage || 'Erro ao buscar Sala.');
     }
 }

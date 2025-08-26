@@ -6,8 +6,10 @@ export interface CredenciaiSalas {
 }
 
 export interface CarregarSalas {
+    id : number;
     nome_numero : string | number;
     capacidade : number;
     descricao : string;
-    localizacao : string
+    localizacao : string;
+    status_limpeza : string;
 }
