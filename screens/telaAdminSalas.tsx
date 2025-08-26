@@ -40,7 +40,7 @@ export default function Salas () {
     
      const renderizarSala = ({item} : {item: CarregarSalas}) => (
             <View style={style.CardSala}>
-                <View style={style.info}>
+                <View>
                     <Text>{item.nome_numero}</Text>
                     <Text>{item.capacidade}</Text>
                     <Text>{item.localizacao}</Text>
@@ -58,9 +58,6 @@ export default function Salas () {
         } catch (error : any) {
             throw new Error('Erro ao adicionar sala', error)
         }
-        
-        
-
     }
 
 

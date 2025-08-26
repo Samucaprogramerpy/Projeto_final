@@ -2,6 +2,7 @@ import { Text, View, StyleSheet, FlatList } from "react-native";
 import { TouchableOpacity } from "react-native";
 import { useState, useEffect } from "react";
 import { CarregarSalas } from "../types/salas"
+import { obterToken } from "../services/servicoTokken";
 import { obterSalas, obterSalasporID } from "../services/servicoSalas"
 import api from "../api/api";
 import React from "react";
@@ -11,25 +12,21 @@ function telaColaborador(){
     const [salas, setSalas] = useState<CarregarSalas[]>([])
     const [carregando, setCarregando] = useState(true)
     const [cordoTexto, setCordoTexto] = useState('red')
-    const [limpo, setLimpo] = useState('limpo')
+    const [limpo, setLimpo] = useState('Limpeza Pendente')
 
 
-    const printID = async (id) => {
-        const StatusLimpo = {
-            status_limpeza : 'limpa'
-        }
-        const salainfo = await api.get(`salas/${id}/`)
-        const resposta = salainfo.data.status_limpeza
-        if (resposta === 'Limpeza Pendente') {
-            resposta === 'limpo'
+    const limpar = () => {
+        if (limpo === 'Limpeza Pendente') {
+            setLimpo('Limpa')
         } else {
-            resposta === 'Limpeza Pendente'
+            setLimpo('Limpeza Pendente')
         }
     }
+    
 
-    useEffect(() => {
-        
+    useEffect(() => {        
         const carregarSalas = async () => {
+
             setCarregando(true);
             try{
                 const Salas = await obterSalas()
@@ -41,26 +38,25 @@ function telaColaborador(){
             }
         };
         carregarSalas()
-    });
+    }, []);
 
     const renderizarSala = ({item} : {item: CarregarSalas}) => (
             <View style={style.CardSala}>
-                <Text>{item.nome_numero}</Text>
+                <Text style={style.nome}>{item.nome_numero}</Text>
                 <Text>{item.capacidade}</Text>
                 <Text>{item.localizacao}</Text>
                 <Text>{item.descricao}</Text>
-                <Text>Status : {item.status_limpeza}</Text>
-                <TouchableOpacity onPress={()=> printID(item.id)}><Text>Limpar</Text></TouchableOpacity>
+                <Text>Status : {limpo}</Text>
+                <TouchableOpacity onPress={limpar}><Text>Limpar</Text></TouchableOpacity>
             </View>
         );
     return(
         <>
-            <FlatList
+            <FlatList 
+                style={style.flatList}
                 data={salas}
                 keyExtractor={(item) => item.id.toString()}
-                numColumns={2}
                 renderItem={renderizarSala}
-                contentContainerStyle={style.centralizado}
                 nestedScrollEnabled={true}
                 />
         </>
@@ -74,19 +70,28 @@ const style = StyleSheet.create({
         justifyContent : 'space-around'
     },
     centralizado : {
-        flexGrow : 1,
-        alignItems : 'center',
+    },
+    nome : {
+        borderBottomWidth : 1,
+        borderColor : '#004A8D',
+        width : '100%',
+        padding : 2
     },
     CardSala : {
         display : 'flex',
         backgroundColor : "white",
         borderRadius : 10,
         margin : 10,
-        alignItems : 'center',
-        height : 180,
-        width : 143
+        alignItems : 'flex-start',
+        height : 150,
+        width : '90%',
+        paddingLeft : 20,
+        paddingTop : 10
     },
     limparSala : {
         backgroundColor : '#004A8D'
+    },
+    flatList : {
+        width : '100%'
     }
 })
