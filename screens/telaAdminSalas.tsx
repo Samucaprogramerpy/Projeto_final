@@ -27,19 +27,29 @@ export default function Salas () {
                     'Authorization' : `Token ${token}`
                 }
             })
-            const ok = resposta.status
-            console.log(resposta.data)
-            if (ok === 201 || ok === 201) {
+            const respostalimpa = await api.get(`salas/${id}`)
+            const limpa = respostalimpa.data.status_limpeza
+            if (limpa === "Limpa") {
+                console.log('Erro ao trocar status. Talvez a sala ja esteja limpa')
+                setSalas(salasAtuais => {
+                    return salasAtuais.map(sala => {
+                        if (sala.id === id) {
+                            return {...sala, isClean : true}
+                        }
+                        return sala
+                        
+                    })
+                })   
+            } else {
                 setSalas(salasAtuais => {
                     return salasAtuais.map(sala => {
                         if (sala.id === id) {
                             return {...sala, isClean : !sala.isClean}
                         }
                         return sala
+                        
                     })
-                })
-            } else {
-                console.error('Erro ao trocar status da sala');
+                })   
             }
         } catch (error) {
             console.error('Erro ao trocar status da sala', error)
@@ -56,7 +66,11 @@ export default function Salas () {
             setCarregando(true);
             try{
                 const Salas = await obterSalas()
-                setSalas(Salas)
+                const SalasFormatadas = Salas.map(sala => ({
+                    ...sala,
+                    isClean: sala.status_limpeza === 'Limpa'
+                }));
+                setSalas(SalasFormatadas)
             } catch (error) {
                 console.error('Não foi possivel carregar os produtos', error)
             } finally {
@@ -73,7 +87,7 @@ export default function Salas () {
                     <Text>{item.localizacao}</Text>
                     <Text>{item.descricao}</Text>
                     <Text style={{ color: item.isClean ? 'green' : 'red' }}>
-                        Status: {item.isClean ? 'Limpo' : 'Limpeza Pendente'}
+                        Status: {item.isClean ? 'Limpa' : 'Limpeza Pendente'}
                     </Text>
                     <TouchableOpacity onPress={()=>limpar(item.id)}><Text>Limpar</Text></TouchableOpacity>
             </View>

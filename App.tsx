@@ -15,6 +15,7 @@ import Settings from './screens/telaConfigurações';
 import Admin from './screens/telaAdm';
 import Salas from './screens/telaAdminSalas';
 import Users from './screens/telaUsers';
+import load from './screens/telaLoad';
 
 const pilha = createNativeStackNavigator();
 
@@ -113,9 +114,10 @@ export default function App() {
         </pilha.Group>
       ) : (
         <pilha.Group>
-          <pilha.Screen name='login'  options={{title : 'login'}}> 
+          <pilha.Screen name='login' options={{headerShown : false}}> 
             {(props) => <TelaLogin {...props} aoLoginSucesso={() => setAutenticado(true)} LoginAdmin={(eAdmin : boolean) => setIsAdmin(eAdmin)}/>}
           </pilha.Screen>
+          <pilha.Screen name='load' component={load}></pilha.Screen>
         </pilha.Group>
       )}
       </pilha.Navigator>

@@ -11,8 +11,6 @@ import React from "react";
 function telaColaborador(){
     const [salas, setSalas] = useState<CarregarSalas[]>([])
     const [carregando, setCarregando] = useState(true)
-    const [cordoTexto, setCordoTexto] = useState('red')
-    const [limpo, setLimpo] = useState('Limpeza Pendente')
 
 
     const limpar = async (id) => {
@@ -24,7 +22,30 @@ function telaColaborador(){
                     'Authorization' : `Token ${token}`
                 }
             })
-            console.log(resposta.data)
+            const respostalimpa = await api.get(`salas/${id}`)
+            const limpa = respostalimpa.data.status_limpeza
+            if (limpa === "Limpa") {
+                console.log('Erro ao trocar status. Talvez a sala ja esteja limpa')
+                setSalas(salasAtuais => {
+                    return salasAtuais.map(sala => {
+                        if (sala.id === id) {
+                            return {...sala, isClean : true}
+                        }
+                        return sala
+                        
+                    })
+                })   
+            } else {
+                setSalas(salasAtuais => {
+                    return salasAtuais.map(sala => {
+                        if (sala.id === id) {
+                            return {...sala, isClean : !sala.isClean}
+                        }
+                        return sala
+                        
+                    })
+                }) 
+            }  
         } catch (error) {
             console.error('Erro ao trocar status da sala', error)
         }
@@ -37,7 +58,11 @@ function telaColaborador(){
             setCarregando(true);
             try{
                 const Salas = await obterSalas()
-                setSalas(Salas)
+                const SalasFormatadas = Salas.map(sala => ({
+                    ...sala,
+                    isClean: sala.status_limpeza === 'Limpa'
+                }));
+                setSalas(SalasFormatadas)
             } catch (error) {
                 console.error('Não foi possivel carregar os produtos', error)
             } finally {
@@ -50,11 +75,13 @@ function telaColaborador(){
     const renderizarSala = ({item} : {item: CarregarSalas}) => (
             <View style={style.CardSala}>
                 <Text style={style.nome}>{item.nome_numero}</Text>
-                <Text>{item.capacidade}</Text>
-                <Text>{item.localizacao}</Text>
-                <Text>{item.descricao}</Text>
-                <Text>Status : {limpo}</Text>
-                <TouchableOpacity onPress={()=>limpar(item.id)}><Text>Limpar</Text></TouchableOpacity>
+                <Text style={style.nomeinfo}>{item.capacidade}</Text>
+                <Text style={style.nomeinfo}>{item.localizacao}</Text>
+                <Text style={style.nomeinfo}>{item.descricao}</Text>
+                <Text style={{paddingLeft : 10, color: item.isClean ? 'green' : 'red' }}>
+                    Status: {item.isClean ? 'Limpa' : 'Limpeza Pendente'}
+                </Text>
+                <TouchableOpacity style={style.botaoLimpar} onPress={()=>limpar(item.id)}><Text>Limpar</Text></TouchableOpacity>
             </View>
         );
     return(
@@ -82,7 +109,8 @@ const style = StyleSheet.create({
         borderBottomWidth : 1,
         borderColor : '#004A8D',
         width : '100%',
-        padding : 2
+        paddingLeft : 10,
+        paddingBottom : 2
     },
     CardSala : {
         display : 'flex',
@@ -92,7 +120,6 @@ const style = StyleSheet.create({
         alignItems : 'flex-start',
         height : 150,
         width : '90%',
-        paddingLeft : 20,
         paddingTop : 10
     },
     limparSala : {
@@ -100,5 +127,12 @@ const style = StyleSheet.create({
     },
     flatList : {
         width : '100%'
+    },
+    nomeinfo : {
+        paddingLeft : 10
+    },
+    botaoLimpar : {
+        paddingLeft : 10,
+        paddingTop : 10
     }
 })
