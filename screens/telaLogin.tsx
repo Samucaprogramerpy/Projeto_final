@@ -1,19 +1,19 @@
-import { Text, View, StyleSheet, TouchableOpacity, KeyboardAvoidingView, ImageBackground, ActivityIndicator} from "react-native";
-import { useState } from "react";
-import { TextInput, IconButton } from "react-native-paper";
+import { Text, View, StyleSheet, TouchableOpacity, KeyboardAvoidingView, ImageBackground, ActivityIndicator, Image} from "react-native";
+import { useEffect, useState } from "react";
+import { TextInput} from "react-native-paper";
 import { realizarLogin } from "../services/servicoAutenticacao";
 import { salvarToken } from "../services/servicoTokken";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import ShimmerPlaceholder from "react-native-shimmer-placeholder";
+import LinearGradient from 'react-native-linear-gradient';
 import api from "../api/api";
-import { useNavigation } from "@react-navigation/native";
-import axios from "axios";
+
 
 interface telaLoginProps{
     aoLoginSucesso: () => void;
     LoginAdmin: (eAdmin : boolean) => void
 }
 
-const image = require('../img/senac.jpg')
+const image = require('../img/fundoSenac.jpg')
 
 
 export default function TelaLogin({aoLoginSucesso,LoginAdmin } : telaLoginProps)  {
@@ -84,7 +84,10 @@ export default function TelaLogin({aoLoginSucesso,LoginAdmin } : telaLoginProps)
                                 </View>
                                 
                             {carregando ? (
-                                <ActivityIndicator size="large"/>
+                                <View style={style.viewLoad}>
+                                    <Image style={style.imagem} source={require('../img/senac.jpg')}/>
+                                    <Text>Carregando... aguarde</Text>
+                                </View>
                             ) : (
                                 <View style={style.viewBotao}>
                                     <TouchableOpacity onPress={Login} style={style.botao}>
@@ -169,6 +172,24 @@ const style = StyleSheet.create({
     },
     Erro : {
         color : 'white'
+    },
+    viewLoad : {
+        flex : 1,
+        display : 'flex',
+        alignItems : 'center',
+        justifyContent : 'center',
+        backgroundColor : 'white',
+        height : '100%',
+        position : 'absolute',
+        top : 0,
+        right : 0,
+        left : 0,
+        bottom : 0,
+        resizeMode : 'center',
+    },
+    imagem : {
+        width : 100,
+        height : 100
     }
 });
 

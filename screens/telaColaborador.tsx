@@ -15,11 +15,18 @@ function telaColaborador(){
     const [limpo, setLimpo] = useState('Limpeza Pendente')
 
 
-    const limpar = () => {
-        if (limpo === 'Limpeza Pendente') {
-            setLimpo('Limpa')
-        } else {
-            setLimpo('Limpeza Pendente')
+    const limpar = async (id) => {
+        try {
+            const token = await obterToken();
+            const resposta = await api.post(`salas/${id}/marcar_como_limpa/`, {}, {
+                headers : {
+                    'Content-Type' : 'application/json',
+                    'Authorization' : `Token ${token}`
+                }
+            })
+            console.log(resposta.data)
+        } catch (error) {
+            console.error('Erro ao trocar status da sala', error)
         }
     }
     
@@ -47,7 +54,7 @@ function telaColaborador(){
                 <Text>{item.localizacao}</Text>
                 <Text>{item.descricao}</Text>
                 <Text>Status : {limpo}</Text>
-                <TouchableOpacity onPress={limpar}><Text>Limpar</Text></TouchableOpacity>
+                <TouchableOpacity onPress={()=>limpar(item.id)}><Text>Limpar</Text></TouchableOpacity>
             </View>
         );
     return(

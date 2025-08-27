@@ -14,6 +14,7 @@ import TelaLogin from './screens/telaLogin';
 import Settings from './screens/telaConfigurações';
 import Admin from './screens/telaAdm';
 import Salas from './screens/telaAdminSalas';
+import Users from './screens/telaUsers';
 
 const pilha = createNativeStackNavigator();
 
@@ -86,6 +87,7 @@ export default function App() {
                 {(props) => <Settings {...props} aoLogout={Logout} />}
               </pilha.Screen>
               <pilha.Screen name='adminSalas' component={Salas} options={{title : ('Salas')}}></pilha.Screen>
+              <pilha.Screen name='Users' component={Users}></pilha.Screen>
             </>
           ) : (
             <>

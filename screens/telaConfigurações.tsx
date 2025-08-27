@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, Platform } from "react
 
 
 
+
 interface telaColaboradorProps {
     aoLogout : () => void
 }
@@ -11,14 +12,6 @@ export default function Settings ({aoLogout} : telaColaboradorProps){
     return (
         <View style={style.container}>
                 <View style={style.options}>
-                    <TouchableOpacity style={style.RangeLogout} onPress={aoLogout}>
-                        <Image style={style.logout} source={require("../img/logout.png")}></Image>
-                    </TouchableOpacity>
-                </View>
-                <View style={style.options}>
-                    <TouchableOpacity style={style.RangeLogout} onPress={aoLogout}>
-                        <Image style={style.logout} source={require("../img/logout.png")}></Image>
-                    </TouchableOpacity>
                     <TouchableOpacity style={style.RangeLogout} onPress={aoLogout}>
                         <Image style={style.logout} source={require("../img/logout.png")}></Image>
                     </TouchableOpacity>

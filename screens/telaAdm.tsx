@@ -17,6 +17,10 @@ export default function Admin ({aoLogout} : telaColaboradorProps) {
                     <Image style={style.logout} source={require("../img/salas.png")}></Image>
                     <Text style={style.textButton}>Salas</Text>
                 </TouchableOpacity>
+                <TouchableOpacity style={style.RangeLogout} onPress={() => navigation.navigate("Users")}>
+                    <Image style={style.logout} source={require("../img/user.png")}></Image>
+                    <Text style={style.textButton}>Usuários</Text>
+                </TouchableOpacity>
             </View>
         </View>
     )
@@ -33,7 +37,8 @@ const style = StyleSheet.create({
     options : {
         flexDirection : 'row',
         width : '100%',
-        justifyContent : 'space-around'
+        justifyContent : 'space-around',
+        marginTop : 50
     },
     RangeLogout : {
             padding : 30,

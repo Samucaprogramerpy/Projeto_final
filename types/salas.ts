@@ -12,4 +12,11 @@ export interface CarregarSalas {
     descricao : string;
     localizacao : string;
     status_limpeza : string;
+    isClean? : boolean;
+}
+
+export interface CarregarUsuarios {
+    id: number,
+    username: string,
+    email: string
 }

@@ -3,14 +3,14 @@ import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet, FlatList, M
 import { useState, useEffect } from "react"
 import { CarregarSalas } from "../types/salas"
 import { criarSalas, obterSalas } from "../services/servicoSalas"
-import { obterToken } from "../services/servicoTokken"
+import { CarregarUsuarios } from "../types/salas"
 import api from "../api/api"
 
 
 
-export default function Salas () {
+export default function Users () {
     const [carregando, setCarregando] = useState(true)
-    const [salas, setSalas] = useState<CarregarSalas[]>([])
+    const [users, setUsers] = useState<CarregarUsuarios[]>([])
     const [visivel, setVisivel] = useState(false)
     const [nomeSala, setNomeSala] = useState('')
     const [capacidade, setCapacidade] = useState(0)
@@ -18,33 +18,6 @@ export default function Salas () {
     const [descricao, setDescricao] = useState('')
 
 
-    const limpar = async (id) => {
-        try {
-            const token = await obterToken();
-            const resposta = await api.post(`salas/${id}/marcar_como_limpa/`, {}, {
-                headers : {
-                    'Content-Type' : 'application/json',
-                    'Authorization' : `Token ${token}`
-                }
-            })
-            const ok = resposta.status
-            console.log(resposta.data)
-            if (ok === 201 || ok === 201) {
-                setSalas(salasAtuais => {
-                    return salasAtuais.map(sala => {
-                        if (sala.id === id) {
-                            return {...sala, isClean : !sala.isClean}
-                        }
-                        return sala
-                    })
-                })
-            } else {
-                console.error('Erro ao trocar status da sala');
-            }
-        } catch (error) {
-            console.error('Erro ao trocar status da sala', error)
-        }
-    }
     const mostrarModal = () => {
         setVisivel(!visivel)
   }
@@ -55,8 +28,8 @@ export default function Salas () {
         const carregarSalas = async () => {
             setCarregando(true);
             try{
-                const Salas = await obterSalas()
-                setSalas(Salas)
+                const usuario = await api.get('accounts/list_users')
+                setUsers(usuario.data)
             } catch (error) {
                 console.error('Não foi possivel carregar os produtos', error)
             } finally {
@@ -66,16 +39,10 @@ export default function Salas () {
         carregarSalas()
     }, []);
     
-     const renderizarSala = ({item} : {item: CarregarSalas}) => (
+     const renderizarSala = ({item} : {item: CarregarUsuarios}) => (
             <View style={style.CardSala}>
-                    <Text style={style.nome}>{item.nome_numero}</Text>
-                    <Text>{item.capacidade}</Text>
-                    <Text>{item.localizacao}</Text>
-                    <Text>{item.descricao}</Text>
-                    <Text style={{ color: item.isClean ? 'green' : 'red' }}>
-                        Status: {item.isClean ? 'Limpo' : 'Limpeza Pendente'}
-                    </Text>
-                    <TouchableOpacity onPress={()=>limpar(item.id)}><Text>Limpar</Text></TouchableOpacity>
+                    <Text style={style.nome}>{item.username}</Text>
+                    <Text style={style.nome}>{item.email}</Text>
             </View>
     );
 
@@ -127,9 +94,10 @@ export default function Salas () {
                 
             </View>
                 <FlatList
-                data={salas}
-                key={1}
-                keyExtractor={(item) => item.nome_numero.toString()}
+                data={users}
+                numColumns={2}
+                keyExtractor={(item) => item.id.toString()}
+                columnWrapperStyle={style.containerModal}
                 renderItem={renderizarSala}
                 nestedScrollEnabled={true}
                 />
@@ -149,10 +117,9 @@ const style = StyleSheet.create({
         backgroundColor : "white",
         alignItems : 'flex-start',
         borderRadius : 10,
-        padding : 10,
-        margin : 10,
+        marginTop : 10,
         height : 150,
-        width : '90%',
+        width : 150,
     },
     modal : {
         padding : 30,
@@ -163,7 +130,7 @@ const style = StyleSheet.create({
         alignItems : 'flex-start',
     },
     containerModal : {
-        justifyContent : 'center',
+        justifyContent : 'space-around',
         alignItems : 'center',
         flex : 1,
     },
@@ -222,10 +189,8 @@ const style = StyleSheet.create({
         fontSize : 10
     },
     nome : {
-        borderBottomWidth : 1,
-        borderColor : '#004A8D',
-        width : '100%',
-        padding : 2
+        fontSize : 18,
+        margin : 'auto'
     }
 });
 
