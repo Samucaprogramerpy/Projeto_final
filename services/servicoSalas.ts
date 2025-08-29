@@ -1,5 +1,5 @@
 import api from "../api/api";
-import { CredenciaiSalas, CarregarSalas } from "../types/salas";
+import { CredenciaiSalas, CarregarSalas, CriarUsuarios } from "../types/salas";
 
 export async function criarSalas(credenciais:CredenciaiSalas) {
     
@@ -37,4 +37,23 @@ export async function obterSalasporID(id : number) : Promise<CarregarSalas> {
     } catch (error : any) {
         throw new Error(error.mensage || 'Erro ao buscar Sala.');
     }
+}
+
+export async function criarUsers(credenciais:CriarUsuarios) {
+    
+    try {
+        const resposta = await api.post('salas/', {
+            nome : credenciais.username,
+            senha : credenciais.password,
+            confirmar_senha : credenciais.confirm_password
+        });
+        console.log(resposta.status)
+    } catch (error : any) {
+        if (error.response && error.response.status === 401) {      
+            throw new Error('Credenciais inválidas. Verifique seu usuário e senha.');    
+        }
+        throw new Error('erro na requisição', error)
+    }
+    
+
 }

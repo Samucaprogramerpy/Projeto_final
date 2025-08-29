@@ -2,9 +2,10 @@ import React from "react"
 import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet, FlatList, Modal, ScrollView, ActivityIndicator } from "react-native"
 import { useState, useEffect } from "react"
 import { CarregarSalas } from "../types/salas"
-import { criarSalas, obterSalas } from "../services/servicoSalas"
+import { criarSalas, criarUsers, obterSalas } from "../services/servicoSalas"
 import { CarregarUsuarios } from "../types/salas"
 import api from "../api/api"
+import { useTheme } from "react-native-paper"
 
 
 
@@ -14,8 +15,9 @@ export default function Users () {
     const [visivel, setVisivel] = useState(false)
     const [nomeSala, setNomeSala] = useState('')
     const [capacidade, setCapacidade] = useState(0)
-    const [localizacao, setLocalizacao] = useState('')
+    const [localizacao, setLocalizacao] = useState(0)
     const [descricao, setDescricao] = useState('')
+    const [superuser, setSuperuser] = useState<boolean>(false)
 
 
     const mostrarModal = () => {
@@ -48,12 +50,22 @@ export default function Users () {
 
     const criarSala = async () => {
         mostrarModal()
-        try {
-            const resposta = await criarSalas({nome_numero : nomeSala, capacidade : capacidade, localizacao : localizacao, descricao : descricao })
-            return resposta
-        } catch (error : any) {
-            throw new Error('Erro ao adicionar sala', error)
+        if (nomeSala.trim() === '' || capacidade === null|| localizacao === null) {
+            console.error('Digite algo para fazer a requisição!')
         }
+        if (capacidade !== localizacao) {
+            console.error('Senhas diferentes')
+        } else {
+            try {
+                const resposta = await criarUsers({username : nomeSala, password : capacidade, confirm_password : localizacao, is_superuser : superuser })
+                return resposta
+                
+            } catch (error : any) {
+                throw new Error('Erro ao adicionar sala', error)
+            }
+            console.log("Usuario criado com sucesso!")
+        }
+        
     }
 
 
@@ -67,14 +79,12 @@ export default function Users () {
                 <View style={style.containerModal}>
                     <View style={style.modal}>
                             <ScrollView showsVerticalScrollIndicator={false}>
-                                <Text>Nome da Sala*</Text>
-                                <TextInput placeholder="Ex : Informática 1" style={style.inputs} value={nomeSala} onChangeText={setNomeSala}></TextInput>
-                                <Text>Capacidade*</Text>
-                                <TextInput placeholder="Ex: 30" keyboardType="numeric" style={style.input2} value={capacidade} onChangeText={setCapacidade}></TextInput>
-                                <Text>Localização*</Text>
-                                <TextInput placeholder="Ex: BLOCO A" style={style.localizacao} value={localizacao} onChangeText={setLocalizacao}></TextInput>
-                                <Text>Descrição (Opcional)</Text>
-                                <TextInput placeholder="Ex: Sala de informatica, Vaio" style={style.descricao} value={descricao} onChangeText={setDescricao}></TextInput>
+                                <Text>Nome*</Text>
+                                <TextInput placeholder="Manuela" style={style.inputs} value={nomeSala} onChangeText={setNomeSala}></TextInput>
+                                <Text>Senha*</Text>
+                                <TextInput placeholder="Insira a senha" keyboardType="numeric" style={style.input2} value={capacidade} onChangeText={setCapacidade}></TextInput>
+                                <Text>Confirme a senha*</Text>
+                                <TextInput placeholder="Confirme a senha" style={style.localizacao} keyboardType="numeric" value={localizacao} onChangeText={setLocalizacao}></TextInput>
                                 <View style={style.viewAdd}>
                                     <TouchableOpacity style={style.buttonAdd} onPress={criarSala}>
                                         <Text style={style.textButton}>

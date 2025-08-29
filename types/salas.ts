@@ -20,3 +20,10 @@ export interface CarregarUsuarios {
     username: string,
     email: string
 }
+
+export interface CriarUsuarios {
+    username: string,
+    password : number,
+    confirm_password : number
+    is_superuser : boolean
+}
