@@ -42,12 +42,11 @@ export async function obterSalasporID(id : number) : Promise<CarregarSalas> {
 export async function criarUsers(credenciais:CriarUsuarios) {
     
     try {
-        const resposta = await api.post('salas/', {
+        const resposta = await api.post('accounts/create_user/', {
             nome : credenciais.username,
             senha : credenciais.password,
             confirmar_senha : credenciais.confirm_password
         });
-        console.log(resposta.status)
     } catch (error : any) {
         if (error.response && error.response.status === 401) {      
             throw new Error('Credenciais inválidas. Verifique seu usuário e senha.');    

@@ -25,5 +25,4 @@ export interface CriarUsuarios {
     username: string,
     password : number,
     confirm_password : number
-    is_superuser : boolean
 }

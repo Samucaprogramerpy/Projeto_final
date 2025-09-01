@@ -30,7 +30,7 @@ export default function Users () {
         const carregarSalas = async () => {
             setCarregando(true);
             try{
-                const usuario = await api.get('accounts/list_users')
+                const usuario = await api.get('accounts/list_users/')
                 setUsers(usuario.data)
             } catch (error) {
                 console.error('Não foi possivel carregar os produtos', error)
@@ -57,13 +57,12 @@ export default function Users () {
             console.error('Senhas diferentes')
         } else {
             try {
-                const resposta = await criarUsers({username : nomeSala, password : capacidade, confirm_password : localizacao, is_superuser : superuser })
+                const resposta = await criarUsers({username : nomeSala, password : capacidade, confirm_password : localizacao})
                 return resposta
                 
             } catch (error : any) {
                 throw new Error('Erro ao adicionar sala', error)
             }
-            console.log("Usuario criado com sucesso!")
         }
         
     }
@@ -100,17 +99,17 @@ export default function Users () {
                 <TouchableOpacity onPress={mostrarModal}>
                     <Image style={style.add} source={require("../img/add.png")}/>
                 </TouchableOpacity>
-
-                
             </View>
                 <FlatList
                 data={users}
                 numColumns={2}
                 keyExtractor={(item) => item.id.toString()}
-                columnWrapperStyle={style.containerModal}
+                columnWrapperStyle={style.containerList}
                 renderItem={renderizarSala}
                 nestedScrollEnabled={true}
                 />
+
+            
         </>
     )
 }
@@ -125,11 +124,10 @@ const style = StyleSheet.create({
     },
     CardSala : {
         backgroundColor : "white",
-        alignItems : 'flex-start',
         borderRadius : 10,
         marginTop : 10,
-        height : 150,
-        width : 150,
+        padding : 15,
+        width : "90%",
     },
     modal : {
         padding : 30,
@@ -141,6 +139,13 @@ const style = StyleSheet.create({
     },
     containerModal : {
         justifyContent : 'space-around',
+        alignItems : 'center',
+        flex : 1,
+        backgroundColor : 'rgba(128, 128, 128, 0.5)',
+    },
+    containerList : {
+        justifyContent : 'center',
+        flexDirection: 'column',
         alignItems : 'center',
         flex : 1,
     },
@@ -201,6 +206,6 @@ const style = StyleSheet.create({
     nome : {
         fontSize : 18,
         margin : 'auto'
-    }
+    },
 });
 

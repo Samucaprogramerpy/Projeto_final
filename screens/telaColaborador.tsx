@@ -81,7 +81,7 @@ function telaColaborador(){
                 <Text style={{paddingLeft : 10, color: item.isClean ? 'green' : 'red' }}>
                     Status: {item.isClean ? 'Limpa' : 'Limpeza Pendente'}
                 </Text>
-                <TouchableOpacity style={style.botaoLimpar} onPress={()=>limpar(item.id)}><Text>Limpar</Text></TouchableOpacity>
+                <TouchableOpacity style={style.botaoLimpar} onPress={()=>limpar(item.id)}><Text style ={style.textoLimpar}>Limpar</Text></TouchableOpacity>
             </View>
         );
     return(
@@ -118,7 +118,7 @@ const style = StyleSheet.create({
         borderRadius : 10,
         margin : 10,
         alignItems : 'flex-start',
-        height : 150,
+        height : 180,
         width : '90%',
         paddingTop : 10
     },
@@ -132,7 +132,13 @@ const style = StyleSheet.create({
         paddingLeft : 10
     },
     botaoLimpar : {
-        paddingLeft : 10,
-        paddingTop : 10
+        marginTop : 30,
+        marginLeft : 5,
+        padding : 5,
+        backgroundColor : 'purple',
+        borderRadius : 5,
+    },
+    textoLimpar : {
+        color : 'white',
     }
 })
