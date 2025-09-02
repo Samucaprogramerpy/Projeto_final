@@ -2,7 +2,7 @@ import React from "react"
 import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet, FlatList, Modal, ScrollView, ActivityIndicator } from "react-native"
 import { useState, useEffect } from "react"
 import { CarregarSalas } from "../types/salas"
-import { criarSalas, criarUsers, obterSalas } from "../services/servicoSalas"
+import { criarSalas, CriarUsers, obterSalas } from "../services/servicoSalas"
 import { CarregarUsuarios } from "../types/salas"
 import api from "../api/api"
 import { useTheme } from "react-native-paper"
@@ -13,21 +13,14 @@ export default function Users () {
     const [carregando, setCarregando] = useState(true)
     const [users, setUsers] = useState<CarregarUsuarios[]>([])
     const [visivel, setVisivel] = useState(false)
-    const [nomeSala, setNomeSala] = useState('')
-    const [capacidade, setCapacidade] = useState(0)
-    const [localizacao, setLocalizacao] = useState(0)
-    const [descricao, setDescricao] = useState('')
-    const [superuser, setSuperuser] = useState<boolean>(false)
-
+    const [nome, setNome] = useState('')
+    const [Senha, setSenha] = useState(0)
+    const [confirm_Senha, setConfirm_Senha] = useState(0)
 
     const mostrarModal = () => {
         setVisivel(!visivel)
   }
-    useEffect(() => {
-        
-        
-        
-        const carregarSalas = async () => {
+  const carregarUsers = async () => {
             setCarregando(true);
             try{
                 const usuario = await api.get('accounts/list_users/')
@@ -38,38 +31,43 @@ export default function Users () {
                 setCarregando(false)
             }
         };
-        carregarSalas()
+    useEffect(() => {
+        carregarUsers()
     }, []);
     
      const renderizarSala = ({item} : {item: CarregarUsuarios}) => (
-            <View style={style.CardSala}>
+            <View style={style.containerList}>
+                <View style={style.CardSala}>
                     <Text style={style.nome}>{item.username}</Text>
                     <Text style={style.nome}>{item.email}</Text>
+                </View>
+     
             </View>
     );
 
     const criarSala = async () => {
         mostrarModal()
-        if (nomeSala.trim() === '' || capacidade === null|| localizacao === null) {
-            console.error('Digite algo para fazer a requisição!')
-        }
-        if (capacidade !== localizacao) {
-            console.error('Senhas diferentes')
+        if (Senha !== confirm_Senha){
+            console.error("Tente colocar senhas iguais")
+        } else if (nome.trim() === '' || Senha === 0 || confirm_Senha === 0) {
+            console.error("Insira todos os campos corretamente")
         } else {
-            try {
-                const resposta = await criarUsers({username : nomeSala, password : capacidade, confirm_password : localizacao})
-                return resposta
-                
-            } catch (error : any) {
-                throw new Error('Erro ao adicionar sala', error)
+            try{
+                const resposta = CriarUsers({username : nome, password : Senha, confirm_password : confirm_Senha})
+            
+            } catch (error) {
+                console.error("Erro ao criar usuário", error);
             }
+            carregarUsers()
+            setNome('')
+            setSenha(0)
+            setConfirm_Senha(0)
         }
         
+
     }
-
-
     return (
-        <>  
+        <View style={style.container}>  
             <Modal 
             animationType="slide"
             transparent={true}
@@ -79,11 +77,11 @@ export default function Users () {
                     <View style={style.modal}>
                             <ScrollView showsVerticalScrollIndicator={false}>
                                 <Text>Nome*</Text>
-                                <TextInput placeholder="Manuela" style={style.inputs} value={nomeSala} onChangeText={setNomeSala}></TextInput>
+                                <TextInput placeholder="Manuela" style={style.inputs} value={nome} onChangeText={setNome}></TextInput>
                                 <Text>Senha*</Text>
-                                <TextInput placeholder="Insira a senha" keyboardType="numeric" style={style.input2} value={capacidade} onChangeText={setCapacidade}></TextInput>
+                                <TextInput placeholder="Insira a senha" keyboardType="numeric" style={style.input2} value={Senha} onChangeText={setSenha}></TextInput>
                                 <Text>Confirme a senha*</Text>
-                                <TextInput placeholder="Confirme a senha" style={style.localizacao} keyboardType="numeric" value={localizacao} onChangeText={setLocalizacao}></TextInput>
+                                <TextInput placeholder="Confirme a senha" style={style.localizacao} keyboardType="numeric" value={confirm_Senha} onChangeText={setConfirm_Senha}></TextInput>
                                 <View style={style.viewAdd}>
                                     <TouchableOpacity style={style.buttonAdd} onPress={criarSala}>
                                         <Text style={style.textButton}>
@@ -96,38 +94,43 @@ export default function Users () {
                 </View>
             </Modal>
             <View style={style.headerAdd}>
-                <TouchableOpacity onPress={mostrarModal}>
-                    <Image style={style.add} source={require("../img/add.png")}/>
+                <Text style={style.gerenciarUsuarios}>Gerenciar Usuários</Text>
+                <TouchableOpacity style={style.mostrarModal} onPress={mostrarModal}>
+                    <Text style={style.textplus}>+ Criar Usuario</Text>
                 </TouchableOpacity>
             </View>
                 <FlatList
                 data={users}
-                numColumns={2}
                 keyExtractor={(item) => item.id.toString()}
-                columnWrapperStyle={style.containerList}
                 renderItem={renderizarSala}
                 nestedScrollEnabled={true}
                 />
 
             
-        </>
+        </View>
     )
 }
 
 const style = StyleSheet.create({
 
+    container : {
+        flex : 1
+    },
     headerAdd : {
-        alignItems : 'flex-end',
-        marginTop : 15,
-        justifyContent:"center",
-        display : 'flex'
+        justifyContent : 'space-around',
+        height : 100,
+        alignItems : 'center',
+        display : 'flex',
+        paddingBottom : 10,
+        flexDirection : 'row'
     },
     CardSala : {
         backgroundColor : "white",
         borderRadius : 10,
         marginTop : 10,
         padding : 15,
-        width : "90%",
+        flexDirection : 'column',
+        width : '90%'
     },
     modal : {
         padding : 30,
@@ -196,9 +199,11 @@ const style = StyleSheet.create({
         fontSize : 18,
         color : 'white'
     },
-    add : {
-        height : 35,
-        width : 35
+    mostrarModal : {
+        flexDirection : 'row',
+        padding : 5,
+        backgroundColor : '#004A8D',
+        justifyContent : 'center',
     },
     info : {
         fontSize : 10
@@ -206,6 +211,15 @@ const style = StyleSheet.create({
     nome : {
         fontSize : 18,
         margin : 'auto'
+    },
+    textplus : {
+        fontSize : 16,
+        margin : 'auto',
+        color : 'white'
+    },
+    gerenciarUsuarios : {
+        fontSize : 18,
+        fontWeight : 'bold'
     },
 });
 

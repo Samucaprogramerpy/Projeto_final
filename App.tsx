@@ -79,6 +79,8 @@ export default function App() {
           let iconName;
           if (route.name === 'Sala') {
             iconName = focused ? 'home' : 'home-outline';
+          }else if (route.name === 'adminSalas') {
+            iconName = focused ? 'school' : 'school-outline';
           } else if (route.name === 'Configurações') {
             iconName = focused ? 'settings' : 'settings-outline';
           } else if (route.name === 'Admin') {
