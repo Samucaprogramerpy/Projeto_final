@@ -1,5 +1,8 @@
 import { View, Text, TouchableOpacity, Image, StyleSheet, Platform } from "react-native"
 import { useNavigation } from "@react-navigation/native"
+import api from "../api/api"
+import { useEffect, useState, useCallback } from "react"
+import { useFocusEffect } from "@react-navigation/native"
 
 
 interface telaColaboradorProps {
@@ -7,63 +10,74 @@ interface telaColaboradorProps {
 }
 
 
+
 export default function Admin ({aoLogout} : telaColaboradorProps) {
+    const [salasLimpas, setSalasLimpas] = useState('');
+
+
+    const contarSalas  = async () => {
+        try {
+            const resposta  = await api.get('salas/')
+            const data = resposta.data
+
+            const filtragem = data.filter(sala => sala.status_limpeza === 'Limpa')
+            setSalasLimpas(filtragem.length)
+        } catch (error) {
+            console.error("Erro ao recuperar as salas!", error)
+        }
+    }
+
+    useFocusEffect(
+        useCallback(() => {
+            contarSalas()
+        }, [])
+    )
+
 
     const navigation = useNavigation()
     return(
          <View style={style.container}>
             <View style={style.options}>
-                <TouchableOpacity style={style.RangeLogout} onPress={() => navigation.navigate("adminSalas")}>
-                    <Image style={style.logout} source={require("../img/salas.png")}></Image>
-                    <Text style={style.textButton}>Salas</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={style.RangeLogout} onPress={() => navigation.navigate("Users")}>
-                    <Image style={style.logout} source={require("../img/user.png")}></Image>
-                    <Text style={style.textButton}>Usuários</Text>
-                </TouchableOpacity>
+                <View style={style.containerInfo}>
+                    <Text style={style.text}>Salas Limpas</Text>
+                    <TouchableOpacity onPress={() => navigation.navigate("adminSalas")}>
+                        <Text style={style.infoAdm}>{salasLimpas}</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
         </View>
     )
 }
 
 const style = StyleSheet.create({
-    logout : {
-        height : 50,
-        width : 50,
-    },
     container : {
         alignItems : "center"
     },
     options : {
-        flexDirection : 'row',
+        flexDirection : 'column',
         width : '100%',
-        justifyContent : 'space-around',
-        marginTop : 50
+        marginTop : 50,
+        alignItems : 'flex-end'
     },
-    RangeLogout : {
-            padding : 30,
-            backgroundColor : 'white',
-            width : '35%',
-            borderRadius : 10,
-            alignItems : 'center',
-            ...Platform.select({
-                ios : {
-                shadowColor : 'gray',
-                shadowOffset : {
-                width : 30, height : 30
-                },
-                shadowRadius : 5,
-                shadowOpacity : 10
-                },
-                android : {
-                    elevation : 5
-                }
-            })
-            
-            
-        },
-        textButton : {
-            marginTop : 30,
-            fontSize : 18
-        }
+    infoAdm : {
+        padding : 20,
+        width : 100,
+        backgroundColor : '#004A8D',
+        color : 'white',
+        fontSize : 18,
+        fontWeight : 'bold',
+        borderRadius : 5,
+        paddingLeft : 30,
+        paddingRight : 30,
+        textAlign : 'center'
+    },
+    containerInfo : {
+        alignItems : 'center',
+        padding : 5,
+        marginRight : 5
+    },
+    text : {
+        fontSize : 16,
+        fontWeight : 'bold'
+    }
 })

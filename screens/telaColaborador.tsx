@@ -135,7 +135,7 @@ const style = StyleSheet.create({
         marginTop : 30,
         marginLeft : 5,
         padding : 5,
-        backgroundColor : 'purple',
+        backgroundColor : '#004A8D',
         borderRadius : 5,
     },
     textoLimpar : {

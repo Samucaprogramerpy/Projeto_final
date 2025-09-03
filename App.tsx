@@ -18,6 +18,7 @@ import Admin from './screens/telaAdm';
 import Salas from './screens/telaAdminSalas';
 import Users from './screens/telaUsers';
 import load from './screens/telaLoad';
+import TelaDetalhesSalas from './screens/telaDetalhesSalas';
 
 
 const tab = createBottomTabNavigator()
@@ -109,14 +110,15 @@ export default function App() {
             <tab.Screen name="Configurações" options={{ title: 'Painel Admin',  headerStyle:{backgroundColor : '#004A8D', borderBottomWidth : 2, borderColor : '#F7941D'}, headerTitleStyle:{color : 'white'}}}>
               {(props) => <Settings {...props} aoLogout={Logout} />}
             </tab.Screen>
+            <tab.Screen name="DetalhesSalas" component={TelaDetalhesSalas} options={{tabBarItemStyle : {display : 'none'}}}></tab.Screen>
           </tab.Group>
         ) : (
           // Telas para o usuário Colaborador
           <tab.Group>
-            <tab.Screen name="Sala" options={{ title: 'Salas' }}>
+            <tab.Screen name="Sala" options={{ title: 'Salas', headerStyle:{backgroundColor : '#004A8D', borderBottomWidth : 2, borderColor : '#F7941D'}, headerTitleStyle:{color : 'white' }}}>
               {(props) => <TelaColaborador {...props} />}
             </tab.Screen>
-            <tab.Screen name="Configurações">
+            <tab.Screen name="Configurações" options={{ headerStyle:{backgroundColor : '#004A8D', borderBottomWidth : 2, borderColor : '#F7941D'}, headerTitleStyle:{color : 'white' }}}>
               {(props) => <Settings {...props} aoLogout={Logout} />}
             </tab.Screen>
           </tab.Group>

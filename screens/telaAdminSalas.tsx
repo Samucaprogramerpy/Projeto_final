@@ -1,4 +1,5 @@
 import React from "react"
+import { useNavigation } from "@react-navigation/native"
 import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet, FlatList, Modal, ScrollView, ActivityIndicator } from "react-native"
 import { useState, useEffect } from "react"
 import { CarregarSalas } from "../types/salas"
@@ -16,6 +17,7 @@ export default function Salas () {
     const [capacidade, setCapacidade] = useState(0)
     const [localizacao, setLocalizacao] = useState('')
     const [descricao, setDescricao] = useState('')
+    const navigation = useNavigation()
 
     const carregarSalas = async () => {
         setCarregando(true);
@@ -96,7 +98,7 @@ export default function Salas () {
     }, []);
     
      const renderizarSala = ({item} : {item: CarregarSalas}) => (
-            <View style={style.CardSala}>
+            <TouchableOpacity onPress={() => navigation.navigate("DetalhesSalas", {IdSala : item.id}) } style={style.CardSala}>
                     <Text style={style.nome}>{item.nome_numero}</Text>
                     <Text>{item.capacidade}</Text>
                     <Text>{item.localizacao}</Text>
@@ -105,7 +107,7 @@ export default function Salas () {
                         Status: {item.isClean ? 'Limpa' : 'Limpeza Pendente'}
                     </Text>
                     <TouchableOpacity style={style.botaoLimpar} onPress={()=>limpar(item.id)}><Text style={style.textoLimpar}>Limpar</Text></TouchableOpacity>
-            </View>
+            </TouchableOpacity>
     );
 
     const criarSala = async () => {
