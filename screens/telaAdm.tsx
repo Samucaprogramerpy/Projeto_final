@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity, Image, StyleSheet, Platform } from "react
 import { useNavigation } from "@react-navigation/native"
 import api from "../api/api"
 import { useEffect, useState, useCallback } from "react"
+import CustomSwitch from "../services/Switch"
 import { useFocusEffect } from "@react-navigation/native"
 
 
@@ -13,6 +14,7 @@ interface telaColaboradorProps {
 
 export default function Admin ({aoLogout} : telaColaboradorProps) {
     const [salasLimpas, setSalasLimpas] = useState('');
+    const [on, setOn] = useState<boolean>(false)
 
 
     const contarSalas  = async () => {
@@ -39,9 +41,9 @@ export default function Admin ({aoLogout} : telaColaboradorProps) {
          <View style={style.container}>
             <View style={style.options}>
                 <View style={style.containerInfo}>
-                    <Text style={style.text}>Salas Limpas</Text>
-                    <TouchableOpacity onPress={() => navigation.navigate("adminSalas")}>
-                        <Text style={style.infoAdm}>{salasLimpas}</Text>
+                    <TouchableOpacity style={style.infoAdm} onPress={() => navigation.navigate("adminSalas")}>
+                        <Text style={style.numSalasLimpas}>{salasLimpas}</Text>
+                        <Text style={style.text}>Salas Limpas</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -57,27 +59,29 @@ const style = StyleSheet.create({
         flexDirection : 'column',
         width : '100%',
         marginTop : 50,
-        alignItems : 'flex-end'
+        alignItems : 'flex-start',
     },
     infoAdm : {
-        padding : 20,
-        width : 100,
+        padding : 45,
         backgroundColor : '#004A8D',
-        color : 'white',
-        fontSize : 18,
-        fontWeight : 'bold',
-        borderRadius : 5,
-        paddingLeft : 30,
-        paddingRight : 30,
-        textAlign : 'center'
+        alignItems : 'center',
+        borderRadius : 10
     },
     containerInfo : {
         alignItems : 'center',
         padding : 5,
-        marginRight : 5
+        marginRight : 5,
     },
     text : {
         fontSize : 16,
-        fontWeight : 'bold'
+        fontWeight : 'bold',
+        marginTop : 20,
+        padding : 5,
+        backgroundColor : 'white',
+        borderRadius : 50
+    },
+    numSalasLimpas : {
+        color : 'white',
+        fontSize : 20
     }
 })

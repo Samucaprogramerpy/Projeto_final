@@ -20,7 +20,7 @@
     "expo": "^53.0.22",
     "expo-status-bar": "~2.2.3",
     "install": "^0.13.0",
-    "npm": "^11.5.2",
+    "npm": "^11.6.0",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.10",
     "react-dom": "19.0.0",

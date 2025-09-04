@@ -48,7 +48,8 @@ export async function CriarUsers(credenciais: CriarUsuarios) {
         const resposta  = await api.post('accounts/create_user/', {
             username : credenciais.username,
             password : credenciais.password,
-            confirm_password : credenciais.confirm_password
+            confirm_password : credenciais.confirm_password,
+            is_superuser : credenciais.is_superuser
         })
         console.log(resposta.status)
     } catch(error){

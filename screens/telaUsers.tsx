@@ -1,12 +1,11 @@
 import React from "react"
-import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet, FlatList, Modal, ScrollView, ActivityIndicator } from "react-native"
+import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet, FlatList, Modal, ScrollView, ActivityIndicator, Switch } from "react-native"
 import { useState, useEffect } from "react"
 import { CarregarSalas } from "../types/salas"
+import CustomSwitch from "../services/Switch"
 import { criarSalas, CriarUsers, obterSalas } from "../services/servicoSalas"
 import { CarregarUsuarios } from "../types/salas"
 import api from "../api/api"
-import { useTheme } from "react-native-paper"
-
 
 
 export default function Users () {
@@ -16,7 +15,15 @@ export default function Users () {
     const [nome, setNome] = useState('')
     const [Senha, setSenha] = useState(0)
     const [confirm_Senha, setConfirm_Senha] = useState(0)
+    const [on, setOn] = useState<boolean>(false)
+    const [admin, setAdmin] = useState<boolean>(false)
 
+
+
+    const handleSwitch = () => {
+        setAdmin(!admin)
+        console.log(admin)
+    }
     const mostrarModal = () => {
         setVisivel(!visivel)
   }
@@ -53,7 +60,7 @@ export default function Users () {
             console.error("Insira todos os campos corretamente")
         } else {
             try{
-                const resposta = CriarUsers({username : nome, password : Senha, confirm_password : confirm_Senha})
+                const resposta = CriarUsers({username : nome, password : Senha, confirm_password : confirm_Senha, is_superuser : admin})
             
             } catch (error) {
                 console.error("Erro ao criar usuário", error);
@@ -66,6 +73,7 @@ export default function Users () {
         
 
     }
+
     return (
         <View style={style.container}>  
             <Modal 
@@ -82,6 +90,20 @@ export default function Users () {
                                 <TextInput placeholder="Insira a senha" keyboardType="numeric" style={style.input2} value={Senha} onChangeText={setSenha}></TextInput>
                                 <Text>Confirme a senha*</Text>
                                 <TextInput placeholder="Confirme a senha" style={style.localizacao} keyboardType="numeric" value={confirm_Senha} onChangeText={setConfirm_Senha}></TextInput>
+                                <View style={style.setAdmin}>
+                                    <Text>É Admin ?</Text>
+                                    <View style={style.Switch}>
+                                        <CustomSwitch
+                                            isActive={on}
+                                            onToggle={handleSwitch}
+                                            thumbBorderRadius={10}
+                                            trackWidth={50}
+                                            trackHeight={15}
+                                            thumbSize={20}
+                                            trackColorActive='#F7941D'
+                                            />
+                                    </View>
+                                </View>
                                 <View style={style.viewAdd}>
                                     <TouchableOpacity style={style.buttonAdd} onPress={criarSala}>
                                         <Text style={style.textButton}>
@@ -139,6 +161,9 @@ const style = StyleSheet.create({
         height : 430,
         flexDirection : 'column',
         alignItems : 'flex-start',
+        borderRadius : 10,
+        borderWidth : 1.5,
+        borderColor : '#F7941D'
     },
     containerModal : {
         justifyContent : 'space-around',
@@ -221,5 +246,13 @@ const style = StyleSheet.create({
         fontSize : 18,
         fontWeight : 'bold'
     },
+    setAdmin : {
+        flexDirection : 'row',
+    },
+    Switch : {
+        marginLeft : 90,
+        alignItems : 'center',
+        paddingLeft : 30
+    }
 });
 
