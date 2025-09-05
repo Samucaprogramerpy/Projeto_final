@@ -43,6 +43,7 @@ export default function TelaDetalhesSalas() {
             <TouchableOpacity onPress={()=> navigation.goBack()}>
                 <Text>{"< Voltar"}</Text>
                 <Text>{sala?.nome_numero}</Text>
+                <Text style={{color : sala?.isClean ? 'red' : 'green'}}>{<Text style={{color : 'black'}}>Status : </Text>}{sala?.status_limpeza ? 'Limpa' : 'Limpeza pendente'}</Text>
             </TouchableOpacity>
         </ScrollView>
     )

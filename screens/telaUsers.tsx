@@ -1,9 +1,7 @@
 import React from "react"
 import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet, FlatList, Modal, ScrollView, ActivityIndicator, Switch } from "react-native"
 import { useState, useEffect } from "react"
-import { CarregarSalas } from "../types/salas"
-import CustomSwitch from "../services/Switch"
-import { criarSalas, CriarUsers, obterSalas } from "../services/servicoSalas"
+import { criarSalas, CriarUsers, obterSalas, obterUsers } from "../services/servicoSalas"
 import { CarregarUsuarios } from "../types/salas"
 import api from "../api/api"
 
@@ -21,26 +19,25 @@ export default function Users () {
 
 
     const handleSwitch = () => {
-        setAdmin(!admin)
-        console.log(admin)
+        setOn(!on)
+        if (on === false) {
+            setAdmin(true)
+        }
     }
     const mostrarModal = () => {
         setVisivel(!visivel)
   }
   const carregarUsers = async () => {
-            setCarregando(true);
             try{
-                const usuario = await api.get('accounts/list_users/')
-                setUsers(usuario.data)
-            } catch (error) {
-                console.error('Não foi possivel carregar os produtos', error)
-            } finally {
-                setCarregando(false)
+                const resposta = await api.get('accounts/list_users/')
+                setUsers(resposta.data)
+            } catch(error){
+                console.error('Erro ao buscar usuários', error)
             }
-        };
+    };
     useEffect(() => {
         carregarUsers()
-    }, []);
+    }, [carregarUsers()]);
     
      const renderizarSala = ({item} : {item: CarregarUsuarios}) => (
             <View style={style.containerList}>
@@ -60,15 +57,15 @@ export default function Users () {
             console.error("Insira todos os campos corretamente")
         } else {
             try{
-                const resposta = CriarUsers({username : nome, password : Senha, confirm_password : confirm_Senha, is_superuser : admin})
-            
+                const resposta = CriarUsers({username : nome, password : Senha, confirm_password : confirm_Senha, is_staff : admin, is_superuser : admin})
+                carregarUsers()
+                setNome('')
+                setSenha(0)
+                setConfirm_Senha(0)
             } catch (error) {
                 console.error("Erro ao criar usuário", error);
             }
-            carregarUsers()
-            setNome('')
-            setSenha(0)
-            setConfirm_Senha(0)
+            
         }
         
 
@@ -93,16 +90,11 @@ export default function Users () {
                                 <View style={style.setAdmin}>
                                     <Text>É Admin ?</Text>
                                     <View style={style.Switch}>
-                                        <CustomSwitch
-                                            isActive={on}
-                                            onToggle={handleSwitch}
-                                            thumbBorderRadius={10}
-                                            trackWidth={50}
-                                            trackHeight={15}
-                                            thumbSize={20}
-                                            trackColorActive='#F7941D'
-                                            />
-                                    </View>
+                                        <Switch
+                                        value={on}
+                                        onValueChange={handleSwitch}
+                                        />
+                                    </View>    
                                 </View>
                                 <View style={style.viewAdd}>
                                     <TouchableOpacity style={style.buttonAdd} onPress={criarSala}>
@@ -248,6 +240,7 @@ const style = StyleSheet.create({
     },
     setAdmin : {
         flexDirection : 'row',
+        alignItems : 'center'
     },
     Switch : {
         marginLeft : 90,
