@@ -1,9 +1,10 @@
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
 import { obterSalasporID } from "../services/servicoSalas";
 import { useEffect, useState } from "react";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { CarregarSalas } from "../types/salas";
 import Load from "./telaLoad";
+import api from "../api/api";
 
 type DetalheSala = {
     IdSala : number
@@ -22,11 +23,20 @@ export default function TelaDetalhesSalas() {
             try {
                 const SalaEncontrada = await obterSalasporID(IdSala)
                 setSala(SalaEncontrada);
+
+                const limpa = SalaEncontrada.status_limpeza
+
+                if (limpa === 'Limpa'){
+                    SalaEncontrada.isClean = true
+                } else {
+                    SalaEncontrada.isClean = false
+                }
             } catch(error) {
                 console.error("Erro ao encontrar Sala", error)
             } finally {
                 setCarregando(false)
             }
+
         }
         CarregarDetalhesSalas()
     }, [IdSala])
@@ -34,17 +44,16 @@ export default function TelaDetalhesSalas() {
     if (carregando) {
         <Load/>
     }
-    if (!sala) {
-        console.error('Sala não encontrada!')
-    }
 
     return(
         <ScrollView>
-            <TouchableOpacity onPress={()=> navigation.goBack()}>
-                <Text>{"< Voltar"}</Text>
-                <Text>{sala?.nome_numero}</Text>
-                <Text style={{color : sala?.isClean ? 'red' : 'green'}}>{<Text style={{color : 'black'}}>Status : </Text>}{sala?.status_limpeza ? 'Limpa' : 'Limpeza pendente'}</Text>
+            <TouchableOpacity style={{marginLeft : 10}} onPress={()=> navigation.navigate('adminSalas')}>
+                <Text style={{padding : 10, backgroundColor : 'rgb(230, 229, 227)', width : 80, borderRadius : 5, textAlign : 'center'}}>{"< Voltar"}</Text>
             </TouchableOpacity>
+            <View style={{marginLeft : 10}}>
+                <Text>{sala?.nome_numero}</Text>
+                <Text style={{color : sala?.isClean ? 'green' : 'red'}}>{<Text style={{color:'black'}}>Status:</Text>} {sala?.status_limpeza}</Text>
+            </View>
         </ScrollView>
     )
 }

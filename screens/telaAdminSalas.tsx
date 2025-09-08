@@ -98,16 +98,18 @@ export default function Salas () {
     }, []);
     
      const renderizarSala = ({item} : {item: CarregarSalas}) => (
-            <TouchableOpacity onPress={() => navigation.navigate("DetalhesSalas", {IdSala : item.id}) } style={style.CardSala}>
-                    <Text style={style.nome}>{item.nome_numero}</Text>
-                    <Text>{item.capacidade}</Text>
-                    <Text>{item.localizacao}</Text>
-                    <Text>{item.descricao}</Text>
-                    <Text style={{ color: item.isClean ? 'green' : 'red' }}>
-                        Status: {item.isClean ? 'Limpa' : 'Limpeza Pendente'}
-                    </Text>
-                    <TouchableOpacity style={style.botaoLimpar} onPress={()=>limpar(item.id)}><Text style={style.textoLimpar}>Limpar</Text></TouchableOpacity>
-            </TouchableOpacity>
+            <View style={style.flatList}>
+                <TouchableOpacity onPress={() => navigation.navigate("DetalhesSalas", {IdSala : item.id}) } style={style.CardSala}>
+                        <Text style={style.nome}>{item.nome_numero}</Text>
+                        <Text>{item.capacidade}</Text>
+                        <Text>{item.localizacao}</Text>
+                        <Text>{item.descricao}</Text>
+                        <Text style={{ color: item.isClean ? 'green' : 'red' }}>
+                            Status: {item.status_limpeza}
+                        </Text>
+                        <TouchableOpacity style={style.botaoLimpar} onPress={()=>limpar(item.id)}><Text style={style.textoLimpar}>Limpar</Text></TouchableOpacity>
+                </TouchableOpacity>
+            </View>
     );
 
     const criarSala = async () => {
@@ -145,14 +147,19 @@ export default function Salas () {
                                 <TextInput placeholder="Ex: BLOCO A" style={style.localizacao} value={localizacao} onChangeText={setLocalizacao}></TextInput>
                                 <Text>Descrição (Opcional)</Text>
                                 <TextInput placeholder="Ex: Sala de informatica, Vaio" style={style.descricao} value={descricao} onChangeText={setDescricao}></TextInput>
-                                <View style={style.viewAdd}>
-                                    <TouchableOpacity style={style.limpar} onPress={criarSala}>
-                                        <Text style={style.textButton}>
-                                            Adicionar
-                                        </Text>
-                                    </TouchableOpacity>
-                                </View>
                             </ScrollView>
+                            <View style={{flexDirection : 'row', justifyContent:'space-between', paddingBlock : 10, width : '100%'}}>
+                                        <TouchableOpacity style={{padding : 10, backgroundColor : 'orange'}} onPress={mostrarModal}>
+                                            <Text style={{fontSize : 18}}>
+                                                Cancelar
+                                            </Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity style={style.limpar} onPress={criarSala}>
+                                            <Text style={style.textButton}>
+                                                Adicionar
+                                            </Text>
+                                        </TouchableOpacity>
+                            </View>
                     </View>
                 </View>
             </Modal>
@@ -189,7 +196,7 @@ const style = StyleSheet.create({
         borderRadius : 10,
         padding : 10,
         margin : 10,
-        height : 180,
+        height : 190,
         width : '90%',
     },
     mostrarModal : {
@@ -279,8 +286,9 @@ const style = StyleSheet.create({
     limpar : {
         backgroundColor : '#004A8D',
         padding : 10,
-        marginTop : 10,
-        width : 200,
+        alignItems : 'center',
+    },
+    flatList : {
         alignItems : 'center'
     }
 });

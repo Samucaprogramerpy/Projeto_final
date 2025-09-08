@@ -1,12 +1,13 @@
 import React from 'react';
-import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity, Image} from 'react-native';
 import { useState, useEffect } from 'react';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { Dimensions } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons'
 
-
+const dimencaoLargura = Dimensions.get('window').width;
+const dimencaoAltura = Dimensions.get('window').height
 
 import { obterToken, removerToken } from './services/servicoTokken';
 import api from './api/api';
@@ -102,7 +103,7 @@ export default function App() {
         isAdmin ? (
           // Telas para o usuário Admin
           <tab.Group>
-            <tab.Screen name="Admin" options={{ title: 'Painel Admin',  headerStyle:{backgroundColor : '#004A8D', borderBottomWidth : 2, borderColor : '#F7941D'}, headerTitleStyle:{color : 'white'}}}>
+            <tab.Screen name="Admin" options={{ title: 'Painel Admin',  headerStyle:{backgroundColor : '#004A8D', borderBottomWidth : 2, borderColor : '#F7941D'}, headerTitleStyle:{color : 'white'}, sceneStyle:{width : dimencaoLargura * 1, height : dimencaoAltura * 0.4}}}>
               {(props) => <Admin {...props} aoLogout={Logout} />}
             </tab.Screen>
             <tab.Screen name="adminSalas" component={Salas} options={{ title: 'Salas', headerStyle:{backgroundColor : '#004A8D', borderBottomWidth : 2, borderColor : '#F7941D'}, headerTitleStyle:{color : 'white'}}} />

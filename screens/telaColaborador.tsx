@@ -73,15 +73,20 @@ function telaColaborador(){
     }, []);
 
     const renderizarSala = ({item} : {item: CarregarSalas}) => (
-            <View style={style.CardSala}>
-                <Text style={style.nome}>{item.nome_numero}</Text>
-                <Text style={style.nomeinfo}>{item.capacidade}</Text>
-                <Text style={style.nomeinfo}>{item.localizacao}</Text>
-                <Text style={style.nomeinfo}>{item.descricao}</Text>
-                <Text style={{paddingLeft : 10, color: item.isClean ? 'green' : 'red' }}>
-                    Status: {item.isClean ? 'Limpa' : 'Limpeza Pendente'}
-                </Text>
-                <TouchableOpacity style={style.botaoLimpar} onPress={()=>limpar(item.id)}><Text style ={style.textoLimpar}>Limpar</Text></TouchableOpacity>
+            <View style={{alignItems : 'center'}}>
+                <View style={style.CardSala}>
+                    <Text style={style.nome}>{item.nome_numero}</Text>
+                    <Text style={style.nomeinfo}>{item.capacidade}</Text>
+                    <Text style={style.nomeinfo}>{item.localizacao}</Text>
+                    <Text style={style.nomeinfo}>{item.descricao}</Text>
+                    <View style={{flexDirection : 'row', alignItems : 'center', marginHorizontal : 10}}>
+                        <Text>Status : </Text>
+                        <Text style={{paddingLeft : 10, color:'black', backgroundColor : item.isClean ? 'rgba(178, 246, 206, 1)' : 'rgba(248, 173, 173, 1)', paddingRight : 10,padding : 5, textAlign : 'center', borderRadius : 5}}>
+                            {item.status_limpeza ? 'Limpa' : 'Limpeza Pendente'}
+                        </Text>
+                    </View>
+                    <TouchableOpacity style={style.botaoLimpar} onPress={()=>limpar(item.id)}><Text style ={style.textoLimpar}>Limpar</Text></TouchableOpacity>
+                </View>
             </View>
         );
     return(

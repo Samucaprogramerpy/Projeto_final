@@ -97,6 +97,11 @@ export default function Users () {
                                     </View>    
                                 </View>
                                 <View style={style.viewAdd}>
+                                    <TouchableOpacity onPress={mostrarModal} style={{padding : 10, backgroundColor : 'orange'}}>
+                                        <Text style={{fontSize : 18}}>
+                                            Cancelar
+                                        </Text>
+                                    </TouchableOpacity>
                                     <TouchableOpacity style={style.buttonAdd} onPress={criarSala}>
                                         <Text style={style.textButton}>
                                             Adicionar
@@ -201,16 +206,12 @@ const style = StyleSheet.create({
         flex : 1,
         alignItems : 'center',
         width : '100%',
-        justifyContent : 'flex-end'
+        justifyContent : 'space-around',
+        flexDirection : 'row'
     },
     buttonAdd : {
-        paddingRight : 80,
         backgroundColor : '#004A8D',
-        paddingLeft : 80,
-        paddingTop : 10,
-        paddingBottom : 10,
-        borderRadius : 10,
-        marginTop : 15
+        padding : 10
     },
     textButton : {
         fontSize : 18,
