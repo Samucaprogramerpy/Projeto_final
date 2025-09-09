@@ -111,7 +111,7 @@ export default function App() {
             <tab.Screen name="Configurações" options={{ title: 'Painel Admin',  headerStyle:{backgroundColor : '#004A8D', borderBottomWidth : 2, borderColor : '#F7941D'}, headerTitleStyle:{color : 'white'}}}>
               {(props) => <Settings {...props} aoLogout={Logout} />}
             </tab.Screen>
-            <tab.Screen name="DetalhesSalas" component={TelaDetalhesSalas} options={{tabBarItemStyle : {display : 'none'}}}></tab.Screen>
+            <tab.Screen name="DetalhesSalas" component={TelaDetalhesSalas} options={{tabBarItemStyle : {display : 'none'}, headerShown : false}}></tab.Screen>
           </tab.Group>
         ) : (
           // Telas para o usuário Colaborador

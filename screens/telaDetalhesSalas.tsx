@@ -22,7 +22,10 @@ export default function TelaDetalhesSalas() {
             setCarregando(true)
             try {
                 const SalaEncontrada = await obterSalasporID(IdSala)
-                setSala(SalaEncontrada);
+                const tempo = new Promise(resolve => setTimeout(resolve, 1000))
+                const [carregar] = await Promise.all([SalaEncontrada, tempo])
+
+                setSala(carregar);
 
                 const limpa = SalaEncontrada.status_limpeza
 
@@ -41,19 +44,28 @@ export default function TelaDetalhesSalas() {
         CarregarDetalhesSalas()
     }, [IdSala])
 
-    if (carregando) {
-        <Load/>
-    }
-
     return(
-        <ScrollView>
-            <TouchableOpacity style={{marginLeft : 10}} onPress={()=> navigation.navigate('adminSalas')}>
-                <Text style={{padding : 10, backgroundColor : 'rgb(230, 229, 227)', width : 80, borderRadius : 5, textAlign : 'center'}}>{"< Voltar"}</Text>
-            </TouchableOpacity>
-            <View style={{marginLeft : 10}}>
-                <Text>{sala?.nome_numero}</Text>
-                <Text style={{color : sala?.isClean ? 'green' : 'red'}}>{<Text style={{color:'black'}}>Status:</Text>} {sala?.status_limpeza}</Text>
-            </View>
-        </ScrollView>
-    )
-}
+        <View>
+            {carregando ? (
+                <View style={{justifyContent : 'center', width : '100%', height : '100%'}}>
+                    <Load/>
+                </View>
+            ) : (
+                <ScrollView  style={{marginTop : '3.5%' }}>
+                    <TouchableOpacity style={{marginLeft : 10}} onPress={()=> navigation.navigate('adminSalas')}>
+                        <Text style={{padding : 10, backgroundColor : 'rgb(230, 229, 227)', width : 80, borderRadius : 5, textAlign : 'center'}}>{"< Voltar"}</Text>
+                    </TouchableOpacity>
+                    <View style={{marginLeft : 10}}>
+                        <Text style={{fontSize : 25, marginBottom : 20, marginTop : 15}}>{sala?.nome_numero}</Text>
+                        <Text>Capacidade: {sala?.capacidade} pessoas</Text>
+                        <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                            <Text>Status:</Text>
+                            <Text style={{color : sala?.isClean ? 'green' : 'red', backgroundColor : sala?.isClean ? 'rgba(155, 248, 155, 0.69)' : 'rgba(249, 167, 167, 0.53)', padding : 5, marginLeft : 5 }}>{sala?.status_limpeza}</Text>
+                        </View>
+                    </View>
+                </ScrollView>
+            )}
+            
+        </View>   
+)}
+    

@@ -11,7 +11,7 @@ import React from "react";
 function telaColaborador(){
     const [salas, setSalas] = useState<CarregarSalas[]>([])
     const [carregando, setCarregando] = useState(true)
-
+    const [grupo, setGrupo] = useState<boolean>()
 
     const limpar = async (id) => {
         try {
@@ -50,7 +50,24 @@ function telaColaborador(){
             console.error('Erro ao trocar status da sala', error)
         }
     }
-    
+    useEffect(() => {
+        const group = async() => {
+            try{
+                const resposta = await api.get('accounts/current_user')
+                const grupo_usuario = resposta.data.groups
+
+                if (grupo_usuario.includes(1)) {
+                    setGrupo(true)
+                } else {
+                    setGrupo(false)
+                }
+
+            } catch(error) {
+                console.error(error)
+            }
+        } 
+        group()
+    })
 
     useEffect(() => {        
         const carregarSalas = async () => {
@@ -68,9 +85,12 @@ function telaColaborador(){
             } finally {
                 setCarregando(false)
             }
+            
         };
         carregarSalas()
-    }, []);
+    }, [])
+
+
 
     const renderizarSala = ({item} : {item: CarregarSalas}) => (
             <View style={{alignItems : 'center'}}>
@@ -81,14 +101,26 @@ function telaColaborador(){
                     <Text style={style.nomeinfo}>{item.descricao}</Text>
                     <View style={{flexDirection : 'row', alignItems : 'center', marginHorizontal : 10}}>
                         <Text>Status : </Text>
-                        <Text style={{paddingLeft : 10, color:'black', backgroundColor : item.isClean ? 'rgba(178, 246, 206, 1)' : 'rgba(248, 173, 173, 1)', paddingRight : 10,padding : 5, textAlign : 'center', borderRadius : 5}}>
-                            {item.status_limpeza ? 'Limpa' : 'Limpeza Pendente'}
+                        <Text style={{paddingLeft : 10, color:item.isClean ? 'rgba(46, 147, 46, 1)' : 'rgba(178, 65, 65, 1)', backgroundColor : item.isClean ? 'rgba(178, 246, 206, 1)' : 'rgba(248, 173, 173, 1)', paddingRight : 10,padding : 5, textAlign : 'center', borderRadius : 5}}>
+                            {item.isClean ? 'Limpa' : 'Limpeza Pendente'}
                         </Text>
                     </View>
-                    <TouchableOpacity style={style.botaoLimpar} onPress={()=>limpar(item.id)}><Text style ={style.textoLimpar}>Limpar</Text></TouchableOpacity>
+                    {grupo ? (
+                        <TouchableOpacity onPress={() => limpar(item.id)} style={{backgroundColor : '#004A8D', padding : 5, marginLeft : 10, marginTop : 10, borderRadius: 5}}>
+                            <Text style={{color : 'white'}}>Limpar</Text>
+                        </TouchableOpacity>
+                    ) : (
+                        <TouchableOpacity style={{backgroundColor : '#004A8D', padding : 5, marginLeft : 10, marginTop : 10, borderRadius: 5}}>
+                            <Text style={{color : 'white'}}>
+                                Solicitar Limpeza
+                            </Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
             </View>
+            
         );
+
     return(
         <>
             <FlatList 

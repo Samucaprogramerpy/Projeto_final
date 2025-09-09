@@ -66,6 +66,7 @@ export default function TelaLogin({aoLoginSucesso,LoginAdmin } : telaLoginProps)
                                         <TextInput style={style.input}
                                         label={"ID"}
                                         mode="outlined"
+                                        onSubmitEditing={Login}
                                         placeholder="Insira o ID"
                                         value={login}
                                         onChangeText={setLogin}>
@@ -75,6 +76,7 @@ export default function TelaLogin({aoLoginSucesso,LoginAdmin } : telaLoginProps)
                                         <TextInput style={style.input}
                                         mode="outlined"
                                         label="Senha"
+                                        onSubmitEditing={Login}
                                         value={password}
                                         onChangeText={setPassword}
                                         secureTextEntry={!showPassword}

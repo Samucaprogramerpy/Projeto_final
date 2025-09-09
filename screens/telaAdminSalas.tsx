@@ -104,10 +104,15 @@ export default function Salas () {
                         <Text>{item.capacidade}</Text>
                         <Text>{item.localizacao}</Text>
                         <Text>{item.descricao}</Text>
-                        <Text style={{ color: item.isClean ? 'green' : 'red' }}>
-                            Status: {item.status_limpeza}
-                        </Text>
-                        <TouchableOpacity style={style.botaoLimpar} onPress={()=>limpar(item.id)}><Text style={style.textoLimpar}>Limpar</Text></TouchableOpacity>
+                        <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                            <Text>
+                                Status:
+                            </Text>
+                            <Text style={{ color: item.isClean ? 'green' : 'red', padding : 5, backgroundColor : item.isClean ? 'rgba(162, 255, 162, 0.56)'  : 'rgba(248, 133, 133, 0.42)', borderRadius : 5, marginLeft : 5}}>
+                                {item.status_limpeza}
+                            </Text>
+                        </View>
+                        <TouchableOpacity style={style.botaoLimpar} onPress={()=>limpar(item.id)}><Text style={style.textoLimpar}>Solicitar Limpeza</Text></TouchableOpacity>
                 </TouchableOpacity>
             </View>
     );
