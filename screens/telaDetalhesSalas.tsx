@@ -3,6 +3,8 @@ import { obterSalasporID } from "../services/servicoSalas";
 import { useEffect, useState } from "react";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { CarregarSalas } from "../types/salas";
+import { parseISO, format } from "date-fns"
+import { ptBR } from "date-fns/locale"
 import Load from "./telaLoad";
 import api from "../api/api";
 
@@ -16,6 +18,28 @@ export default function TelaDetalhesSalas() {
     const {IdSala} = rota.params as DetalheSala
     const [sala, setSala] = useState<CarregarSalas | null>(null)
     const [carregando, setCarregando] = useState<boolean>(true)
+
+
+    const displayLastCleanedTime = (utcDateTimeString: string | null): string => {
+            if (!utcDateTimeString) {
+              return "N/A";
+            }
+        
+            try {
+              // 1. Parsing: Converte a string ISO 8601 (UTC) para um objeto Date
+              // `parseISO` de date-fns é ótimo para isso, pois entende o formato 'Z'.
+              const dateObjectUTC = parseISO(utcDateTimeString);
+        
+              // 2. Conversão de Fuso Horário e 3. Formatação:
+              // `format` de date-fns, por padrão, formata para o fuso horário local do dispositivo
+              // onde o código está sendo executado.
+              return format(dateObjectUTC, "dd/MM/yyyy 'às' HH:mm:ss", { locale: ptBR });
+        
+            } catch (error) {
+              console.error("Erro ao processar data/hora:", error);
+              return "Data Inválida";
+            }
+    };
 
     useEffect(() => {
         const CarregarDetalhesSalas = async () => {
@@ -60,9 +84,10 @@ export default function TelaDetalhesSalas() {
                         <Text>Capacidade: {sala?.capacidade} pessoas</Text>
                         <View style={{flexDirection : 'row', alignItems : 'center'}}>
                             <Text>Status:</Text>
-                            <Text style={{color : sala?.isClean ? 'green' : 'red', backgroundColor : sala?.isClean ? 'rgba(155, 248, 155, 0.69)' : 'rgba(249, 167, 167, 0.53)', padding : 5, marginLeft : 5 }}>{sala?.status_limpeza}</Text>
+                            <Text style={{color : sala?.isClean ? 'green' : 'red', backgroundColor : sala?.isClean ? 'rgba(155, 248, 155, 0.69)' : 'rgba(249, 167, 167, 0.53)', padding : 5, marginLeft : 5, borderRadius : 5 }}>{sala?.status_limpeza}</Text>
                         </View>
                     </View>
+                    <Text style={{marginLeft : 10}}>Última Limpeza : {displayLastCleanedTime(sala?.ultima_limpeza_data_hora)}</Text>
                 </ScrollView>
             )}
             

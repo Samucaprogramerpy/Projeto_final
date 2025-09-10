@@ -12,6 +12,8 @@ export interface CarregarSalas {
     descricao : string;
     localizacao : string;
     status_limpeza : string;
+    ultima_limpeza_data_hora : string | null;
+    ultima_limpeza_funcionario : string | null;
     isClean? : boolean;
 }
 

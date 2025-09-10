@@ -1,6 +1,7 @@
 import React from "react"
 import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet, FlatList, Modal, ScrollView, ActivityIndicator, Switch } from "react-native"
 import { useState, useEffect } from "react"
+import { Dimensions } from "react-native"
 import { criarSalas, CriarUsers, obterSalas, obterUsers } from "../services/servicoSalas"
 import { CarregarUsuarios } from "../types/salas"
 import api from "../api/api"
@@ -15,8 +16,11 @@ export default function Users () {
     const [confirm_Senha, setConfirm_Senha] = useState(0)
     const [on, setOn] = useState<boolean>(false)
     const [admin, setAdmin] = useState<boolean>(false)
+    const {width, height} = Dimensions.get('window')
 
 
+    const viewWidth = width * 0.78;
+    const viewHeight = height * 0.5;
 
     const handleSwitch = () => {
         setOn(!on)
@@ -79,16 +83,16 @@ export default function Users () {
             visible={visivel}
             onRequestClose={mostrarModal}>
                 <View style={style.containerModal}>
-                    <View style={style.modal}>
+                    <View style={{width : viewWidth > 600 ? 800 :  '80%', backgroundColor : 'white', padding : 40, borderRadius : 10, height : viewHeight}}>
                             <ScrollView showsVerticalScrollIndicator={false}>
-                                <Text>Nome*</Text>
+                                <Text style={{fontSize : 16}}>Nome*</Text>
                                 <TextInput placeholder="Manuela" style={style.inputs} value={nome} onChangeText={setNome}></TextInput>
-                                <Text>Senha*</Text>
+                                <Text style={{fontSize : 16}}>Senha*</Text>
                                 <TextInput placeholder="Insira a senha" keyboardType="numeric" style={style.input2} value={Senha} onChangeText={setSenha}></TextInput>
-                                <Text>Confirme a senha*</Text>
+                                <Text style={{fontSize : 16}}>Confirme a senha*</Text>
                                 <TextInput placeholder="Confirme a senha" style={style.localizacao} keyboardType="numeric" value={confirm_Senha} onChangeText={setConfirm_Senha}></TextInput>
                                 <View style={style.setAdmin}>
-                                    <Text>É Admin ?</Text>
+                                    <Text style={{fontSize : 16}}>É Admin ?</Text>
                                     <View style={style.Switch}>
                                         <Switch
                                         value={on}
@@ -96,7 +100,8 @@ export default function Users () {
                                         />
                                     </View>    
                                 </View>
-                                <View style={style.viewAdd}>
+                            </ScrollView>
+                            <View style={{alignItems : 'center', flexDirection : 'row', justifyContent : 'space-around', marginTop : 10, position : 'relative'}}>
                                     <TouchableOpacity onPress={mostrarModal} style={{padding : 10, backgroundColor : 'orange'}}>
                                         <Text style={{fontSize : 18}}>
                                             Cancelar
@@ -104,19 +109,22 @@ export default function Users () {
                                     </TouchableOpacity>
                                     <TouchableOpacity style={style.buttonAdd} onPress={criarSala}>
                                         <Text style={style.textButton}>
-                                            Adicionar
+                                            +  Adicionar
                                         </Text>
                                     </TouchableOpacity>
-                                </View>
-                            </ScrollView>
+                            </View>
                     </View>
                 </View>
             </Modal>
             <View style={style.headerAdd}>
-                <Text style={style.gerenciarUsuarios}>Gerenciar Usuários</Text>
-                <TouchableOpacity style={style.mostrarModal} onPress={mostrarModal}>
-                    <Text style={style.textplus}>+ Criar Usuario</Text>
-                </TouchableOpacity>
+                <View style={{width : '50%'}}>
+                    <Text style={style.gerenciarUsuarios}>Gerenciar Usuários</Text>
+                </View>
+                <View style ={{width : '50%', alignItems : 'flex-end'}}>
+                    <TouchableOpacity style={style.mostrarModal} onPress={mostrarModal}>
+                        <Text style={style.textplus}>+ Criar Usuario</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
                 <FlatList
                 data={users}
@@ -151,22 +159,11 @@ const style = StyleSheet.create({
         flexDirection : 'column',
         width : '90%'
     },
-    modal : {
-        padding : 30,
-        backgroundColor : 'white',
-        width : 300,
-        height : 430,
-        flexDirection : 'column',
-        alignItems : 'flex-start',
-        borderRadius : 10,
-        borderWidth : 1.5,
-        borderColor : '#F7941D'
-    },
     containerModal : {
         justifyContent : 'space-around',
         alignItems : 'center',
         flex : 1,
-        backgroundColor : 'rgba(128, 128, 128, 0.5)',
+        backgroundColor : 'rgba(99, 99, 99, 0.8)',
     },
     containerList : {
         justifyContent : 'center',
@@ -222,6 +219,8 @@ const style = StyleSheet.create({
         padding : 5,
         backgroundColor : '#004A8D',
         justifyContent : 'center',
+        width : 150,
+        marginRight : 10
     },
     info : {
         fontSize : 10
@@ -236,12 +235,15 @@ const style = StyleSheet.create({
         color : 'white'
     },
     gerenciarUsuarios : {
-        fontSize : 18,
-        fontWeight : 'bold'
+        fontSize : 22,
+        fontWeight : 'bold',
+        marginLeft : 10
     },
     setAdmin : {
         flexDirection : 'row',
-        alignItems : 'center'
+        justifyContent : 'center',
+        alignItems : 'center',
+        width : '100%',
     },
     Switch : {
         marginLeft : 90,

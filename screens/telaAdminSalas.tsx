@@ -5,6 +5,7 @@ import { useState, useEffect } from "react"
 import { CarregarSalas } from "../types/salas"
 import { criarSalas, obterSalas } from "../services/servicoSalas"
 import { obterToken } from "../services/servicoTokken"
+import { Dimensions } from "react-native"
 import api from "../api/api"
 
 
@@ -18,6 +19,9 @@ export default function Salas () {
     const [localizacao, setLocalizacao] = useState('')
     const [descricao, setDescricao] = useState('')
     const navigation = useNavigation()
+    const {width, height } = Dimensions.get('window')
+
+     
 
     const carregarSalas = async () => {
         setCarregando(true);
@@ -119,6 +123,9 @@ export default function Salas () {
 
     const criarSala = async () => {
         mostrarModal()
+        if (nomeSala === '' || capacidade === null ||localizacao === null || descricao === null) {
+            console.error("Insira todos os campos corretamente!")
+        }
         try {
             const resposta = await criarSalas({nome_numero : nomeSala, capacidade : capacidade, localizacao : localizacao, descricao : descricao })
 
@@ -142,7 +149,7 @@ export default function Salas () {
             visible={visivel}
             onRequestClose={mostrarModal}>
                 <View style={style.containerModal}>
-                    <View style={style.modal}>
+                    <View style={{backgroundColor : 'white', width : width > 600 ? 800 : '80%', padding : 30, borderRadius : 10}}>
                             <ScrollView showsVerticalScrollIndicator={false}>
                                 <Text>Nome da Sala*</Text>
                                 <TextInput placeholder="Ex : Informática 1" style={style.inputs} value={nomeSala} onChangeText={setNomeSala}></TextInput>
@@ -161,7 +168,7 @@ export default function Salas () {
                                         </TouchableOpacity>
                                         <TouchableOpacity style={style.limpar} onPress={criarSala}>
                                             <Text style={style.textButton}>
-                                                Adicionar
+                                                +  Adicionar
                                             </Text>
                                         </TouchableOpacity>
                             </View>
@@ -225,7 +232,7 @@ const style = StyleSheet.create({
         justifyContent : 'center',
         alignItems : 'center',
         flex : 1,
-        backgroundColor : "rgba(128, 128, 128, 0.5)"
+        backgroundColor : "rgba(91, 91, 91, 0.79)"
     },
     inputs : {
         borderWidth : 1,
