@@ -11,7 +11,7 @@ import React from "react";
 function telaColaborador(){
     const [salas, setSalas] = useState<CarregarSalas[]>([])
     const [carregando, setCarregando] = useState(true)
-
+    const [grupo, setGrupo] = useState<boolean>()
 
     const limpar = async (id) => {
         try {
@@ -50,7 +50,24 @@ function telaColaborador(){
             console.error('Erro ao trocar status da sala', error)
         }
     }
-    
+    useEffect(() => {
+        const group = async() => {
+            try{
+                const resposta = await api.get('accounts/current_user')
+                const grupo_usuario = resposta.data.groups
+
+                if (grupo_usuario.includes(1)) {
+                    setGrupo(true)
+                } else {
+                    setGrupo(false)
+                }
+
+            } catch(error) {
+                console.error(error)
+            }
+        } 
+        group()
+    })
 
     useEffect(() => {        
         const carregarSalas = async () => {
@@ -69,22 +86,42 @@ function telaColaborador(){
             } finally {
                 setCarregando(false)
             }
+            
         };
         carregarSalas()
-    }, []);
+    }, [])
+
+
 
     const renderizarSala = ({item} : {item: CarregarSalas}) => (
-            <View style={style.CardSala}>
-                <Text style={style.nome}>{item.nome_numero}</Text>
-                <Text style={style.nomeinfo}>{item.capacidade}</Text>
-                <Text style={style.nomeinfo}>{item.localizacao}</Text>
-                <Text style={style.nomeinfo}>{item.descricao}</Text>
-                <Text style={{paddingLeft : 10, color: item.isClean ? 'green' : 'red' }}>
-                    Status: {item.isClean ? 'Limpa' : 'Limpeza Pendente'}
-                </Text>
-                <TouchableOpacity style={style.botaoLimpar} onPress={()=>limpar(item.id)}><Text>Limpar</Text></TouchableOpacity>
+            <View style={{alignItems : 'center'}}>
+                <View style={style.CardSala}>
+                    <Text style={style.nome}>{item.nome_numero}</Text>
+                    <Text style={style.nomeinfo}>{item.capacidade}</Text>
+                    <Text style={style.nomeinfo}>{item.localizacao}</Text>
+                    <Text style={style.nomeinfo}>{item.descricao}</Text>
+                    <View style={{flexDirection : 'row', alignItems : 'center', marginHorizontal : 10}}>
+                        <Text>Status : </Text>
+                        <Text style={{paddingLeft : 10, color:item.isClean ? 'rgba(46, 147, 46, 1)' : 'rgba(178, 65, 65, 1)', backgroundColor : item.isClean ? 'rgba(178, 246, 206, 1)' : 'rgba(248, 173, 173, 1)', paddingRight : 10,padding : 5, textAlign : 'center', borderRadius : 5}}>
+                            {item.isClean ? 'Limpa' : 'Limpeza Pendente'}
+                        </Text>
+                    </View>
+                    {grupo ? (
+                        <TouchableOpacity onPress={() => limpar(item.id)} style={{backgroundColor : '#004A8D', padding : 5, marginLeft : 10, marginTop : 10, borderRadius: 5}}>
+                            <Text style={{color : 'white'}}>Limpar</Text>
+                        </TouchableOpacity>
+                    ) : (
+                        <TouchableOpacity style={{backgroundColor : '#004A8D', padding : 5, marginLeft : 10, marginTop : 10, borderRadius: 5}}>
+                            <Text style={{color : 'white'}}>
+                                Solicitar Limpeza
+                            </Text>
+                        </TouchableOpacity>
+                    )}
+                </View>
             </View>
+            
         );
+
     return(
         <>
             <FlatList 
@@ -119,7 +156,7 @@ const style = StyleSheet.create({
         borderRadius : 10,
         margin : 10,
         alignItems : 'flex-start',
-        height : 150,
+        height : 180,
         width : '90%',
         paddingTop : 10
     },
@@ -133,7 +170,13 @@ const style = StyleSheet.create({
         paddingLeft : 10
     },
     botaoLimpar : {
-        paddingLeft : 10,
-        paddingTop : 10
+        marginTop : 30,
+        marginLeft : 5,
+        padding : 5,
+        backgroundColor : '#004A8D',
+        borderRadius : 5,
+    },
+    textoLimpar : {
+        color : 'white',
     }
 })

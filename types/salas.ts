@@ -12,6 +12,8 @@ export interface CarregarSalas {
     descricao : string;
     localizacao : string;
     status_limpeza : string;
+    ultima_limpeza_data_hora : string | null;
+    ultima_limpeza_funcionario : string | null;
     isClean? : boolean;
 }
 
@@ -24,6 +26,7 @@ export interface CarregarUsuarios {
 export interface CriarUsuarios {
     username: string,
     password : number,
-    confirm_password : number
+    confirm_password : number,
+    is_staff : boolean,
     is_superuser : boolean
 }

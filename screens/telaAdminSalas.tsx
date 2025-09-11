@@ -1,9 +1,11 @@
 import React from "react"
+import { useNavigation } from "@react-navigation/native"
 import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet, FlatList, Modal, ScrollView, ActivityIndicator } from "react-native"
 import { useState, useEffect } from "react"
 import { CarregarSalas } from "../types/salas"
 import { criarSalas, obterSalas } from "../services/servicoSalas"
 import { obterToken } from "../services/servicoTokken"
+import { Dimensions } from "react-native"
 import api from "../api/api"
 
 
@@ -16,7 +18,26 @@ export default function Salas () {
     const [capacidade, setCapacidade] = useState(0)
     const [localizacao, setLocalizacao] = useState('')
     const [descricao, setDescricao] = useState('')
+    const navigation = useNavigation()
+    const {width, height } = Dimensions.get('window')
 
+     
+
+    const carregarSalas = async () => {
+        setCarregando(true);
+        try{
+            const Salas = await obterSalas()
+            const SalasFormatadas = Salas.map(sala => ({
+                ...sala,
+                isClean: sala.status_limpeza === 'Limpa'
+            }));
+            setSalas(SalasFormatadas)
+        } catch (error) {
+            console.error('Não foi possivel carregar os produtos', error)
+        } finally {
+            setCarregando(false)
+        }
+    };
 
     const limpar = async (id) => {
         try {
@@ -81,38 +102,54 @@ export default function Salas () {
     }, []);
     
      const renderizarSala = ({item} : {item: CarregarSalas}) => (
-            <View style={style.CardSala}>
-                    <Text style={style.nome}>{item.nome_numero}</Text>
-                    <Text>{item.capacidade}</Text>
-                    <Text>{item.localizacao}</Text>
-                    <Text>{item.descricao}</Text>
-                    <Text style={{ color: item.isClean ? 'green' : 'red' }}>
-                        Status: {item.isClean ? 'Limpa' : 'Limpeza Pendente'}
-                    </Text>
-                    <TouchableOpacity onPress={()=>limpar(item.id)}><Text>Limpar</Text></TouchableOpacity>
+            <View style={style.flatList}>
+                <TouchableOpacity onPress={() => navigation.navigate("DetalhesSalas", {IdSala : item.id}) } style={style.CardSala}>
+                        <Text style={style.nome}>{item.nome_numero}</Text>
+                        <Text>{item.capacidade}</Text>
+                        <Text>{item.localizacao}</Text>
+                        <Text>{item.descricao}</Text>
+                        <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                            <Text>
+                                Status:
+                            </Text>
+                            <Text style={{ color: item.isClean ? 'green' : 'red', padding : 5, backgroundColor : item.isClean ? 'rgba(162, 255, 162, 0.56)'  : 'rgba(248, 133, 133, 0.42)', borderRadius : 5, marginLeft : 5}}>
+                                {item.status_limpeza}
+                            </Text>
+                        </View>
+                        <TouchableOpacity style={style.botaoLimpar} onPress={()=>limpar(item.id)}><Text style={style.textoLimpar}>Solicitar Limpeza</Text></TouchableOpacity>
+                </TouchableOpacity>
             </View>
     );
 
     const criarSala = async () => {
         mostrarModal()
+        if (nomeSala === '' || capacidade === null ||localizacao === null || descricao === null) {
+            console.error("Insira todos os campos corretamente!")
+        }
         try {
             const resposta = await criarSalas({nome_numero : nomeSala, capacidade : capacidade, localizacao : localizacao, descricao : descricao })
-            return resposta
+
+            console.log(resposta)
         } catch (error : any) {
             throw new Error('Erro ao adicionar sala', error)
         }
+        carregarSalas()
+        setNomeSala('')
+        setDescricao('')
+        setCapacidade(0),
+        setLocalizacao('')
     }
 
 
     return (
-        <>  
+        <View style={{flex : 1}}>
             <Modal 
             animationType="slide"
             transparent={true}
             visible={visivel}
             onRequestClose={mostrarModal}>
                 <View style={style.containerModal}>
-                    <View style={style.modal}>
+                    <View style={{backgroundColor : 'white', width : width > 600 ? 800 : '80%', padding : 30, borderRadius : 10}}>
                             <ScrollView showsVerticalScrollIndicator={false}>
                                 <Text>Nome da Sala*</Text>
                                 <TextInput placeholder="Ex : Informática 1" style={style.inputs} value={nomeSala} onChangeText={setNomeSala}></TextInput>
@@ -122,20 +159,25 @@ export default function Salas () {
                                 <TextInput placeholder="Ex: BLOCO A" style={style.localizacao} value={localizacao} onChangeText={setLocalizacao}></TextInput>
                                 <Text>Descrição (Opcional)</Text>
                                 <TextInput placeholder="Ex: Sala de informatica, Vaio" style={style.descricao} value={descricao} onChangeText={setDescricao}></TextInput>
-                                <View style={style.viewAdd}>
-                                    <TouchableOpacity style={style.buttonAdd} onPress={criarSala}>
-                                        <Text style={style.textButton}>
-                                            Adicionar
-                                        </Text>
-                                    </TouchableOpacity>
-                                </View>
                             </ScrollView>
+                            <View style={{flexDirection : 'row', justifyContent:'space-between', paddingBlock : 10, width : '100%'}}>
+                                        <TouchableOpacity style={{padding : 10, backgroundColor : 'orange'}} onPress={mostrarModal}>
+                                            <Text style={{fontSize : 18}}>
+                                                Cancelar
+                                            </Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity style={style.limpar} onPress={criarSala}>
+                                            <Text style={style.textButton}>
+                                                +  Adicionar
+                                            </Text>
+                                        </TouchableOpacity>
+                            </View>
                     </View>
                 </View>
             </Modal>
             <View style={style.headerAdd}>
-                <TouchableOpacity onPress={mostrarModal}>
-                    <Image style={style.add} source={require("../img/add.png")}/>
+                <TouchableOpacity style = {style.mostrarModal} onPress={mostrarModal}>
+                    <Text style={style.buttonAdd}>+</Text>
                 </TouchableOpacity>
 
                 
@@ -147,7 +189,7 @@ export default function Salas () {
                 renderItem={renderizarSala}
                 nestedScrollEnabled={true}
                 />
-        </>
+        </View>  
     )
 }
 
@@ -155,9 +197,10 @@ const style = StyleSheet.create({
 
     headerAdd : {
         alignItems : 'flex-end',
-        marginTop : 15,
         justifyContent:"center",
-        display : 'flex'
+        paddingTop : 10,
+        paddingBottom : 10
+        
     },
     CardSala : {
         backgroundColor : "white",
@@ -165,21 +208,31 @@ const style = StyleSheet.create({
         borderRadius : 10,
         padding : 10,
         margin : 10,
-        height : 150,
+        height : 190,
         width : '90%',
+    },
+    mostrarModal : {
+        backgroundColor : '#004A8D',
+        borderRadius : 50,
+        paddingLeft : 15,
+        paddingRight : 15,
+        marginRight : 10,
     },
     modal : {
         padding : 30,
         backgroundColor : 'white',
         width : 300,
-        height : 430,
+        height : 450,
         flexDirection : 'column',
-        alignItems : 'flex-start',
+        alignItems : 'center',
+        borderRadius : 10
     },
     containerModal : {
+        ...StyleSheet.absoluteFillObject,
         justifyContent : 'center',
         alignItems : 'center',
         flex : 1,
+        backgroundColor : "rgba(91, 91, 91, 0.79)"
     },
     inputs : {
         borderWidth : 1,
@@ -213,24 +266,15 @@ const style = StyleSheet.create({
         flex : 1,
         alignItems : 'center',
         width : '100%',
-        justifyContent : 'flex-end'
+        justifyContent : 'flex-end',
     },
     buttonAdd : {
-        paddingRight : 80,
-        backgroundColor : '#004A8D',
-        paddingLeft : 80,
-        paddingTop : 10,
-        paddingBottom : 10,
-        borderRadius : 10,
-        marginTop : 15
+        fontSize : 40,
+        color : 'white',
     },
     textButton : {
         fontSize : 18,
         color : 'white'
-    },
-    add : {
-        height : 35,
-        width : 35
     },
     info : {
         fontSize : 10
@@ -240,6 +284,24 @@ const style = StyleSheet.create({
         borderColor : '#004A8D',
         width : '100%',
         padding : 2
+    },
+    botaoLimpar : {
+        marginTop : 30,
+        marginLeft : 2,
+        padding : 5,
+        backgroundColor : '#004A8D',
+        borderRadius : 5,
+    },
+    textoLimpar : {
+        color : 'white',
+    },
+    limpar : {
+        backgroundColor : '#004A8D',
+        padding : 10,
+        alignItems : 'center',
+    },
+    flatList : {
+        alignItems : 'center'
     }
 });
 
