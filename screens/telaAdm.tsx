@@ -2,19 +2,15 @@ import { View, Text, TouchableOpacity, Image, StyleSheet, Platform } from "react
 import { useNavigation } from "@react-navigation/native"
 import api from "../api/api"
 import { useEffect, useState, useCallback } from "react"
-import CustomSwitch from "../services/Switch"
 import { useFocusEffect } from "@react-navigation/native"
 
 
-interface telaColaboradorProps {
-    aoLogout : () => void
-}
 
 
 
-export default function Admin ({aoLogout} : telaColaboradorProps) {
+export default function Admin () {
     const [salasLimpas, setSalasLimpas] = useState('');
-    const [on, setOn] = useState<boolean>(false)
+    const [salasSujas, setSalasSujas] = useState('');
 
 
     const contarSalas  = async () => {
@@ -23,6 +19,9 @@ export default function Admin ({aoLogout} : telaColaboradorProps) {
             const data = resposta.data
 
             const filtragem = data.filter(sala => sala.status_limpeza === 'Limpa')
+            const filtro_naolimpas = data.filter(sala => sala.status_limpeza === 'Limpeza Pendente')
+
+            setSalasSujas(filtro_naolimpas.length)
             setSalasLimpas(filtragem.length)
         } catch (error) {
             console.error("Erro ao recuperar as salas!", error)
@@ -39,30 +38,30 @@ export default function Admin ({aoLogout} : telaColaboradorProps) {
     const navigation = useNavigation()
     return(
          <View style={style.container}>
-            <View style={style.options}>
                 <View style={style.containerInfo}>
-                    <TouchableOpacity style={style.infoAdm} onPress={() => navigation.navigate("adminSalas")}>
+                    <TouchableOpacity style={style.infoAdm} onPress={() => navigation.navigate("adminSalas", {tipo : "A"})}>
                         <Text style={style.numSalasLimpas}>{salasLimpas}</Text>
                         <Text style={style.text}>Salas Limpas</Text>
                     </TouchableOpacity>
                 </View>
-            </View>
+                <View style={style.containerInfo}>
+                    <TouchableOpacity style={{backgroundColor : '#F7941D', padding : 25, paddingVertical : 72, alignItems : 'center', borderRadius : 10}} onPress={() => navigation.navigate("adminSalas", {tipo : "B"})}>
+                        <Text style={style.numSalasLimpas}>{salasSujas}</Text>
+                        <Text style={style.text}>Salas náo {'\n'} Limpas</Text>
+                    </TouchableOpacity>
+                </View>
         </View>
     )
 }
 
 const style = StyleSheet.create({
     container : {
-        alignItems : "center"
-    },
-    options : {
-        flexDirection : 'column',
-        width : '100%',
-        marginTop : 50,
-        alignItems : 'flex-start',
+        flexDirection : 'row',
+        justifyContent : 'space-around'
     },
     infoAdm : {
-        padding : 45,
+        paddingVertical : 80,
+        padding : 20,
         backgroundColor : '#004A8D',
         alignItems : 'center',
         borderRadius : 10
@@ -78,7 +77,7 @@ const style = StyleSheet.create({
         marginTop : 20,
         padding : 5,
         backgroundColor : 'white',
-        borderRadius : 50
+        borderRadius : 20
     },
     numSalasLimpas : {
         color : 'white',

@@ -1,5 +1,5 @@
 import React from "react"
-import { useNavigation } from "@react-navigation/native"
+import { useNavigation, useRoute } from "@react-navigation/native"
 import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet, FlatList, Modal, ScrollView, ActivityIndicator } from "react-native"
 import { useState, useEffect } from "react"
 import { CarregarSalas } from "../types/salas"
@@ -13,7 +13,11 @@ import api from "../api/api"
 export default function Salas () {
     const [carregando, setCarregando] = useState(true)
     const [salas, setSalas] = useState<CarregarSalas[]>([])
+    const route = useRoute()
+    const { tipo } : any = route.params
     const [visivel, setVisivel] = useState(false)
+    const [ErroSala, setErroSala] = useState<boolean | null>(null)
+    const [mensagemErro, setMensagemErro] = useState('')
     const [nomeSala, setNomeSala] = useState('')
     const [capacidade, setCapacidade] = useState(0)
     const [localizacao, setLocalizacao] = useState('')
@@ -23,21 +27,6 @@ export default function Salas () {
 
      
 
-    const carregarSalas = async () => {
-        setCarregando(true);
-        try{
-            const Salas = await obterSalas()
-            const SalasFormatadas = Salas.map(sala => ({
-                ...sala,
-                isClean: sala.status_limpeza === 'Limpa'
-            }));
-            setSalas(SalasFormatadas)
-        } catch (error) {
-            console.error('Não foi possivel carregar os produtos', error)
-        } finally {
-            setCarregando(false)
-        }
-    };
 
     const limpar = async (id) => {
         try {
@@ -81,28 +70,62 @@ export default function Salas () {
   }
     useEffect(() => {
         
-        
-        
-        const carregarSalas = async () => {
-            setCarregando(true);
-            try{
-                const Salas = await obterSalas()
-                const SalasFormatadas = Salas.map(sala => ({
-                    ...sala,
-                    isClean: sala.status_limpeza === 'Limpa'
-                }));
-                setSalas(SalasFormatadas)
-            } catch (error) {
-                console.error('Não foi possivel carregar os produtos', error)
-            } finally {
-                setCarregando(false)
-            }
-        };
-        carregarSalas()
-    }, []);
-    
-     const renderizarSala = ({item} : {item: CarregarSalas}) => (
-            <View style={style.flatList}>
+        if (tipo === 'A') {
+            const carregarSalas = async () => {
+                setCarregando(true);
+                try{
+                    const Salas = await obterSalas()
+                    const SalasFormatadas = Salas.filter(salas => salas.status_limpeza === 'Limpa')
+                    if (SalasFormatadas.length === 0) {
+                        setSalas(SalasFormatadas)
+                        setErroSala(true)
+                        setMensagemErro('Limpa')
+                    } else {
+                        setSalas(SalasFormatadas)
+                    }
+                } catch (error) {
+                    console.error('Não foi possivel carregar os produtos', error)
+                } finally {
+                    setCarregando(false)
+                }
+            }; carregarSalas()
+        } else if (tipo === 'B') {
+            setErroSala(false)
+            const carregarSalas = async () => {
+                setCarregando(true);
+
+                try{
+                    const Salas = await obterSalas()
+                    const SalasFormatadas = Salas.filter(salas => salas.status_limpeza === 'Limpeza Pendente')
+                    if (SalasFormatadas.length === 0) {
+                        setSalas(SalasFormatadas)
+                        setErroSala(true)
+                        setMensagemErro('Com Limpeza Pendente')
+                    } else {
+                        setSalas(SalasFormatadas)
+                    }
+                } catch (error) {
+                    console.error('Não foi possivel carregar os produtos', error)
+                } finally {
+                    setCarregando(false)
+                }
+            }; carregarSalas()
+        }
+    }, [tipo]);
+
+    if(ErroSala) {
+        return(
+            <View style={{flex : 1, alignItems : 'center', justifyContent : 'center'}}>
+                <Text style={{fontSize : 18}}>
+                    Foram encontradas nenhuma sala {mensagemErro}!
+                </Text>
+            </View>
+        )
+    }
+
+    const renderizarSala = ({item} : {item: CarregarSalas}) => (
+            <View>
+                <View style={style.flatList}>
                 <TouchableOpacity onPress={() => navigation.navigate("DetalhesSalas", {IdSala : item.id}) } style={style.CardSala}>
                         <Text style={style.nome}>{item.nome_numero}</Text>
                         <Text>{item.capacidade}</Text>
@@ -118,6 +141,7 @@ export default function Salas () {
                         </View>
                         <TouchableOpacity style={style.botaoLimpar} onPress={()=>limpar(item.id)}><Text style={style.textoLimpar}>Solicitar Limpeza</Text></TouchableOpacity>
                 </TouchableOpacity>
+                </View>
             </View>
     );
 
@@ -133,7 +157,6 @@ export default function Salas () {
         } catch (error : any) {
             throw new Error('Erro ao adicionar sala', error)
         }
-        carregarSalas()
         setNomeSala('')
         setDescricao('')
         setCapacidade(0),

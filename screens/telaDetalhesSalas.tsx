@@ -26,13 +26,8 @@ export default function TelaDetalhesSalas() {
             }
         
             try {
-              // 1. Parsing: Converte a string ISO 8601 (UTC) para um objeto Date
-              // `parseISO` de date-fns é ótimo para isso, pois entende o formato 'Z'.
               const dateObjectUTC = parseISO(utcDateTimeString);
-        
-              // 2. Conversão de Fuso Horário e 3. Formatação:
-              // `format` de date-fns, por padrão, formata para o fuso horário local do dispositivo
-              // onde o código está sendo executado.
+              
               return format(dateObjectUTC, "dd/MM/yyyy 'às' HH:mm:ss", { locale: ptBR });
         
             } catch (error) {

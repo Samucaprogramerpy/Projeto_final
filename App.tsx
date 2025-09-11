@@ -2,12 +2,8 @@ import React from 'react';
 import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity, Image} from 'react-native';
 import { useState, useEffect } from 'react';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
-import { Dimensions } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons'
-
-const dimencaoLargura = Dimensions.get('window').width;
-const dimencaoAltura = Dimensions.get('window').height
 
 import { obterToken, removerToken } from './services/servicoTokken';
 import api from './api/api';
@@ -97,26 +93,25 @@ export default function App() {
         tabBarActiveTintColor: '#F7941D',
         tabBarInactiveTintColor: 'white',
         tabBarStyle: { paddingBottom: 5, height: 60, backgroundColor: '#004A8D' },
+
       })}
     >
       {autenticado ? (
         isAdmin ? (
-          // Telas para o usuário Admin
           <tab.Group>
-            <tab.Screen name="Admin" options={{ title: 'Painel Admin',  headerStyle:{backgroundColor : '#004A8D', borderBottomWidth : 2, borderColor : '#F7941D'}, headerTitleStyle:{color : 'white'}, sceneStyle:{width : dimencaoLargura * 1, height : dimencaoAltura * 0.4}}}>
+            <tab.Screen name="Admin" options={{ title: 'Painel Admin'}}>
               {(props) => <Admin {...props} aoLogout={Logout} />}
             </tab.Screen>
-            <tab.Screen name="adminSalas" component={Salas} options={{ title: 'Salas', headerStyle:{backgroundColor : '#004A8D', borderBottomWidth : 2, borderColor : '#F7941D'}, headerTitleStyle:{color : 'white'}}} />
-            <tab.Screen name="Users" component={Users} options={{headerStyle:{backgroundColor : '#004A8D', borderBottomWidth : 2, borderColor : '#F7941D'}, headerTitleStyle:{color : 'white'}}} />
-            <tab.Screen name="Configurações" options={{ title: 'Painel Admin',  headerStyle:{backgroundColor : '#004A8D', borderBottomWidth : 2, borderColor : '#F7941D'}, headerTitleStyle:{color : 'white'}}}>
-              {(props) => <Settings {...props} aoLogout={Logout} />}
+            <tab.Screen name="adminSalas" component={Salas} options={{tabBarItemStyle : {display : 'none'}}} />
+            <tab.Screen name="Users" component={Users} options={{tabBarItemStyle : {display : 'none'}}}/>
+            <tab.Screen name="Configurações">
+              {(props) => <Settings {...props} aoLogout={Logout}/>}
             </tab.Screen>
             <tab.Screen name="DetalhesSalas" component={TelaDetalhesSalas} options={{tabBarItemStyle : {display : 'none'}, headerShown : false}}></tab.Screen>
           </tab.Group>
         ) : (
-          // Telas para o usuário Colaborador
           <tab.Group>
-            <tab.Screen name="Sala" options={{ title: 'Salas', headerStyle:{backgroundColor : '#004A8D', borderBottomWidth : 2, borderColor : '#F7941D'}, headerTitleStyle:{color : 'white' }}}>
+            <tab.Screen name="Sala" options={{ title: 'Salas', tabBarItemStyle : {display : 'none'}, headerStyle:{backgroundColor : '#004A8D', borderBottomWidth : 2, borderColor : '#F7941D'}}}>
               {(props) => <TelaColaborador {...props} />}
             </tab.Screen>
             <tab.Screen name="Configurações" options={{ headerStyle:{backgroundColor : '#004A8D', borderBottomWidth : 2, borderColor : '#F7941D'}, headerTitleStyle:{color : 'white' }}}>
@@ -125,7 +120,6 @@ export default function App() {
           </tab.Group>
         )
       ) : (
-        // Tela de login para o usuário não autenticado
         <tab.Group>
           <tab.Screen name="Login" options={{ headerShown: false, tabBarButton: () => null,  tabBarStyle : {display : 'none'} }}>
             {(props) => <TelaLogin {...props} aoLoginSucesso={() => setAutenticado(true)} LoginAdmin={(eAdmin: boolean) => setIsAdmin(eAdmin)} />}
