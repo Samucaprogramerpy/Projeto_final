@@ -1,10 +1,13 @@
-import { Text, View, StyleSheet, TouchableOpacity, KeyboardAvoidingView, ImageBackground, ActivityIndicator, Image} from "react-native";
+import { Text, View, StyleSheet, TouchableOpacity, KeyboardAvoidingView, ImageBackground, Modal, Image} from "react-native";
 import { useEffect, useState, useRef} from "react";
 import { TextInput} from "react-native-paper";
+import LottieView from 'lottie-react-native'
 import { realizarLogin } from "../services/servicoAutenticacao";
 import { salvarToken } from "../services/servicoTokken";
+import { useNavigation } from "@react-navigation/native";
 import api from "../api/api";
 import Load from "./telaLoad";
+
 
 
 interface telaLoginProps{
@@ -14,25 +17,33 @@ interface telaLoginProps{
 
 
 const image = require('../img/fundoSenac.jpg')
+const Error = require('../lotties/ErrorAnimation.json')
 
 
 export default function TelaLogin({aoLoginSucesso,LoginAdmin } : telaLoginProps)  {
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
+    const [modal, setModal] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
     const [carregando, setCarregando] = useState(false)
-    const [Erro, setErro] = useState('');
+    const [Erro, setErro] = useState<boolean | null>(null);
 
+    const mostrarModal = () => {
+        setModal(!modal)
+  }
 
     const mostrarSenha = () => {
         setShowPassword(!showPassword)
     }
 
-    const Login = async () => {
+
+
+    const Login = async ()=> {
         setCarregando(true);
-        setErro('');
+        setErro(null);
         
         try {
+
             const resposta = realizarLogin({usuario : login, senha : password});
             const tempo = new Promise(resolve=> setTimeout(resolve, 5000))
             const [loginResposta] = await Promise.all([resposta, tempo]);
@@ -46,12 +57,14 @@ export default function TelaLogin({aoLoginSucesso,LoginAdmin } : telaLoginProps)
             aoLoginSucesso()
 
         } catch (erro : any) {
-            console.log(erro)
-            setErro(erro.mensage || 'Erro inesperado. Tente Novamente');
+            setErro(true)
+            setModal(true)
         } finally {
             setCarregando(false);
         }
+        
     };
+
     return(
             <ImageBackground source={image} style={style.background}>
                 <View style={style.geral}>
@@ -97,7 +110,32 @@ export default function TelaLogin({aoLoginSucesso,LoginAdmin } : telaLoginProps)
                                             </Text>
                                         </TouchableOpacity>
                                     </View>
-                                {Erro ? <Text>{Erro}</Text> : null}
+                                    {modal ? <Modal
+                                    animationType="slide"
+                                    transparent={true}
+                                    visible={modal}
+                                    onRequestClose={mostrarModal}
+                                    >
+                                        <View style={{width : "100%", height: '100%',alignItems : 'center', justifyContent:'center', backgroundColor:'rgba(0,0,0,0.3)'}}>
+                                            <View style={{backgroundColor : 'white', padding : 10, alignItems : 'center', justifyContent : 'center', borderRadius : 10}}>
+                                                <LottieView
+                                                source={Error}
+                                                autoPlay={true}
+                                                loop={false}
+                                                speed={1.5}
+                                                style={{width : 200, height : 200}}
+                                                />
+                                                <Text style={{fontSize : 20, textAlign : 'center', marginBottom : 20}}>
+                                                    Erro ao fazer login. {'\n'} Preencha as credenciais e tente novamente!
+                                                </Text>
+                                                <TouchableOpacity onPress={mostrarModal}>
+                                                    <Text style={{padding : 10, fontSize : 16, color : 'white', backgroundColor : '#004A8D', borderRadius : 10, paddingHorizontal : 50}}>
+                                                        {'< Voltar'}
+                                                    </Text>
+                                                </TouchableOpacity>
+                                            </View>
+                                        </View>
+                                    </Modal> : null}
                             </View>
                         </KeyboardAvoidingView>
                         </>

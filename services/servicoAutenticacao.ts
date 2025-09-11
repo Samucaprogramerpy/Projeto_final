@@ -13,7 +13,7 @@ export async function realizarLogin(credenciais : CredenciaisLogin) : Promise<Re
 
     } catch (error : any) {
         if (error.response && error.response.status === 401) {      
-            throw new Error('Credenciais inválidas. Verifique seu usuário e senha.');    
+            console.error("Credenciais inválidas. Por favor tente novamente!")  
         }
         console.log(error)    
         throw new Error('Erro ao conectar com o servidor. Tente novamente mais tarde.');  
