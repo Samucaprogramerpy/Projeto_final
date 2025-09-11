@@ -62,6 +62,7 @@ function telaColaborador(){
                     ...sala,
                     isClean: sala.status_limpeza === 'Limpa'
                 }));
+                console.log(Salas)
                 setSalas(SalasFormatadas)
             } catch (error) {
                 console.error('Não foi possivel carregar os produtos', error)
