@@ -9,15 +9,27 @@ import Load from "./telaLoad";
 import api from "../api/api";
 
 type DetalheSala = {
-    IdSala : number
+    IdSala : number 
 }
 
 export default function TelaDetalhesSalas() {
     const rota = useRoute()
     const navigation = useNavigation()
-    const {IdSala} = rota.params as DetalheSala
+    const params = rota.params as DetalheSala | undefined;
+
+    if (!params || typeof params.IdSala === 'undefined') {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <Text>Erro: ID da sala não encontrado.</Text>
+            </View>
+        );
+    }
+
+    const {IdSala} = params
     const [sala, setSala] = useState<CarregarSalas | null>(null)
     const [carregando, setCarregando] = useState<boolean>(true)
+
+    
 
 
     const displayLastCleanedTime = (utcDateTimeString: string | null): string => {

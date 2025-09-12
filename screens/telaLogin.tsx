@@ -121,8 +121,8 @@ export default function TelaLogin({aoLoginSucesso,LoginAdmin } : telaLoginProps)
                                                 <LottieView
                                                 source={Error}
                                                 autoPlay={true}
-                                                loop={false}
-                                                speed={1.5}
+                                                loop={true}
+                                                speed={0.5}
                                                 style={{width : 200, height : 200}}
                                                 />
                                                 <Text style={{fontSize : 20, textAlign : 'center', marginBottom : 20}}>

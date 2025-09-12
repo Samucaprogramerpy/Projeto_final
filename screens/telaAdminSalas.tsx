@@ -7,6 +7,7 @@ import { criarSalas, obterSalas } from "../services/servicoSalas"
 import { obterToken } from "../services/servicoTokken"
 import { Dimensions } from "react-native"
 import api from "../api/api"
+import Load from "./telaLoad"
 
 
 
@@ -14,7 +15,7 @@ export default function Salas () {
     const [carregando, setCarregando] = useState(true)
     const [salas, setSalas] = useState<CarregarSalas[]>([])
     const route = useRoute()
-    const { tipo } : any = route.params
+    const { tipo } = (route.params as {tipo: "A" | "B" | undefined}) || {}
     const [visivel, setVisivel] = useState(false)
     const [ErroSala, setErroSala] = useState<boolean | null>(null)
     const [mensagemErro, setMensagemErro] = useState('')
@@ -25,7 +26,7 @@ export default function Salas () {
     const navigation = useNavigation()
     const {width, height } = Dimensions.get('window')
 
-     
+
 
 
     const limpar = async (id) => {
@@ -75,7 +76,9 @@ export default function Salas () {
                 setCarregando(true);
                 try{
                     const Salas = await obterSalas()
-                    const SalasFormatadas = Salas.filter(salas => salas.status_limpeza === 'Limpa')
+                    const time = new Promise(resolve => setTimeout(resolve, 500))
+                    const [resolucao] = await Promise.all([Salas, time])
+                    const SalasFormatadas = resolucao.filter(salas => salas.status_limpeza === 'Limpa')
                     if (SalasFormatadas.length === 0) {
                         setSalas(SalasFormatadas)
                         setErroSala(true)
@@ -96,7 +99,9 @@ export default function Salas () {
 
                 try{
                     const Salas = await obterSalas()
-                    const SalasFormatadas = Salas.filter(salas => salas.status_limpeza === 'Limpeza Pendente')
+                    const time = new Promise(resolve => setTimeout(resolve, 500))
+                    const [resolucao] = await Promise.all([Salas, time])
+                    const SalasFormatadas = resolucao.filter(salas => salas.status_limpeza === 'Limpeza Pendente')
                     if (SalasFormatadas.length === 0) {
                         setSalas(SalasFormatadas)
                         setErroSala(true)
@@ -112,6 +117,12 @@ export default function Salas () {
             }; carregarSalas()
         }
     }, [tipo]);
+
+    if(carregando) {
+        return(
+            <Load/>
+        )
+    }
 
     if(ErroSala) {
         return(
