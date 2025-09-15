@@ -12,7 +12,7 @@ export default function Users () {
     const [users, setUsers] = useState<CarregarUsuarios[]>([])
     const [visivel, setVisivel] = useState(false)
     const [nome, setNome] = useState('')
-    const [Senha, setSenha] = useState(0)
+    const [Senha, setSenha] = useState<number>(0)
     const [confirm_Senha, setConfirm_Senha] = useState(0)
     const [on, setOn] = useState<boolean>(false)
     const [admin, setAdmin] = useState<boolean>(false)

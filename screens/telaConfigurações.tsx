@@ -10,10 +10,11 @@ interface telaColaboradorProps {
 
 
 
-
 export default function Settings ({aoLogout} : telaColaboradorProps){
     const [user, setUser] = useState('')
     const [status, setStatus] = useState('')
+    const [imagem, setimagem] = useState<any | null>(null)
+    const [fotoPerfil, setFotoPerfil] = useState<boolean>(false)
 
     useEffect(() => {
         const obterUser =async () => {
@@ -21,6 +22,7 @@ export default function Settings ({aoLogout} : telaColaboradorProps){
             const resposta = await api.get('accounts/current_user/')
             setUser(resposta.data.username)
             setStatus(resposta.data.is_superuser)
+            setimagem(resposta.data.profile.profile_picture)
         } catch (error) {
             console.error("Erro ao obter usuário")
         }
@@ -30,12 +32,24 @@ export default function Settings ({aoLogout} : telaColaboradorProps){
     return (
         
         <View style={style.container}>
+            <View style={{height : 100, alignItems : 'flex-start', width : '100%', backgroundColor : 'transparent', justifyContent : 'center', borderBottomWidth : 1, borderBottomColor : '#F7941D'}}>
+                <Text style={{marginLeft : 10, fontSize : 26, fontWeight : 'bold', color : '#004A8D'}}>
+                    Configurações
+                </Text>
+            </View>
                 <View style={style.options}>
-                    <Image style={style.user} source={require("../img/user.png")}/>
+                    {fotoPerfil ? (
+                        <Image style={style.user} source={{uri: `https://zeladoria.tsr.net.br/${imagem}`}}/>
+                    ) : (
+                        <TouchableOpacity>
+                            <Image style={{opacity:0.3}} source={require('../img/camera.png')}/>
+                        </TouchableOpacity>
+                    )}
+                    
                     <Text style={style.nomeUser}>{user}</Text>
                     <View style={style.infosUser}>
                         <View style={style.texts}>
-                            <Text>Status : {status ? 'admin' : 'usuario'}</Text>
+                            <Text>Status : {status ? 'Adminstrador' : 'Usuário'}</Text>
                         </View>
                     </View>
                     <TouchableOpacity style={style.RangeLogout} onPress={aoLogout}>
@@ -53,8 +67,9 @@ const style = StyleSheet.create({
         alignItems : 'center',
     },
     user : {
-        width : 80,
-        height : 80
+        width : 100,
+        height : 100,
+        borderRadius : 50
     },
     logout : {
         height : 50,
@@ -78,13 +93,14 @@ const style = StyleSheet.create({
     },
     infosUser : {
         width : '90%',
-        height : 200,
+        alignItems : 'flex-start',
+        height : 50,
         backgroundColor : 'white',
-        borderRadius : 10
+        borderRadius : 10,
+        justifyContent : 'center'
     },
     texts : {
-        marginTop : 40,
-        marginLeft : 8
+        marginLeft : 10
     }
 
 })

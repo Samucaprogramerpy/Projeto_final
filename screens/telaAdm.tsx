@@ -37,7 +37,14 @@ export default function Admin () {
 
     const navigation = useNavigation()
     return(
+        <>
+        <View style={{width: '100%', height : 100, backgroundColor : 'transparent',justifyContent : 'center', borderBottomWidth : 1, borderBottomColor: '#F7941D'}}>
+            <Text style={{fontSize : 26 , color : '#004A8D', fontWeight : 'bold'}}>
+                Página Inicial
+            </Text>
+        </View>    
          <View style={style.container}>
+
                 <View style={style.containerInfo}>
                     <TouchableOpacity style={style.infoAdm} onPress={() => navigation.navigate("adminSalas", {tipo : "A"})}>
                         <Text style={style.numSalasLimpas}>{salasLimpas}</Text>
@@ -51,13 +58,15 @@ export default function Admin () {
                     </TouchableOpacity>
                 </View>
         </View>
+        </>
     )
 }
 
 const style = StyleSheet.create({
     container : {
+        marginTop : 10,
         flexDirection : 'row',
-        justifyContent : 'space-around'
+        justifyContent : 'space-around', 
     },
     infoAdm : {
         paddingVertical : 80,

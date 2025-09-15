@@ -1,17 +1,20 @@
-import { Text, View, StyleSheet, FlatList } from "react-native";
+import { Text, View, StyleSheet, FlatList, ActivityIndicator } from "react-native";
 import { TouchableOpacity } from "react-native";
 import { useState, useEffect } from "react";
 import { CarregarSalas } from "../types/salas"
 import { obterToken } from "../services/servicoTokken";
 import { obterSalas, obterSalasporID } from "../services/servicoSalas"
+import {Camera} from 'expo-camera'
 import api from "../api/api";
 import React from "react";
 
 
-function telaColaborador(){
+function TelaColaborador(){
     const [salas, setSalas] = useState<CarregarSalas[]>([])
     const [carregando, setCarregando] = useState(true)
     const [grupo, setGrupo] = useState<boolean>()
+    const [permissao, setPermissao] = useState<boolean>(false)
+    const [imagem, setImagem] = useState<any | null>(null)
 
     const limpar = async (id) => {
         try {
@@ -51,6 +54,11 @@ function telaColaborador(){
         }
     }
     useEffect(() => {
+        (async () => {
+            const {status} = await Camera.requestCameraPermissionsAsync();
+            setPermissao(status === 'granted')
+            console.log(permissao)
+        })();
         const group = async() => {
             try{
                 const resposta = await api.get('accounts/current_user')
@@ -67,7 +75,16 @@ function telaColaborador(){
             }
         } 
         group()
-    })
+    }, [])
+
+    if(permissao === null){
+        return(
+            <View>
+                <ActivityIndicator/>
+                <Text>Carregando aguarde...</Text>
+            </View>
+        )
+    }
 
     useEffect(() => {        
         const carregarSalas = async () => {
@@ -79,7 +96,6 @@ function telaColaborador(){
                     ...sala,
                     isClean: sala.status_limpeza === 'Limpa'
                 }));
-                console.log(Salas)
                 setSalas(SalasFormatadas)
             } catch (error) {
                 console.error('Não foi possivel carregar os produtos', error)
@@ -135,7 +151,7 @@ function telaColaborador(){
     )
 }
 
-export default telaColaborador;
+export default TelaColaborador;
 
 const style = StyleSheet.create({
     cabecalho : {

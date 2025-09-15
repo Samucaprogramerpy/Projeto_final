@@ -24,15 +24,7 @@ import TelaDetalhesSalas from './screens/telaDetalhesSalas';
 const tab = createMaterialTopTabNavigator();
 const Stack = createNativeStackNavigator();
 
-
-function AdminTabNavigator() {
-    const [autenticado, setAutenticado] = useState<boolean | null>(null);
-    
-    const Logout = async () => {
-    await removerToken();
-    delete api.defaults.headers.common['Authorization'];
-    setAutenticado(false);
-  };
+function AdminTabNavigator({Logout} : {Logout : () => Promise<void>}) {
 
   return (
     <tab.Navigator
@@ -66,8 +58,7 @@ function AdminTabNavigator() {
   );
 }
 
-function UserTabNavigator() {
-
+function UserTabNavigator({Logout} : {Logout : () => Promise<void>}) {
 
   return (
     <tab.Navigator
@@ -101,6 +92,12 @@ export default function App() {
   const [carregandoInicial, setCarregandoInicial] = useState(true);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
+  const Logout = async () => {
+      await removerToken();
+      delete api.defaults.headers.common['Authorization'];
+      setAutenticado(false);
+  };
+
   useEffect(() => {
     const verificarAutenticacao = async () => {
       const token = await obterToken();
@@ -125,11 +122,7 @@ export default function App() {
     verificarAutenticacao();
   }, []);
 
-  const Logout = async () => {
-    await removerToken();
-    delete api.defaults.headers.common['Authorization'];
-    setAutenticado(false);
-  };
+
 
   if (carregandoInicial) {
     return (
@@ -146,7 +139,7 @@ export default function App() {
           isAdmin ? (
             <>
               <Stack.Screen name="AdminTabs">
-                {(props) => <AdminTabNavigator {...props}/>}
+                {(props) => <AdminTabNavigator {...props} Logout={Logout}/>}
               </Stack.Screen>
               <Stack.Screen name="adminSalas" component={Salas} />
               <Stack.Screen name="DetalhesSalas" component={TelaDetalhesSalas} />
@@ -154,7 +147,7 @@ export default function App() {
           ) : (
             <>
               <Stack.Screen name="UserTabs">
-                {(props) => <UserTabNavigator {...props}/>}
+                {(props) => <UserTabNavigator {...props} Logout={Logout}/>}
               </Stack.Screen>
             </>
           )
@@ -173,6 +166,8 @@ export default function App() {
     </NavigationContainer>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   loadingContainer: {
