@@ -44,7 +44,7 @@ export default function TelaLogin({aoLoginSucesso,LoginAdmin } : telaLoginProps)
         
         try {
 
-            const resposta = realizarLogin({usuario : login, senha : password});
+            const resposta = await realizarLogin({usuario : login, senha : password});
             const tempo = new Promise(resolve=> setTimeout(resolve, 5000))
             const [loginResposta] = await Promise.all([resposta, tempo]);
 
@@ -59,11 +59,12 @@ export default function TelaLogin({aoLoginSucesso,LoginAdmin } : telaLoginProps)
         } catch (erro : any) {
             setErro(true)
             setModal(true)
+            console.error(erro)
         } finally {
             setCarregando(false);
         }
         
-    };
+    };  
 
     return(
             <ImageBackground source={image} style={style.background}>
@@ -164,6 +165,7 @@ const style = StyleSheet.create({
         margin : 'auto'
     },
     container : {
+        
         margin : 'auto',
         width : 300,
         paddingTop : 30,

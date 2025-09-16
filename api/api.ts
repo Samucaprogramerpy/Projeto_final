@@ -3,7 +3,7 @@ import { obterToken, removerToken } from "../services/servicoTokken";
 
 
 const api = axios.create({
-    baseURL: "https://zeladoria.tsr.net.br/api",
+    baseURL: "https://zeladoria.tsr.net.br/api/",
     timeout : 10000,
     headers: {
         'Content-Type' : 'application/json',

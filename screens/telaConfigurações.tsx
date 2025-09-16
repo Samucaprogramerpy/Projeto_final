@@ -1,6 +1,8 @@
 import { View, Text, StyleSheet, TouchableOpacity, Image, Platform } from "react-native"
 import api from "../api/api"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
+import { Camera, CameraView } from "expo-camera"
+import { obterToken } from "../services/servicoTokken"
 
 
 
@@ -15,20 +17,93 @@ export default function Settings ({aoLogout} : telaColaboradorProps){
     const [status, setStatus] = useState('')
     const [imagem, setimagem] = useState<any | null>(null)
     const [fotoPerfil, setFotoPerfil] = useState<boolean>(false)
+    const [showCamera, setShowCamera] = useState<boolean | null>(null)
+    const [facing, setFacing] = useState<any>('front')
+    const [permissao, setPermissao] = useState<boolean>(false)
+    const foto = useRef<CameraView>(null)
+
+
+    const tirarFoto = async () => {
+        const formData = new FormData()
+        if (foto.current) {
+            const newFoto = await foto.current.takePictureAsync({
+                quality : 0.5,
+                skipProcessing : false
+            });
+            const filename = newFoto.uri.split('/').pop();
+            const fileType = 'image/jpeg'
+            formData.append('profile_picture', {
+                uri : newFoto.uri,
+                name : filename,
+                type : fileType
+            } as any);
+
+            try {
+                const token = await obterToken()
+                const resposta = await api.patch('accounts/profile', formData, {
+                    headers : {
+                        'Content-Type' : 'multipart/form-data',
+                        'Authorization' : `Token ${token}`
+                    }
+                })
+                console.log(resposta.status)
+                setimagem(resposta.data.profile.profile_picture)
+                setShowCamera(false)
+            } catch(error) {
+                console.error(error)
+            }
+            console.log(newFoto.uri)
+            setFotoPerfil(true)
+            
+
+        }
+    }
 
     useEffect(() => {
+        (async () => {
+            const {status} = await Camera.requestCameraPermissionsAsync();
+            setPermissao(status === 'granted')
+        })();
         const obterUser =async () => {
         try {
             const resposta = await api.get('accounts/current_user/')
             setUser(resposta.data.username)
             setStatus(resposta.data.is_superuser)
             setimagem(resposta.data.profile.profile_picture)
+
+            if (imagem !==null) {
+                setFotoPerfil(true)
+            } else {
+                setFotoPerfil(true)
+            }
         } catch (error) {
             console.error("Erro ao obter usuário")
         }
     }
     obterUser()
     })
+
+    if (showCamera) {
+        if(!permissao) {
+            return(
+                <View>
+                    <Text>Permissão não concedida</Text>
+                </View>
+            )
+        }
+        return(
+            <View style={{flex : 1}}>
+                <CameraView style={{flex : 1}} facing="front" zoom={0} ref={foto}/>
+                <TouchableOpacity style={{width : 50, backgroundColor : 'rgba(0,0,0,0.8)', borderRadius : 50, alignItems : 'center', position : 'absolute', top : '95%', left : '80%'}} onPress={()=> setShowCamera(false)}>
+                    <Text style={{fontSize : 20, color : 'white'}}>X</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={{borderWidth : 5, borderColor : 'black', borderRadius : 50, height : 90, width : 90, position : 'absolute', top : '80%', left : '40%', backgroundColor : 'white'}} onPress={tirarFoto}>
+                </TouchableOpacity>
+            </View>
+        )
+    }
+
+
     return (
         
         <View style={style.container}>
@@ -38,10 +113,10 @@ export default function Settings ({aoLogout} : telaColaboradorProps){
                 </Text>
             </View>
                 <View style={style.options}>
-                    {fotoPerfil ? (
+                    {fotoPerfil  ?  (
                         <Image style={style.user} source={{uri: `https://zeladoria.tsr.net.br/${imagem}`}}/>
                     ) : (
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={() => setShowCamera(true)}>
                             <Image style={{opacity:0.3}} source={require('../img/camera.png')}/>
                         </TouchableOpacity>
                     )}

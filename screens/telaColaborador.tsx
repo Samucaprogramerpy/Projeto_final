@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { CarregarSalas } from "../types/salas"
 import { obterToken } from "../services/servicoTokken";
 import { obterSalas, obterSalasporID } from "../services/servicoSalas"
-import {Camera} from 'expo-camera'
 import api from "../api/api";
 import React from "react";
 
@@ -13,8 +12,9 @@ function TelaColaborador(){
     const [salas, setSalas] = useState<CarregarSalas[]>([])
     const [carregando, setCarregando] = useState(true)
     const [grupo, setGrupo] = useState<boolean>()
-    const [permissao, setPermissao] = useState<boolean>(false)
-    const [imagem, setImagem] = useState<any | null>(null)
+
+
+
 
     const limpar = async (id) => {
         try {
@@ -54,11 +54,6 @@ function TelaColaborador(){
         }
     }
     useEffect(() => {
-        (async () => {
-            const {status} = await Camera.requestCameraPermissionsAsync();
-            setPermissao(status === 'granted')
-            console.log(permissao)
-        })();
         const group = async() => {
             try{
                 const resposta = await api.get('accounts/current_user')
@@ -76,15 +71,6 @@ function TelaColaborador(){
         } 
         group()
     }, [])
-
-    if(permissao === null){
-        return(
-            <View>
-                <ActivityIndicator/>
-                <Text>Carregando aguarde...</Text>
-            </View>
-        )
-    }
 
     useEffect(() => {        
         const carregarSalas = async () => {
@@ -110,32 +96,32 @@ function TelaColaborador(){
 
 
     const renderizarSala = ({item} : {item: CarregarSalas}) => (
-            <View style={{alignItems : 'center'}}>
-                <View style={style.CardSala}>
-                    <Text style={style.nome}>{item.nome_numero}</Text>
-                    <Text style={style.nomeinfo}>{item.capacidade}</Text>
-                    <Text style={style.nomeinfo}>{item.localizacao}</Text>
-                    <Text style={style.nomeinfo}>{item.descricao}</Text>
-                    <View style={{flexDirection : 'row', alignItems : 'center', marginHorizontal : 10}}>
-                        <Text>Status : </Text>
-                        <Text style={{paddingLeft : 10, color:item.isClean ? 'rgba(46, 147, 46, 1)' : 'rgba(178, 65, 65, 1)', backgroundColor : item.isClean ? 'rgba(178, 246, 206, 1)' : 'rgba(248, 173, 173, 1)', paddingRight : 10,padding : 5, textAlign : 'center', borderRadius : 5}}>
-                            {item.isClean ? 'Limpa' : 'Limpeza Pendente'}
-                        </Text>
-                    </View>
-                    {grupo ? (
-                        <TouchableOpacity onPress={() => limpar(item.id)} style={{backgroundColor : '#004A8D', padding : 5, marginLeft : 10, marginTop : 10, borderRadius: 5}}>
-                            <Text style={{color : 'white'}}>Limpar</Text>
-                        </TouchableOpacity>
-                    ) : (
-                        <TouchableOpacity style={{backgroundColor : '#004A8D', padding : 5, marginLeft : 10, marginTop : 10, borderRadius: 5}}>
-                            <Text style={{color : 'white'}}>
-                                Solicitar Limpeza
+                <View style={{alignItems : 'center'}}>
+                    <View style={style.CardSala}>
+                        <Text style={style.nome}>{item.nome_numero}</Text>
+                        <Text style={style.nomeinfo}>{item.capacidade}</Text>
+                        <Text style={style.nomeinfo}>{item.localizacao}</Text>
+                        <Text style={style.nomeinfo}>{item.descricao}</Text>
+                        <View style={{flexDirection : 'row', alignItems : 'center', marginHorizontal : 10}}>
+                            <Text>Status : </Text>
+                            <Text style={{paddingLeft : 10, color:item.isClean ? 'rgba(46, 147, 46, 1)' : 'rgba(178, 65, 65, 1)', backgroundColor : item.isClean ? 'rgba(178, 246, 206, 1)' : 'rgba(248, 173, 173, 1)', paddingRight : 10,padding : 5, textAlign : 'center', borderRadius : 5}}>
+                                {item.isClean ? 'Limpa' : 'Limpeza Pendente'}
                             </Text>
-                        </TouchableOpacity>
-                    )}
+                        </View>
+                        {grupo ? (
+                            <TouchableOpacity onPress={() => limpar(item.id)} style={{backgroundColor : '#004A8D', padding : 5, marginLeft : 10, marginTop : 10, borderRadius: 5}}>
+                                <Text style={{color : 'white'}}>Limpar</Text>
+                            </TouchableOpacity>
+                        ) : (
+                            <TouchableOpacity style={{backgroundColor : '#004A8D', padding : 5, marginLeft : 10, marginTop : 10, borderRadius: 5}}>
+                                <Text style={{color : 'white'}}>
+                                    Solicitar Limpeza
+                                </Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
                 </View>
-            </View>
-            
+  
         );
 
     return(

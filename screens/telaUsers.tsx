@@ -12,7 +12,7 @@ export default function Users () {
     const [users, setUsers] = useState<CarregarUsuarios[]>([])
     const [visivel, setVisivel] = useState(false)
     const [nome, setNome] = useState('')
-    const [Senha, setSenha] = useState<number>(0)
+    const [Senha, setSenha] = useState<any | null>(null)
     const [confirm_Senha, setConfirm_Senha] = useState(0)
     const [on, setOn] = useState<boolean>(false)
     const [admin, setAdmin] = useState<boolean>(false)
@@ -88,9 +88,9 @@ export default function Users () {
                                 <Text style={{fontSize : 16}}>Nome*</Text>
                                 <TextInput placeholder="Manuela" style={style.inputs} value={nome} onChangeText={setNome}></TextInput>
                                 <Text style={{fontSize : 16}}>Senha*</Text>
-                                <TextInput placeholder="Insira a senha" keyboardType="numeric" style={style.input2} value={Senha} onChangeText={setSenha}></TextInput>
+                                <TextInput placeholder="Insira a senha" style={style.input2} value={Senha} onChangeText={setSenha}></TextInput>
                                 <Text style={{fontSize : 16}}>Confirme a senha*</Text>
-                                <TextInput placeholder="Confirme a senha" style={style.localizacao} keyboardType="numeric" value={confirm_Senha} onChangeText={setConfirm_Senha}></TextInput>
+                                <TextInput placeholder="Confirme a senha" style={style.localizacao} value={confirm_Senha} onChangeText={setConfirm_Senha}></TextInput>
                                 <View style={style.setAdmin}>
                                     <Text style={{fontSize : 16}}>É Admin ?</Text>
                                     <View style={style.Switch}>
