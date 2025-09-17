@@ -40,20 +40,25 @@ export default function Settings ({aoLogout} : telaColaboradorProps){
 
             try {
                 const token = await obterToken()
-                const resposta = await api.patch('accounts/profile', formData, {
+                const resposta = await api.patch('accounts/profile/', formData, {
                     headers : {
                         'Content-Type' : 'multipart/form-data',
                         'Authorization' : `Token ${token}`
                     }
                 })
-                console.log(resposta.status)
-                setimagem(resposta.data.profile.profile_picture)
-                setShowCamera(false)
+                if (resposta.status === 200) {
+                    const recuperarFoto = async () => {
+                        try {
+                            const resposta = await api.get('accounts/current_user/')
+                            setimagem(resposta.data.profile.profile_picture)
+                        } catch(error) {
+                            console.error(error)
+                        }
+                    }
+                }
             } catch(error) {
                 console.error(error)
             }
-            console.log(newFoto.uri)
-            setFotoPerfil(true)
             
 
         }
@@ -70,11 +75,10 @@ export default function Settings ({aoLogout} : telaColaboradorProps){
             setUser(resposta.data.username)
             setStatus(resposta.data.is_superuser)
             setimagem(resposta.data.profile.profile_picture)
-
             if (imagem !==null) {
                 setFotoPerfil(true)
             } else {
-                setFotoPerfil(true)
+                setFotoPerfil(false)
             }
         } catch (error) {
             console.error("Erro ao obter usuário")
@@ -114,7 +118,9 @@ export default function Settings ({aoLogout} : telaColaboradorProps){
             </View>
                 <View style={style.options}>
                     {fotoPerfil  ?  (
-                        <Image style={style.user} source={{uri: `https://zeladoria.tsr.net.br/${imagem}`}}/>
+                        <TouchableOpacity onPress={() => setShowCamera(true)}>
+                            <Image style={style.user} source={{uri: `https://zeladoria.tsr.net.br/${imagem}`}}/>
+                        </TouchableOpacity>
                     ) : (
                         <TouchableOpacity onPress={() => setShowCamera(true)}>
                             <Image style={{opacity:0.3}} source={require('../img/camera.png')}/>

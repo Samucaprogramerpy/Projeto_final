@@ -20,7 +20,10 @@ export interface CarregarSalas {
 export interface CarregarUsuarios {
     id: number,
     username: string,
-    email: string
+    email: string,
+    profile? :{
+        profile_picture : string | null
+    }
 }
 
 export interface CriarUsuarios {

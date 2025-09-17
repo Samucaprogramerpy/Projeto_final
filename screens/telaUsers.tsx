@@ -41,18 +41,26 @@ export default function Users () {
     };
     useEffect(() => {
         carregarUsers()
-    }, [carregarUsers()]);
+    }, []);
     
-     const renderizarSala = ({item} : {item: CarregarUsuarios}) => (
+     const renderizarSala = ({item} : {item: CarregarUsuarios}) => {
+        const imageURL = item.profile?.profile_picture ? `https://zeladoria.tsr.net.br/${item.profile.profile_picture}` : null
+        return(
             <View style={style.containerList}>
                 <View style={style.CardSala}>
                     <Text style={style.nome}>{item.username}</Text>
                     <Text style={style.nome}>{item.email}</Text>
+                    {imageURL ? (
+                        <Image style={{width : 60, height : 60, borderRadius: 30, marginBottom : 30}} source={{uri : imageURL}}/>
+                    ) : (
+                        <View></View>
+                    )}
                 </View>
      
             </View>
-    );
-
+        );
+     };
+    
     const criarSala = async () => {
         mostrarModal()
         if (Senha !== confirm_Senha){
@@ -83,7 +91,7 @@ export default function Users () {
             visible={visivel}
             onRequestClose={mostrarModal}>
                 <View style={style.containerModal}>
-                    <View style={{width : viewWidth > 600 ? 800 :  '80%', backgroundColor : 'white', padding : 40, borderRadius : 10, height : viewHeight}}>
+                    <View style={{width : viewWidth > 600 ? width * 0.8 : width * 1, backgroundColor : 'white', padding : 20, borderRadius : 10, height : viewHeight}}>
                             <ScrollView showsVerticalScrollIndicator={false}>
                                 <Text style={{fontSize : 16}}>Nome*</Text>
                                 <TextInput placeholder="Manuela" style={style.inputs} value={nome} onChangeText={setNome}></TextInput>
@@ -117,12 +125,12 @@ export default function Users () {
                 </View>
             </Modal>
             <View style={style.headerAdd}>
-                <View style={{width : '50%'}}>
-                    <Text style={style.gerenciarUsuarios}>Gerenciar Usuários</Text>
-                </View>
-                <View style ={{width : '50%', alignItems : 'flex-end'}}>
+                <View style={{width : '100%', alignItems : 'center', justifyContent : 'space-around', flexDirection : 'row'}}>
+                    <View>
+                        <Text style={style.gerenciarUsuarios}>Gerenciar Usuários</Text>
+                    </View>
                     <TouchableOpacity style={style.mostrarModal} onPress={mostrarModal}>
-                        <Text style={style.textplus}>+ Criar Usuario</Text>
+                        <Text style={style.textplus}>+</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -144,12 +152,11 @@ const style = StyleSheet.create({
         flex : 1
     },
     headerAdd : {
-        justifyContent : 'space-around',
+        justifyContent : 'center',
         height : 100,
-        alignItems : 'center',
         display : 'flex',
-        paddingBottom : 10,
-        flexDirection : 'row'
+        paddingVertical : 20,
+        borderWidth : 1
     },
     CardSala : {
         backgroundColor : "white",
@@ -215,12 +222,11 @@ const style = StyleSheet.create({
         color : 'white'
     },
     mostrarModal : {
-        flexDirection : 'row',
-        padding : 5,
+        padding : 10,
+        paddingHorizontal : 15,
         backgroundColor : '#004A8D',
         justifyContent : 'center',
-        width : 150,
-        marginRight : 10
+        borderRadius : 30
     },
     info : {
         fontSize : 10
@@ -235,7 +241,7 @@ const style = StyleSheet.create({
         color : 'white'
     },
     gerenciarUsuarios : {
-        fontSize : 22,
+        fontSize : 20,
         fontWeight : 'bold',
         marginLeft : 10
     },
