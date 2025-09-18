@@ -44,8 +44,9 @@ function AdminTabNavigator({Logout} : {Logout : () => Promise<void>}) {
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: '#F7941D',
-        tabBarInactiveTintColor: 'white',
-        tabBarStyle: { paddingBottom: 5, height: 70, backgroundColor: '#004A8D' },
+        tabBarInactiveTintColor: 'black',
+        tabBarIndicatorStyle:{backgroundColor : '#F7941D', top : 0},
+        tabBarStyle: { paddingBottom: 5, height: 70, backgroundColor: 'white', borderTopWidth : 0.15, borderTopColor: 'black' },
         swipeEnabled: true,
       })}
     >

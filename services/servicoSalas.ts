@@ -3,14 +3,13 @@ import { CredenciaiSalas, CarregarSalas, CriarUsuarios, CarregarUsuarios } from 
 import { obterToken } from "./servicoTokken";
 import { RespostaCriarUSer } from "../types/api";
 
-export async function criarSalas(credenciais:CredenciaiSalas) {
+export async function criarSalas(formData : FormData) {
     
     try {
-        const resposta = await api.post('salas/', {
-            nome_numero : credenciais.nome_numero,
-            capacidade : credenciais.capacidade,
-            descricao : credenciais.descricao,
-            localizacao : credenciais.localizacao
+        const resposta = await api.post('salas/', formData, {
+            headers: {
+                'Content-Type' : 'multipart/form-data',
+            },
         });
         console.log(resposta.status)
     } catch (error : any) {
@@ -26,9 +25,12 @@ export async function criarSalas(credenciais:CredenciaiSalas) {
 export async function obterSalas() : Promise<CarregarSalas[]> {
     try {
         const resposta = await api.get<CarregarSalas[]>('salas/');
+        console.log(resposta.status)
         return resposta.data
+       
     } catch (error : any) {
-        throw new Error(error.mensage || 'Erro ao buscar Salas.');
+        console.error(error)
+        throw new Error('Erro ao buscar Salas.');
     }
 }
 

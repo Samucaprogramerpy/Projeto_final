@@ -39,7 +39,7 @@ export default function Admin () {
     return(
         <>
         <View style={{width: '100%', height : 100, backgroundColor : 'transparent',justifyContent : 'center', borderBottomWidth : 1, borderBottomColor: '#F7941D'}}>
-            <Text style={{fontSize : 26 , color : '#004A8D', fontWeight : 'bold'}}>
+            <Text style={{fontSize : 26 , color : '#004A8D', fontWeight : 'bold', marginLeft : 5}}>
                 Página Inicial
             </Text>
         </View>    

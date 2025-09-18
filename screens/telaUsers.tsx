@@ -126,7 +126,7 @@ export default function Users () {
             </Modal>
             <View style={style.headerAdd}>
                 <View style={{width : '100%', alignItems : 'center', justifyContent : 'space-around', flexDirection : 'row'}}>
-                    <View>
+                    <View style={{marginRight : '30%'}}>
                         <Text style={style.gerenciarUsuarios}>Gerenciar Usuários</Text>
                     </View>
                     <TouchableOpacity style={style.mostrarModal} onPress={mostrarModal}>
@@ -156,7 +156,8 @@ const style = StyleSheet.create({
         height : 100,
         display : 'flex',
         paddingVertical : 20,
-        borderWidth : 1
+        borderBottomWidth : 1,  
+        borderBottomColor : '#F7941D'
     },
     CardSala : {
         backgroundColor : "white",
@@ -226,7 +227,8 @@ const style = StyleSheet.create({
         paddingHorizontal : 15,
         backgroundColor : '#004A8D',
         justifyContent : 'center',
-        borderRadius : 30
+        borderRadius : 30,
+        marginRight : 5
     },
     info : {
         fontSize : 10
@@ -241,9 +243,8 @@ const style = StyleSheet.create({
         color : 'white'
     },
     gerenciarUsuarios : {
-        fontSize : 20,
+        fontSize : 25,
         fontWeight : 'bold',
-        marginLeft : 10
     },
     setAdmin : {
         flexDirection : 'row',

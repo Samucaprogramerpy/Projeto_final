@@ -162,9 +162,23 @@ export default function Salas () {
             console.error("Insira todos os campos corretamente!")
         }
         try {
-            const resposta = await criarSalas({nome_numero : nomeSala, capacidade : capacidade, localizacao : localizacao, descricao : descricao })
+            const formData = new FormData;
+            const dadosSala = {
+                nome_numero : nomeSala,
+                capacidade : capacidade,
+                localizacao : localizacao,
+                descricao : descricao
+            };
+
+            Object.entries(dadosSala).forEach(([key, value]) => {
+                formData.append(key, String(value))
+            })
+
+            const resposta = await criarSalas(formData)
 
             console.log(resposta)
+            setCarregando(true)
+            await obterSalas()
         } catch (error : any) {
             throw new Error('Erro ao adicionar sala', error)
         }
@@ -230,6 +244,7 @@ export default function Salas () {
 const style = StyleSheet.create({
 
     headerAdd : {
+        marginTop : 20,
         alignItems : 'flex-end',
         justifyContent:"center",
         paddingTop : 10,

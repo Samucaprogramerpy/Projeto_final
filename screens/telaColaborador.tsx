@@ -1,19 +1,21 @@
-import { Text, View, StyleSheet, FlatList, ActivityIndicator } from "react-native";
+import { Text, View, StyleSheet, FlatList, ActivityIndicator, Animated, Easing } from "react-native";
 import { TouchableOpacity } from "react-native";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { CarregarSalas } from "../types/salas"
 import { obterToken } from "../services/servicoTokken";
+import { Ionicons } from '@expo/vector-icons';
 import { obterSalas, obterSalasporID } from "../services/servicoSalas"
 import api from "../api/api";
 import React from "react";
+import { transform } from "@babel/core";
+import { id } from "date-fns/locale";
 
 
 function TelaColaborador(){
     const [salas, setSalas] = useState<CarregarSalas[]>([])
     const [carregando, setCarregando] = useState(true)
     const [grupo, setGrupo] = useState<boolean>()
-
-
+    const [visivelid, setVisivelID] = useState<number | null>()
 
 
     const limpar = async (id) => {
@@ -98,7 +100,21 @@ function TelaColaborador(){
     const renderizarSala = ({item} : {item: CarregarSalas}) => (
                 <View style={{alignItems : 'center'}}>
                     <View style={style.CardSala}>
-                        <Text style={style.nome}>{item.nome_numero}</Text>
+                        <View style={{borderBottomWidth : 1, width : '100%', justifyContent : 'flex-end', flexDirection : 'row', borderBottomColor : '#004A8D'}}>
+                            <View style={{width : '90%',  justifyContent : "center"}}>
+                                <Text>{item.nome_numero}</Text>
+                            </View>
+                            <View>
+                                <TouchableOpacity>
+                                    <Ionicons style={{marginRight : 5}} name="ellipsis-horizontal-outline" size={20}></Ionicons>
+                                </TouchableOpacity>
+                                <View>
+                                    <Text>
+                                        Clear
+                                    </Text>
+                                </View>
+                            </View>
+                        </View>
                         <Text style={style.nomeinfo}>{item.capacidade}</Text>
                         <Text style={style.nomeinfo}>{item.localizacao}</Text>
                         <Text style={style.nomeinfo}>{item.descricao}</Text>
@@ -125,7 +141,12 @@ function TelaColaborador(){
         );
 
     return(
-        <>
+        <View>
+            <View style={{height : 100, justifyContent: 'center', borderBottomWidth: 1, borderBottomColor : '#F7941D'}}>
+                <Text style={{paddingLeft : 10, fontSize : 20, fontWeight : 'bold'}}>
+                    Salas
+                </Text>
+            </View>
             <FlatList 
                 style={style.flatList}
                 data={salas}
@@ -133,7 +154,7 @@ function TelaColaborador(){
                 renderItem={renderizarSala}
                 nestedScrollEnabled={true}
                 />
-        </>
+        </View>
     )
 }
 
@@ -144,13 +165,6 @@ const style = StyleSheet.create({
         justifyContent : 'space-around'
     },
     centralizado : {
-    },
-    nome : {
-        borderBottomWidth : 1,
-        borderColor : '#004A8D',
-        width : '100%',
-        paddingLeft : 10,
-        paddingBottom : 2
     },
     CardSala : {
         display : 'flex',
