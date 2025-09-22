@@ -1,6 +1,9 @@
 import React from "react"
-import { useNavigation, useRoute } from "@react-navigation/native"
+import { useIsFocused, useNavigation, useRoute } from "@react-navigation/native"
 import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet, FlatList, Modal, ScrollView, ActivityIndicator } from "react-native"
+import { Menu, MenuOptions, MenuOption, MenuTrigger } from "react-native-popup-menu"
+import { Ionicons } from '@expo/vector-icons';
+import { Camera, CameraView } from "expo-camera"
 import { useState, useEffect } from "react"
 import { CarregarSalas } from "../types/salas"
 import { criarSalas, obterSalas } from "../services/servicoSalas"
@@ -18,6 +21,8 @@ export default function Salas () {
     const { tipo } = (route.params as {tipo: "A" | "B" | undefined}) || {}
     const [visivel, setVisivel] = useState(false)
     const [ErroSala, setErroSala] = useState<boolean | null>(null)
+    const [permissao, setPermissao] = useState<boolean>(false)
+    const [showCamera, setShowCamera] = useState(false)
     const [mensagemErro, setMensagemErro] = useState('')
     const [nomeSala, setNomeSala] = useState('')
     const [capacidade, setCapacidade] = useState(0)
@@ -27,7 +32,16 @@ export default function Salas () {
     const {width, height } = Dimensions.get('window')
 
 
+    const deletar  = async (id : any) => {
 
+        try{
+            const resposta = await api.delete(`salas/${id}`)
+            console.log(resposta.status)
+        } catch(error) {
+            console.error('Erro ao excluir a sala', error)
+        }
+        setShowCamera(false)
+    }
 
     const limpar = async (id) => {
         try {
@@ -69,6 +83,8 @@ export default function Salas () {
     const mostrarModal = () => {
         setVisivel(!visivel)
   }
+
+
     useEffect(() => {
         
         if (tipo === 'A') {
@@ -118,6 +134,13 @@ export default function Salas () {
         }
     }, [tipo]);
 
+    useEffect(() => {
+            (async () => {
+                const {status} = await Camera.requestCameraPermissionsAsync()
+                setPermissao(status === 'granted')
+        })()  
+    },[])
+
     if(carregando) {
         return(
             <Load/>
@@ -134,24 +157,52 @@ export default function Salas () {
         )
     }
 
+    if (showCamera) {
+        return(
+        <CameraView style={{flex : 1}} facing="back" zoom={0} onBarcodeScanned={deletar}>
+            <TouchableOpacity style={{width : 50, backgroundColor : 'rgba(0,0,0,0.8)', borderRadius : 50, alignItems : 'center', position : 'absolute', top : '95%', left : '80%'}} onPress={()=> setShowCamera(false)}>
+                    <Text style={{fontSize : 20, color : 'white'}}>X</Text>
+            </TouchableOpacity>
+        </CameraView>
+        )
+
+    }
+
     const renderizarSala = ({item} : {item: CarregarSalas}) => (
             <View>
                 <View style={style.flatList}>
-                <TouchableOpacity onPress={() => navigation.navigate("DetalhesSalas", {IdSala : item.id}) } style={style.CardSala}>
-                        <Text style={style.nome}>{item.nome_numero}</Text>
-                        <Text>{item.capacidade}</Text>
-                        <Text>{item.localizacao}</Text>
-                        <Text>{item.descricao}</Text>
-                        <View style={{flexDirection : 'row', alignItems : 'center'}}>
-                            <Text>
-                                Status:
-                            </Text>
-                            <Text style={{ color: item.isClean ? 'green' : 'red', padding : 5, backgroundColor : item.isClean ? 'rgba(162, 255, 162, 0.56)'  : 'rgba(248, 133, 133, 0.42)', borderRadius : 5, marginLeft : 5}}>
-                                {item.status_limpeza}
-                            </Text>
+                    <TouchableOpacity onPress={() => navigation.navigate("DetalhesSalas", {IdSala : item.id}) } style={style.CardSala}>
+                        <View style={{width : '100%', flexDirection : 'row', justifyContent : 'space-around', borderBottomWidth : 1, paddingVertical : 5}}>
+                            <Text style={{marginLeft : 5}}>{item.nome_numero}</Text>
+                            <View style={{flex : 1, alignItems : 'flex-end', justifyContent : 'center'}}>
+                                <Menu style={{marginRight : 5}}>
+                                    <MenuTrigger>
+                                        <View>
+                                            <Ionicons name="ellipsis-horizontal-outline" size={15}></Ionicons>
+                                        </View>
+                                    </MenuTrigger>
+                                    <MenuOptions customStyles={{optionsContainer: style.menu}}>
+                                        <MenuOption onSelect={() => deletar(item.qr_code_id)}>
+                                            <Ionicons name="trash-outline" size={25} color={'red'}></Ionicons>
+                                        </MenuOption>
+                                    </MenuOptions>
+                                </Menu>
+                            </View>
+
                         </View>
-                        <TouchableOpacity style={style.botaoLimpar} onPress={()=>limpar(item.id)}><Text style={style.textoLimpar}>Solicitar Limpeza</Text></TouchableOpacity>
-                </TouchableOpacity>
+                            <Text>{item.capacidade}</Text>
+                            <Text>{item.localizacao}</Text>
+                            <Text>{item.descricao}</Text>
+                            <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                                <Text>
+                                    Status:
+                                </Text>
+                                <Text style={{ color: item.isClean ? 'green' : 'red', padding : 5, backgroundColor : item.isClean ? 'rgba(162, 255, 162, 0.56)'  : 'rgba(248, 133, 133, 0.42)', borderRadius : 5, marginLeft : 5}}>
+                                    {item.status_limpeza}
+                                </Text>
+                            </View>
+                            <TouchableOpacity style={style.botaoLimpar} onPress={()=>limpar(item.id)}><Text style={style.textoLimpar}>Solicitar Limpeza</Text></TouchableOpacity>
+                    </TouchableOpacity>
                 </View>
             </View>
     );
@@ -255,7 +306,6 @@ const style = StyleSheet.create({
         backgroundColor : "white",
         alignItems : 'flex-start',
         borderRadius : 10,
-        padding : 10,
         margin : 10,
         height : 190,
         width : '90%',
@@ -351,6 +401,11 @@ const style = StyleSheet.create({
     },
     flatList : {
         alignItems : 'center'
+    }, 
+    menu : {
+        width : 50,
+        alignItems : 'center',
+        borderRadius : 5
     }
 });
 

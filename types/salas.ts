@@ -7,6 +7,7 @@ export interface CredenciaiSalas {
 
 export interface CarregarSalas {
     id : number;
+    qr_code_id : string;
     nome_numero : string | number;
     capacidade : number;
     descricao : string;

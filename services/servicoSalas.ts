@@ -25,8 +25,6 @@ export async function criarSalas(formData : FormData) {
 export async function obterSalas() : Promise<CarregarSalas[]> {
     try {
         const resposta = await api.get<CarregarSalas[]>('salas/');
-        console.log(resposta.status)
-        return resposta.data
        
     } catch (error : any) {
         console.error(error)

@@ -18,7 +18,6 @@ export default function Settings ({aoLogout} : telaColaboradorProps){
     const [imagem, setimagem] = useState<any | null>(null)
     const [fotoPerfil, setFotoPerfil] = useState<boolean>(false)
     const [showCamera, setShowCamera] = useState<boolean | null>(null)
-    const [facing, setFacing] = useState<any>('front')
     const [permissao, setPermissao] = useState<boolean>(false)
     const foto = useRef<CameraView>(null)
 

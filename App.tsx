@@ -3,10 +3,9 @@ import { StyleSheet, View, ActivityIndicator } from 'react-native';
 import { useState, useEffect } from 'react';
 import {
   createMaterialTopTabNavigator,
-  MaterialTopTabBarProps,
-  MaterialTopTabBar,
 } from '@react-navigation/material-top-tabs';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import { MenuProvider } from 'react-native-popup-menu';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -134,37 +133,39 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {autenticado ? (
-          isAdmin ? (
-            <>
-              <Stack.Screen name="AdminTabs">
-                {(props) => <AdminTabNavigator {...props} Logout={Logout}/>}
-              </Stack.Screen>
-              <Stack.Screen name="adminSalas" component={Salas} />
-              <Stack.Screen name="DetalhesSalas" component={TelaDetalhesSalas} />
-            </>
+    <MenuProvider>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          {autenticado ? (
+            isAdmin ? (
+              <>
+                <Stack.Screen name="AdminTabs">
+                  {(props) => <AdminTabNavigator {...props} Logout={Logout}/>}
+                </Stack.Screen>
+                <Stack.Screen name="adminSalas" component={Salas} />
+                <Stack.Screen name="DetalhesSalas" component={TelaDetalhesSalas} />
+              </>
+            ) : (
+              <>
+                <Stack.Screen name="UserTabs">
+                  {(props) => <UserTabNavigator {...props} Logout={Logout}/>}
+                </Stack.Screen>
+              </>
+            )
           ) : (
-            <>
-              <Stack.Screen name="UserTabs">
-                {(props) => <UserTabNavigator {...props} Logout={Logout}/>}
-              </Stack.Screen>
-            </>
-          )
-        ) : (
-          <Stack.Screen name="Login">
-            {(props) => (
-              <TelaLogin
-                {...props}
-                aoLoginSucesso={() => setAutenticado(true)}
-                LoginAdmin={(eAdmin: boolean) => setIsAdmin(eAdmin)}
-              />
-            )}
-          </Stack.Screen>
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+            <Stack.Screen name="Login">
+              {(props) => (
+                <TelaLogin
+                  {...props}
+                  aoLoginSucesso={() => setAutenticado(true)}
+                  LoginAdmin={(eAdmin: boolean) => setIsAdmin(eAdmin)}
+                />
+              )}
+            </Stack.Screen>
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </MenuProvider>
   );
 }
 

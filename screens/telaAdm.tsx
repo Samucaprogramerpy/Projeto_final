@@ -3,6 +3,8 @@ import { useNavigation } from "@react-navigation/native"
 import api from "../api/api"
 import { useEffect, useState, useCallback } from "react"
 import { useFocusEffect } from "@react-navigation/native"
+import { Camera, CameraView } from "expo-camera"
+
 
 
 
@@ -11,6 +13,8 @@ import { useFocusEffect } from "@react-navigation/native"
 export default function Admin () {
     const [salasLimpas, setSalasLimpas] = useState('');
     const [salasSujas, setSalasSujas] = useState('');
+
+
 
 
     const contarSalas  = async () => {
@@ -33,7 +37,7 @@ export default function Admin () {
             contarSalas()
         }, [])
     )
-
+    
 
     const navigation = useNavigation()
     return(
@@ -54,7 +58,7 @@ export default function Admin () {
                 <View style={style.containerInfo}>
                     <TouchableOpacity style={{backgroundColor : '#F7941D', padding : 25, paddingVertical : 72, alignItems : 'center', borderRadius : 10}} onPress={() => navigation.navigate("adminSalas", {tipo : "B"})}>
                         <Text style={style.numSalasLimpas}>{salasSujas}</Text>
-                        <Text style={style.text}>Salas náo {'\n'} Limpas</Text>
+                        <Text style={style.text}>Salas não {'\n'} Limpas</Text>
                     </TouchableOpacity>
                 </View>
         </View>
