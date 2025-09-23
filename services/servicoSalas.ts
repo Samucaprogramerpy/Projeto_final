@@ -25,12 +25,12 @@ export async function criarSalas(formData : FormData) {
 export async function obterSalas() : Promise<CarregarSalas[]> {
     try {
         const resposta = await api.get<CarregarSalas[]>('salas/');
-       
+        return resposta.data
     } catch (error : any) {
         console.error(error)
         throw new Error('Erro ao buscar Salas.');
     }
-}
+}   
 
 export async function obterSalasporID(id : number) : Promise<CarregarSalas> {
     try {

@@ -171,37 +171,43 @@ export default function Salas () {
     const renderizarSala = ({item} : {item: CarregarSalas}) => (
             <View>
                 <View style={style.flatList}>
-                    <TouchableOpacity onPress={() => navigation.navigate("DetalhesSalas", {IdSala : item.id}) } style={style.CardSala}>
-                        <View style={{width : '100%', flexDirection : 'row', justifyContent : 'space-around', borderBottomWidth : 1, paddingVertical : 5}}>
-                            <Text style={{marginLeft : 5}}>{item.nome_numero}</Text>
-                            <View style={{flex : 1, alignItems : 'flex-end', justifyContent : 'center'}}>
-                                <Menu style={{marginRight : 5}}>
-                                    <MenuTrigger>
-                                        <View>
-                                            <Ionicons name="ellipsis-horizontal-outline" size={15}></Ionicons>
-                                        </View>
-                                    </MenuTrigger>
-                                    <MenuOptions customStyles={{optionsContainer: style.menu}}>
-                                        <MenuOption onSelect={() => deletar(item.qr_code_id)}>
-                                            <Ionicons name="trash-outline" size={25} color={'red'}></Ionicons>
-                                        </MenuOption>
-                                    </MenuOptions>
-                                </Menu>
-                            </View>
-
+                    <TouchableOpacity onPress={() => navigation.navigate("DetalhesSalas", {IdSala : item.qr_code_id}) } style={style.CardSala}>
+                        <View style={{height : '100%', width : 70, borderRightWidth : 1, borderColor : '#F7941D'}}>
+                            <Image style={{flex : 1, resizeMode : 'cover', borderTopLeftRadius : 10, borderBottomLeftRadius : 10}} source={{uri : `https://zeladoria.tsr.net.br/${item.imagem}`}}></Image>
                         </View>
-                            <Text>{item.capacidade}</Text>
-                            <Text>{item.localizacao}</Text>
-                            <Text>{item.descricao}</Text>
-                            <View style={{flexDirection : 'row', alignItems : 'center'}}>
-                                <Text>
-                                    Status:
-                                </Text>
-                                <Text style={{ color: item.isClean ? 'green' : 'red', padding : 5, backgroundColor : item.isClean ? 'rgba(162, 255, 162, 0.56)'  : 'rgba(248, 133, 133, 0.42)', borderRadius : 5, marginLeft : 5}}>
-                                    {item.status_limpeza}
-                                </Text>
+                        <View style={{flexDirection : 'column'}}>
+                            <View style={{width : '100%', flexDirection : 'row', justifyContent : 'space-around', borderBottomWidth : 1.5, paddingVertical : 5}}>
+                                <Text style={{marginLeft : 5}}>{item.nome_numero}</Text>
+                                <View style={{flex : 0.9, alignItems : 'flex-end', justifyContent : 'center'}}>
+                                    <Menu style={{marginRight : 5}}>
+                                        <MenuTrigger>
+                                            <View>
+                                                <Ionicons name="ellipsis-horizontal-outline" size={15}></Ionicons>
+                                            </View>
+                                        </MenuTrigger>
+                                        <MenuOptions customStyles={{optionsContainer: style.menu}}>
+                                            <MenuOption onSelect={() => deletar(item.qr_code_id)}>
+                                                <Ionicons name="trash-outline" size={25} color={'red'}></Ionicons>
+                                            </MenuOption>
+                                        </MenuOptions>
+                                    </Menu>
+                                </View>
                             </View>
-                            <TouchableOpacity style={style.botaoLimpar} onPress={()=>limpar(item.id)}><Text style={style.textoLimpar}>Solicitar Limpeza</Text></TouchableOpacity>
+                                <View style={{paddingLeft : 5}}>
+                                    <Text>{item.capacidade}</Text>
+                                    <Text>{item.localizacao}</Text>
+                                    <Text>{item.descricao}</Text>
+                                    <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                                        <Text>
+                                            Status:
+                                        </Text>
+                                        <Text style={{ color: item.isClean ? 'green' : 'red', padding : 5, backgroundColor : item.isClean ? 'rgba(162, 255, 162, 0.56)'  : 'rgba(248, 133, 133, 0.42)', borderRadius : 5, marginLeft : 5}}>
+                                            {item.status_limpeza}
+                                        </Text>
+                                    </View>
+                                    <TouchableOpacity style={style.botaoLimpar} onPress={()=>limpar(item.id)}><Text style={style.textoLimpar}>Solicitar Limpeza</Text></TouchableOpacity>
+                                </View>
+                        </View>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -304,7 +310,7 @@ const style = StyleSheet.create({
     },
     CardSala : {
         backgroundColor : "white",
-        alignItems : 'flex-start',
+        flexDirection : 'row',
         borderRadius : 10,
         margin : 10,
         height : 190,
@@ -390,6 +396,7 @@ const style = StyleSheet.create({
         padding : 5,
         backgroundColor : '#004A8D',
         borderRadius : 5,
+        width : 150
     },
     textoLimpar : {
         color : 'white',

@@ -11,6 +11,7 @@ export interface CarregarSalas {
     nome_numero : string | number;
     capacidade : number;
     descricao : string;
+    imagem : string
     localizacao : string;
     status_limpeza : string;
     ultima_limpeza_data_hora : string | null;
