@@ -1,6 +1,6 @@
 import React from "react"
 import { useIsFocused, useNavigation, useRoute } from "@react-navigation/native"
-import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet, FlatList, Modal, ScrollView, ActivityIndicator } from "react-native"
+import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet, FlatList, Modal, ScrollView, ActivityIndicator, useWindowDimensions } from "react-native"
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from "react-native-popup-menu"
 import { Ionicons } from '@expo/vector-icons';
 import { Camera, CameraView } from "expo-camera"
@@ -18,6 +18,7 @@ export default function Salas () {
     const [carregando, setCarregando] = useState(true)
     const [salas, setSalas] = useState<CarregarSalas[]>([])
     const route = useRoute()
+    const {width : number} = useWindowDimensions()
     const { tipo } = (route.params as {tipo: "A" | "B" | undefined}) || {}
     const [visivel, setVisivel] = useState(false)
     const [ErroSala, setErroSala] = useState<boolean | null>(null)
@@ -32,15 +33,19 @@ export default function Salas () {
     const {width, height } = Dimensions.get('window')
 
 
+    const telaMobile = width < 600
+
     const deletar  = async (id : any) => {
 
         try{
-            const resposta = await api.delete(`salas/${id}`)
-            console.log(resposta.status)
+            const resposta = await api.delete(`salas/${id}/`)
+            console.log(resposta.data)
         } catch(error) {
             console.error('Erro ao excluir a sala', error)
         }
-        setShowCamera(false)
+        setCarregando(true)
+        await obterSalas()
+        setCarregando(false)
     }
 
     const limpar = async (id) => {
@@ -171,13 +176,17 @@ export default function Salas () {
     const renderizarSala = ({item} : {item: CarregarSalas}) => (
             <View>
                 <View style={style.flatList}>
-                    <TouchableOpacity onPress={() => navigation.navigate("DetalhesSalas", {IdSala : item.qr_code_id}) } style={style.CardSala}>
-                        <View style={{height : '100%', width : 70, borderRightWidth : 1, borderColor : '#F7941D'}}>
+                    <TouchableOpacity onPress={() => navigation.navigate("DetalhesSalas", {IdSala : item.qr_code_id}) } style={{backgroundColor : "white",flexDirection : 'row', borderRadius : 10, margin : 10, height : telaMobile ? 150 : 190, width : '90%'}}>
+                        <View style={{height : '100%', width : 100, borderWidth : 1, borderRightWidth : 0, borderTopLeftRadius : 10, borderBottomLeftRadius : 10}}>
                             <Image style={{flex : 1, resizeMode : 'cover', borderTopLeftRadius : 10, borderBottomLeftRadius : 10}} source={{uri : `https://zeladoria.tsr.net.br/${item.imagem}`}}></Image>
                         </View>
-                        <View style={{flexDirection : 'column'}}>
-                            <View style={{width : '100%', flexDirection : 'row', justifyContent : 'space-around', borderBottomWidth : 1.5, paddingVertical : 5}}>
-                                <Text style={{marginLeft : 5}}>{item.nome_numero}</Text>
+
+                        {/* view com o nome das salas */}
+                        <View style={{flex : 1,flexDirection : 'column', borderWidth : 1}}>
+                            <View style={{ width : '100%', flexDirection : 'row', justifyContent : 'space-around', borderBottomWidth : 1.5, paddingVertical : 5}}>
+                                <Text style={{fontSize : 18}}>{item.nome_numero}</Text>
+
+                                {/* View com as demais informações das salas */}
                                 <View style={{flex : 0.9, alignItems : 'flex-end', justifyContent : 'center'}}>
                                     <Menu style={{marginRight : 5}}>
                                         <MenuTrigger>
@@ -194,18 +203,16 @@ export default function Salas () {
                                 </View>
                             </View>
                                 <View style={{paddingLeft : 5}}>
-                                    <Text>{item.capacidade}</Text>
-                                    <Text>{item.localizacao}</Text>
-                                    <Text>{item.descricao}</Text>
+                                    <Text style={{fontSize : telaMobile ? 14 : 18}}><Text>Capacidade : </Text>{item.capacidade}</Text>
+                                    <Text style={{fontSize : telaMobile ? 14 : 18}}>Localização : {item.localizacao}</Text>
                                     <View style={{flexDirection : 'row', alignItems : 'center'}}>
-                                        <Text>
+                                        <Text style={{fontSize : telaMobile ? 14 : 18, marginTop : 5}}>
                                             Status:
                                         </Text>
-                                        <Text style={{ color: item.isClean ? 'green' : 'red', padding : 5, backgroundColor : item.isClean ? 'rgba(162, 255, 162, 0.56)'  : 'rgba(248, 133, 133, 0.42)', borderRadius : 5, marginLeft : 5}}>
+                                        <Text style={{ color: item.isClean ? 'green' : 'red', padding : 5, backgroundColor : item.isClean ? 'rgba(162, 255, 162, 0.56)'  : 'rgba(248, 133, 133, 0.42)', borderRadius : 5, marginLeft : 5, marginTop : 5}}>
                                             {item.status_limpeza}
                                         </Text>
                                     </View>
-                                    <TouchableOpacity style={style.botaoLimpar} onPress={()=>limpar(item.id)}><Text style={style.textoLimpar}>Solicitar Limpeza</Text></TouchableOpacity>
                                 </View>
                         </View>
                     </TouchableOpacity>
@@ -214,7 +221,7 @@ export default function Salas () {
     );
 
     const criarSala = async () => {
-        mostrarModal()
+        mostrarModal() 
         if (nomeSala === '' || capacidade === null ||localizacao === null || descricao === null) {
             console.error("Insira todos os campos corretamente!")
         }
@@ -236,6 +243,7 @@ export default function Salas () {
             console.log(resposta)
             setCarregando(true)
             await obterSalas()
+            setCarregando(false)
         } catch (error : any) {
             throw new Error('Erro ao adicionar sala', error)
         }
@@ -307,14 +315,6 @@ const style = StyleSheet.create({
         paddingTop : 10,
         paddingBottom : 10
         
-    },
-    CardSala : {
-        backgroundColor : "white",
-        flexDirection : 'row',
-        borderRadius : 10,
-        margin : 10,
-        height : 190,
-        width : '90%',
     },
     mostrarModal : {
         backgroundColor : '#004A8D',
