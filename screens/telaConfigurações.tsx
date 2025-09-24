@@ -133,7 +133,7 @@ export default function Settings ({aoLogout} : telaColaboradorProps){
                         </View>
                     </View>
                     <TouchableOpacity style={style.RangeLogout} onPress={aoLogout}>
-                        <Image style={style.logout} source={require("../img/logout.png")}></Image>
+                        <Text style={{color : 'white', fontWeight : 'bold'}}>Sair do App</Text>
                     </TouchableOpacity>
                 </View>
         </View> 
@@ -157,6 +157,10 @@ const style = StyleSheet.create({
     },
     RangeLogout : {
         alignItems : 'center',
+        backgroundColor : 'red',
+        padding : 10,
+        borderRadius : 10,
+        marginTop : 10
     },
     options : {
         display : 'flex',

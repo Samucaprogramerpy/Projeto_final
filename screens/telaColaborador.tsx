@@ -1,35 +1,18 @@
-import { Text, View, StyleSheet, FlatList, ActivityIndicator, Image } from "react-native";
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Text, View, StyleSheet, FlatList, ActivityIndicator, Animated, Easing } from "react-native";
 import { TouchableOpacity } from "react-native";
 import { useState, useEffect, useRef } from "react";
 import { CarregarSalas } from "../types/salas"
 import { obterToken } from "../services/servicoTokken";
 import { Ionicons } from '@expo/vector-icons';
-import { obterSalas} from "../services/servicoSalas"
-import { Camera, CameraView } from "expo-camera";
+import { obterSalas, obterSalasporID } from "../services/servicoSalas"
 import api from "../api/api";
-import React from "react";
-import {Menu, MenuTrigger, MenuOptions, MenuOption} from 'react-native-popup-menu'
-
 
 function TelaColaborador(){
     const [salas, setSalas] = useState<CarregarSalas[]>([])
     const [carregando, setCarregando] = useState(true)
     const [grupo, setGrupo] = useState<boolean>()
-    const [permissao, setPermissao] = useState<boolean | null>(null)
-    const [openCamera, setOpenCamera] = useState(false)
+    const [visivelid, setVisivelID] = useState<number | null>()
 
-
-    
-    const printID = (id) => {
-        console.log(id)
-    }
-
-    const Deletar = ({data} : {data : string}) => {
-
-        setOpenCamera(false)
-        console.log(data)
-    }
 
     const limpar = async (id) => {
         try {
@@ -108,48 +91,24 @@ function TelaColaborador(){
         carregarSalas()
     }, [])
 
-    useEffect(() => {
-        (async () => {
-            const {status} = await Camera.requestCameraPermissionsAsync();
-            setPermissao(status === 'granted');
-        })();
-    }, [])
-
-
-    if(openCamera) {
-        return(
-            <CameraView style={{flex : 1}} onBarcodeScanned={Deletar} facing="back" zoom={0}>
-                <TouchableOpacity style={{width : 50, backgroundColor : 'rgba(0,0,0,0.8)', borderRadius : 50, alignItems : 'center', position : 'absolute', top : '95%', left : '80%'}} onPress={()=> setOpenCamera(false)}>
-                    <Text style={{fontSize : 20, color : 'white'}}>X</Text>
-                </TouchableOpacity>
-            </CameraView>
-        )
-    }
-
 
 
     const renderizarSala = ({item} : {item: CarregarSalas}) => (
                 <View style={{alignItems : 'center'}}>
                     <View style={style.CardSala}>
-                        <View style={{borderBottomWidth : 1, width : '100%', justifyContent : 'space-around', flexDirection : 'row', borderBottomColor : '#004A8D'}}>
-                            <Text style={{marginLeft : 5}}>{item.nome_numero}</Text>
-                            <View style={{flex : 1,  justifyContent : "center", alignItems : 'flex-end'}}>
-                                <Menu style={{alignItems : 'flex-end', width : 30, marginRight : 5}}>
-                                    <MenuTrigger>
-                                        <View>
-                                            <Ionicons name="ellipsis-horizontal-outline" size={15}></Ionicons>
-                                        </View>
-                                    </MenuTrigger>
-                                    <MenuOptions customStyles={{optionsContainer : style.optionsMenu}}>
-                                        <MenuOption onSelect={() => printID(item.id)}>
-                                            <Image style={{width : 25, height : 25}} source={require('../img/vassoura.png')}></Image>
-                                        </MenuOption>
-                                        <MenuOption onSelect={() => setOpenCamera(true)}>
-                                            <Ionicons name="trash-outline" size={25} color={'red'}></Ionicons>
-                                        </MenuOption>
-                                    </MenuOptions>
-                                </Menu>
-                                
+                        <View style={{borderBottomWidth : 1, width : '100%', justifyContent : 'flex-end', flexDirection : 'row', borderBottomColor : '#004A8D'}}>
+                            <View style={{width : '90%',  justifyContent : "center"}}>
+                                <Text>{item.nome_numero}</Text>
+                            </View>
+                            <View>
+                                <TouchableOpacity>
+                                    <Ionicons style={{marginRight : 5}} name="ellipsis-horizontal-outline" size={20}></Ionicons>
+                                </TouchableOpacity>
+                                <View>
+                                    <Text>
+                                        Clear
+                                    </Text>
+                                </View>
                             </View>
                         </View>
                         <Text style={style.nomeinfo}>{item.capacidade}</Text>
@@ -178,22 +137,20 @@ function TelaColaborador(){
         );
 
     return(
-        <SafeAreaView>
-                <View style={{alignItems : 'center'}}>
-                    <View style={{height : 100, justifyContent: 'center', borderBottomWidth: 1, borderBottomColor : '#F7941D'}}>
-                        <Text style={{paddingLeft : 10, fontSize : 20, fontWeight : 'bold', color: '#004A8D'}}>
-                            Salas
-                        </Text>
-                    </View>
-                    <FlatList
-                        style={style.flatList}
-                        data={salas}
-                        keyExtractor={(item) => item.id.toString()}
-                        renderItem={renderizarSala}
-                        nestedScrollEnabled={true}
-                        />
-                </View>
-        </SafeAreaView>
+        <View>
+            <View style={{height : 100, justifyContent: 'center', borderBottomWidth: 1, borderBottomColor : '#F7941D'}}>
+                <Text style={{paddingLeft : 10, fontSize : 20, fontWeight : 'bold'}}>
+                    Salas
+                </Text>
+            </View>
+            <FlatList 
+                style={style.flatList}
+                data={salas}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={renderizarSala}
+                nestedScrollEnabled={true}
+                />
+        </View>
     )
 }
 
@@ -219,8 +176,7 @@ const style = StyleSheet.create({
         backgroundColor : '#004A8D'
     },
     flatList : {
-        width : '95%',
-        height : '90%'
+        width : '100%'
     },
     nomeinfo : {
         paddingLeft : 10
@@ -234,11 +190,5 @@ const style = StyleSheet.create({
     },
     textoLimpar : {
         color : 'white',
-    },
-    optionsMenu : {
-        width : 50,
-        alignItems : 'center',
-        padding : 5,
-        borderRadius : 5
     }
 })

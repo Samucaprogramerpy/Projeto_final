@@ -1,13 +1,13 @@
-import React from 'react';
 import { StyleSheet, View, ActivityIndicator } from 'react-native';
+import React from 'react';
 import { useState, useEffect } from 'react';
 import {
   createMaterialTopTabNavigator,
 } from '@react-navigation/material-top-tabs';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
-import { MenuProvider } from 'react-native-popup-menu';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
+import { MenuProvider } from 'react-native-popup-menu';
 
 import { obterToken, removerToken } from './services/servicoTokken';
 import api from './api/api';
@@ -31,9 +31,7 @@ function AdminTabNavigator({Logout} : {Logout : () => Promise<void>}) {
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-          if (route.name === 'Admin') {
-            iconName = focused ? 'shield-checkmark' : 'shield-checkmark-outline';
-          } else if (route.name === 'adminSalas') {
+          if (route.name === 'Salas') {
             iconName = focused ? 'school' : 'school-outline';
           } else if (route.name === 'Users') {
             iconName = focused ? 'person' : 'person-outline';
@@ -49,7 +47,7 @@ function AdminTabNavigator({Logout} : {Logout : () => Promise<void>}) {
         swipeEnabled: true,
       })}
     >
-      <tab.Screen name="Admin" component={Admin} />
+      <tab.Screen name="Salas" component={Salas}/>
       <tab.Screen name="Users" component={Users} />
       <tab.Screen name="Configurações">
         {(props) => <Settings {...props} aoLogout={Logout}/>}
@@ -64,15 +62,6 @@ function UserTabNavigator({Logout} : {Logout : () => Promise<void>}) {
     <tab.Navigator
       tabBarPosition="bottom"
       screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
-          if (route.name === 'Sala') {
-            iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'Configurações') {
-            iconName = focused ? 'settings' : 'settings-outline';
-          }
-          return <Ionicons name={iconName} size={size} color={color} />;
-        },
         tabBarActiveTintColor: '#F7941D',
         tabBarInactiveTintColor: 'white',
         tabBarStyle: { paddingBottom: 5, height: 70, backgroundColor: '#004A8D' },
@@ -142,7 +131,6 @@ export default function App() {
                 <Stack.Screen name="AdminTabs">
                   {(props) => <AdminTabNavigator {...props} Logout={Logout}/>}
                 </Stack.Screen>
-                <Stack.Screen name="adminSalas" component={Salas} />
                 <Stack.Screen name="DetalhesSalas" component={TelaDetalhesSalas} />
               </>
             ) : (

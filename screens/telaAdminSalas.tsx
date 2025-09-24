@@ -11,15 +11,14 @@ import { obterToken } from "../services/servicoTokken"
 import { Dimensions } from "react-native"
 import api from "../api/api"
 import Load from "./telaLoad"
+import { tr } from "date-fns/locale";
 
 
 
 export default function Salas () {
     const [carregando, setCarregando] = useState(true)
     const [salas, setSalas] = useState<CarregarSalas[]>([])
-    const route = useRoute()
     const {width : number} = useWindowDimensions()
-    const { tipo } = (route.params as {tipo: "A" | "B" | undefined}) || {}
     const [visivel, setVisivel] = useState(false)
     const [ErroSala, setErroSala] = useState<boolean | null>(null)
     const [permissao, setPermissao] = useState<boolean>(false)
@@ -44,100 +43,31 @@ export default function Salas () {
             console.error('Erro ao excluir a sala', error)
         }
         setCarregando(true)
-        await obterSalas()
+        const resposta = await obterSalas()
+        setSalas(resposta)
         setCarregando(false)
     }
 
-    const limpar = async (id) => {
-        try {
-            const token = await obterToken();
-            const resposta = await api.post(`salas/${id}/marcar_como_limpa/`, {}, {
-                headers : {
-                    'Content-Type' : 'application/json',
-                    'Authorization' : `Token ${token}`
-                }
-            })
-            const respostalimpa = await api.get(`salas/${id}`)
-            const limpa = respostalimpa.data.status_limpeza
-            if (limpa === "Limpa") {
-                console.log('Erro ao trocar status. Talvez a sala ja esteja limpa')
-                setSalas(salasAtuais => {
-                    return salasAtuais.map(sala => {
-                        if (sala.id === id) {
-                            return {...sala, isClean : true}
-                        }
-                        return sala
-                        
-                    })
-                })   
-            } else {
-                setSalas(salasAtuais => {
-                    return salasAtuais.map(sala => {
-                        if (sala.id === id) {
-                            return {...sala, isClean : !sala.isClean}
-                        }
-                        return sala
-                        
-                    })
-                })   
-            }
-        } catch (error) {
-            console.error('Erro ao trocar status da sala', error)
-        }
-    }
+   
     const mostrarModal = () => {
         setVisivel(!visivel)
   }
 
 
-    useEffect(() => {
-        
-        if (tipo === 'A') {
-            const carregarSalas = async () => {
-                setCarregando(true);
-                try{
-                    const Salas = await obterSalas()
-                    const time = new Promise(resolve => setTimeout(resolve, 500))
-                    const [resolucao] = await Promise.all([Salas, time])
-                    const SalasFormatadas = resolucao.filter(salas => salas.status_limpeza === 'Limpa')
-                    if (SalasFormatadas.length === 0) {
-                        setSalas(SalasFormatadas)
-                        setErroSala(true)
-                        setMensagemErro('Limpa')
-                    } else {
-                        setSalas(SalasFormatadas)
-                    }
-                } catch (error) {
-                    console.error('Não foi possivel carregar os produtos', error)
-                } finally {
-                    setCarregando(false)
-                }
-            }; carregarSalas()
-        } else if (tipo === 'B') {
-            setErroSala(false)
-            const carregarSalas = async () => {
-                setCarregando(true);
-
-                try{
-                    const Salas = await obterSalas()
-                    const time = new Promise(resolve => setTimeout(resolve, 500))
-                    const [resolucao] = await Promise.all([Salas, time])
-                    const SalasFormatadas = resolucao.filter(salas => salas.status_limpeza === 'Limpeza Pendente')
-                    if (SalasFormatadas.length === 0) {
-                        setSalas(SalasFormatadas)
-                        setErroSala(true)
-                        setMensagemErro('Com Limpeza Pendente')
-                    } else {
-                        setSalas(SalasFormatadas)
-                    }
-                } catch (error) {
-                    console.error('Não foi possivel carregar os produtos', error)
-                } finally {
-                    setCarregando(false)
-                }
-            }; carregarSalas()
+    useEffect( () => {
+        const carregarSalas = async() => {
+            try{
+                setCarregando(true)
+                const resposta = await obterSalas()
+                setSalas(resposta)
+                setCarregando(false)
+            } catch(Error) {
+                console.error(Error);
+            }
         }
-    }, [tipo]);
+        carregarSalas()
+       
+    }, []);
 
     useEffect(() => {
             (async () => {
@@ -209,7 +139,8 @@ export default function Salas () {
                                         <Text style={{fontSize : telaMobile ? 14 : 18, marginTop : 5}}>
                                             Status:
                                         </Text>
-                                        <Text style={{ color: item.isClean ? 'green' : 'red', padding : 5, backgroundColor : item.isClean ? 'rgba(162, 255, 162, 0.56)'  : 'rgba(248, 133, 133, 0.42)', borderRadius : 5, marginLeft : 5, marginTop : 5}}>
+                                        <Text style={{ color: item.status_limpeza === 'Limpa' ? 'green' : item.status_limpeza === 'Em Limpeza' ? 'white' : item.status_limpeza === 'limpeza Pendente' ? 'red' : 'red', 
+                                            padding : 5, backgroundColor : item.status_limpeza === 'Limpa' ? 'rgba(162, 255, 162, 0.56)'  : item.status_limpeza === 'Em Limpeza' ? 'rgba(42, 42, 241, 0.81)' : 'rgba(241, 130, 130, 0.5)', borderRadius : 5, marginLeft : 5, marginTop : 5}}>
                                             {item.status_limpeza}
                                         </Text>
                                     </View>
@@ -242,7 +173,8 @@ export default function Salas () {
 
             console.log(resposta)
             setCarregando(true)
-            await obterSalas()
+            const carregarSalas = await obterSalas()
+            setSalas(carregarSalas)
             setCarregando(false)
         } catch (error : any) {
             throw new Error('Erro ao adicionar sala', error)

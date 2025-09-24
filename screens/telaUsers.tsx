@@ -1,5 +1,5 @@
 import React from "react"
-import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet, FlatList, Modal, ScrollView, ActivityIndicator, Switch } from "react-native"
+import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet, FlatList, Modal, ScrollView, ActivityIndicator, Switch , useWindowDimensions} from "react-native"
 import { useState, useEffect } from "react"
 import { Dimensions } from "react-native"
 import { criarSalas, CriarUsers, obterSalas, obterUsers } from "../services/servicoSalas"
@@ -21,6 +21,8 @@ export default function Users () {
 
     const viewWidth = width * 0.78;
     const viewHeight = height * 0.5;
+
+
 
     const handleSwitch = () => {
         setOn(!on)
@@ -48,13 +50,16 @@ export default function Users () {
         return(
             <View style={style.containerList}>
                 <View style={style.CardSala}>
-                    <Text style={style.nome}>{item.username}</Text>
-                    <Text style={style.nome}>{item.email}</Text>
-                    {imageURL ? (
+                {imageURL ? (
                         <Image style={{width : 60, height : 60, borderRadius: 30, marginBottom : 30}} source={{uri : imageURL}}/>
                     ) : (
                         <View></View>
                     )}
+                    <View style={{flex : 1}}>
+                        <Text style={style.nome}>{item.username}</Text>
+                        <Text style={style.nome}>{item.email}</Text>
+                    </View>
+                    
                 </View>
      
             </View>
@@ -164,8 +169,9 @@ const style = StyleSheet.create({
         borderRadius : 10,
         marginTop : 10,
         padding : 15,
-        flexDirection : 'column',
-        width : '90%'
+        flexDirection : 'row',
+        width : '90%',
+        borderWidth :1
     },
     containerModal : {
         justifyContent : 'space-around',
@@ -243,8 +249,9 @@ const style = StyleSheet.create({
         color : 'white'
     },
     gerenciarUsuarios : {
-        fontSize : 25,
+        fontSize : 18,
         fontWeight : 'bold',
+        color : '#004A8D'
     },
     setAdmin : {
         flexDirection : 'row',
