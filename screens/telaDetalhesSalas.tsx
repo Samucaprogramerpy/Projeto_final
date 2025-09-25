@@ -84,7 +84,7 @@ export default function TelaDetalhesSalas() {
             ) : (
                 
                 <View style={{width : '100%', marginTop : 30}}>
-                    <TouchableOpacity style={{marginLeft : 10}} onPress={()=> navigation.navigate('adminSalas')}>
+                    <TouchableOpacity style={{marginLeft : 10}} onPress={()=> navigation.goBack()}>
                         <Text style={{padding : 10, backgroundColor : 'rgb(230, 229, 227)', width : 80, borderRadius : 5, textAlign : 'center'}}>{"< Voltar"}</Text>
                     </TouchableOpacity>
                     <View style={{marginTop : 5}}>

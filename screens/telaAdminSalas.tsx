@@ -28,17 +28,18 @@ export default function Salas () {
     const [capacidade, setCapacidade] = useState(0)
     const [localizacao, setLocalizacao] = useState('')
     const [descricao, setDescricao] = useState('')
+    const [modalEditor, setModalEditor] = useState(false)
     const navigation = useNavigation()
     const {width, height } = Dimensions.get('window')
 
 
     const telaMobile = width < 600
 
-    const deletar  = async (id : any) => {
+    const deletar  = async (qr_code_id : any) => {
 
         try{
-            const resposta = await api.delete(`salas/${id}/`)
-            console.log(resposta.data)
+            const resposta = await api.delete(`salas/${qr_code_id}/`)
+            console.log(resposta.status)
         } catch(error) {
             console.error('Erro ao excluir a sala', error)
         }
@@ -92,15 +93,33 @@ export default function Salas () {
         )
     }
 
-    if (showCamera) {
-        return(
-        <CameraView style={{flex : 1}} facing="back" zoom={0} onBarcodeScanned={deletar}>
-            <TouchableOpacity style={{width : 50, backgroundColor : 'rgba(0,0,0,0.8)', borderRadius : 50, alignItems : 'center', position : 'absolute', top : '95%', left : '80%'}} onPress={()=> setShowCamera(false)}>
-                    <Text style={{fontSize : 20, color : 'white'}}>X</Text>
-            </TouchableOpacity>
-        </CameraView>
+    if (modalEditor) {
+        return (
+            <Modal transparent={true}>
+                <View style={{flex : 1, padding : 15, marginTop : 10}}>
+                <View showsVerticalScrollIndicator={false}>
+                     <Text>Nome da Sala*</Text>
+                     <TextInput placeholder="Ex : Informática 1" style={style.inputs} value={nomeSala} onChangeText={setNomeSala}></TextInput>
+                     <Text>Capacidade*</Text>
+                     <TextInput placeholder="Ex: 30" keyboardType="numeric" style={style.input2} value={capacidade} onChangeText={setCapacidade}></TextInput>
+                     <Text>Localização*</Text>
+                     <TextInput placeholder="Ex: BLOCO A" style={style.localizacao} value={localizacao} onChangeText={setLocalizacao}></TextInput>
+                     <Text>Descrição (Opcional)</Text>
+                     <TextInput placeholder="Ex: Sala de informatica, Vaio" style={style.descricao} value={descricao} onChangeText={setDescricao}></TextInput>
+                     <View style={{flexDirection : 'row'}}>
+                         <TouchableOpacity style={{padding : 5, backgroundColor : '#F7941D'}} onPress={() => setModalEditor(false)}>
+                            <Text>Cancelar</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity>
+                            <Text>Atualizar</Text>
+                        </TouchableOpacity>
+                     </View>
+                 </View>
+                 
+                 
+                </View>
+            </Modal>
         )
-
     }
 
     const renderizarSala = ({item} : {item: CarregarSalas}) => (
@@ -127,6 +146,9 @@ export default function Salas () {
                                         <MenuOptions customStyles={{optionsContainer: style.menu}}>
                                             <MenuOption onSelect={() => deletar(item.qr_code_id)}>
                                                 <Ionicons name="trash-outline" size={25} color={'red'}></Ionicons>
+                                            </MenuOption>
+                                            <MenuOption onSelect={()=> setModalEditor(true)}>
+                                                <Ionicons name='color-wand-outline' size={25} color={'blue'}></Ionicons>
                                             </MenuOption>
                                         </MenuOptions>
                                     </Menu>

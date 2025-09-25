@@ -15,7 +15,6 @@ import api from './api/api';
 import TelaColaborador from './screens/telaColaborador';
 import TelaLogin from './screens/telaLogin';
 import Settings from './screens/telaConfigurações';
-import Admin from './screens/telaAdm';
 import Salas from './screens/telaAdminSalas';
 import Users from './screens/telaUsers';
 import TelaDetalhesSalas from './screens/telaDetalhesSalas';
