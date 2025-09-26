@@ -126,13 +126,13 @@ export default function Salas () {
             <View>
                 <View style={style.flatList}>
                     <TouchableOpacity onPress={() => navigation.navigate("DetalhesSalas", {IdSala : item.qr_code_id}) } style={{backgroundColor : "white",flexDirection : 'row', borderRadius : 10, margin : 10, height : telaMobile ? 150 : 190, width : '90%'}}>
-                        <View style={{height : '100%', width : 100, borderWidth : 1, borderRightWidth : 0, borderTopLeftRadius : 10, borderBottomLeftRadius : 10}}>
+                        <View style={{height : '100%', width : 100, borderRightWidth : 0, borderRadius : 10}}>
                             <Image style={{flex : 1, resizeMode : 'cover', borderTopLeftRadius : 10, borderBottomLeftRadius : 10}} source={{uri : `https://zeladoria.tsr.net.br/${item.imagem}`}}></Image>
                         </View>
 
                         {/* view com o nome das salas */}
-                        <View style={{flex : 1,flexDirection : 'column', borderWidth : 1}}>
-                            <View style={{ width : '100%', flexDirection : 'row', justifyContent : 'space-around', borderBottomWidth : 1.5, paddingVertical : 5}}>
+                        <View style={{flex : 1,flexDirection : 'column'}}>
+                            <View style={{ width : '100%', flexDirection : 'row', justifyContent : 'space-around', borderBottomWidth : 1, paddingVertical : 5}}>
                                 <Text style={{fontSize : 18}}>{item.nome_numero}</Text>
 
                                 {/* View com as demais informações das salas */}

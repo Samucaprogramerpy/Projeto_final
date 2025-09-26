@@ -1,56 +1,44 @@
-import { Text, View, StyleSheet, FlatList, ActivityIndicator, Animated, Easing } from "react-native";
+import { Text, View, StyleSheet, FlatList, ActivityIndicator, Image } from "react-native";
 import { TouchableOpacity } from "react-native";
 import { useState, useEffect, useRef } from "react";
 import { CarregarSalas } from "../types/salas"
 import { obterToken } from "../services/servicoTokken";
 import { Ionicons } from '@expo/vector-icons';
-import { obterSalas, obterSalasporID } from "../services/servicoSalas"
+import { Menu, MenuOption, MenuTrigger, MenuOptions } from "react-native-popup-menu";
+import { obterSalas, obterSalasporID, obterUsers } from "../services/servicoSalas";
 import api from "../api/api";
+import { fi } from "date-fns/locale";
 
 function TelaColaborador(){
     const [salas, setSalas] = useState<CarregarSalas[]>([])
     const [carregando, setCarregando] = useState(true)
     const [grupo, setGrupo] = useState<boolean>()
     const [visivelid, setVisivelID] = useState<number | null>()
+    const [usuario, setUsuario] = useState(null)
 
 
-    const limpar = async (id) => {
+    const obterUser = async() => {
+        const resposta = await api.get('accounts/current_user')
+        const resposavel = resposta.data.username
+        setUsuario(resposavel)
+    
+    }
+
+    const comecarLimpeza = async (qr_code_id : any) => {
         try {
-            const token = await obterToken();
-            const resposta = await api.post(`salas/${id}/marcar_como_limpa/`, {}, {
-                headers : {
-                    'Content-Type' : 'application/json',
-                    'Authorization' : `Token ${token}`
-                }
-            })
-            const respostalimpa = await api.get(`salas/${id}`)
-            const limpa = respostalimpa.data.status_limpeza
-            if (limpa === "Limpa") {
-                console.log('Erro ao trocar status. Talvez a sala ja esteja limpa')
-                setSalas(salasAtuais => {
-                    return salasAtuais.map(sala => {
-                        if (sala.id === id) {
-                            return {...sala, isClean : true}
-                        }
-                        return sala
-                        
-                    })
-                })   
-            } else {
-                setSalas(salasAtuais => {
-                    return salasAtuais.map(sala => {
-                        if (sala.id === id) {
-                            return {...sala, isClean : !sala.isClean}
-                        }
-                        return sala
-                        
-                    })
-                }) 
-            }  
-        } catch (error) {
-            console.error('Erro ao trocar status da sala', error)
+            const formData = new FormData()
+            const token = await obterToken()
+        
+
+            formData.append('sala', qr_code_id)
+
+            const resposta = await api.post(`salas/${qr_code_id}/iniciar_limpeza/`, formData)
+            return resposta.status
+        } catch(error) {
+            console.error('Erro ao iniciar limpeza da sala', error)
         }
     }
+
     useEffect(() => {
         const group = async() => {
             try{
@@ -76,6 +64,7 @@ function TelaColaborador(){
             setCarregando(true);
             try{
                 const Salas = await obterSalas()
+                console.log(salas)
                 const SalasFormatadas = Salas.map(sala => ({
                     ...sala,
                     isClean: sala.status_limpeza === 'Limpa'
@@ -97,19 +86,24 @@ function TelaColaborador(){
                 <View style={{alignItems : 'center'}}>
                     <View style={style.CardSala}>
                         <View style={{borderBottomWidth : 1, width : '100%', justifyContent : 'flex-end', flexDirection : 'row', borderBottomColor : '#004A8D'}}>
-                            <View style={{width : '90%',  justifyContent : "center"}}>
-                                <Text>{item.nome_numero}</Text>
+                            <View style={{width : '90%',  justifyContent : "center",flex : 1}}>
+                                <Text style={{marginLeft : 5}}>{item.nome_numero}</Text>
                             </View>
-                            <View>
-                                <TouchableOpacity>
-                                    <Ionicons style={{marginRight : 5}} name="ellipsis-horizontal-outline" size={20}></Ionicons>
-                                </TouchableOpacity>
-                                <View>
-                                    <Text>
-                                        Clear
-                                    </Text>
-                                </View>
+                            <View style={{marginRight : 5}}>
+                                <Menu>
+                                    <MenuTrigger>
+                                        <View>
+                                            <Ionicons name="ellipsis-horizontal-outline" size={15}></Ionicons>
+                                        </View>
+                                    </MenuTrigger>
+                                    <MenuOptions customStyles={{optionsContainer : style.menu}}>
+                                        <MenuOption onSelect={() => comecarLimpeza(item.qr_code_id)}>
+                                            <Image style={{width : 25, height : 25}} source={require("../img/vassoura.png")}/>
+                                        </MenuOption>
+                                    </MenuOptions>
+                                </Menu>
                             </View>
+                            
                         </View>
                         <Text style={style.nomeinfo}>{item.capacidade}</Text>
                         <Text style={style.nomeinfo}>{item.localizacao}</Text>
@@ -117,13 +111,11 @@ function TelaColaborador(){
                         <View style={{flexDirection : 'row', alignItems : 'center', marginHorizontal : 10}}>
                             <Text>Status : </Text>
                             <Text style={{paddingLeft : 10, color:item.isClean ? 'rgba(46, 147, 46, 1)' : 'rgba(178, 65, 65, 1)', backgroundColor : item.isClean ? 'rgba(178, 246, 206, 1)' : 'rgba(248, 173, 173, 1)', paddingRight : 10,padding : 5, textAlign : 'center', borderRadius : 5}}>
-                                {item.isClean ? 'Limpa' : 'Limpeza Pendente'}
+                                {item.status_limpeza}
                             </Text>
                         </View>
                         {grupo ? (
-                            <TouchableOpacity onPress={() => limpar(item.id)} style={{backgroundColor : '#004A8D', padding : 5, marginLeft : 10, marginTop : 10, borderRadius: 5}}>
-                                <Text style={{color : 'white'}}>Limpar</Text>
-                            </TouchableOpacity>
+                            <View/>
                         ) : (
                             <TouchableOpacity style={{backgroundColor : '#004A8D', padding : 5, marginLeft : 10, marginTop : 10, borderRadius: 5}}>
                                 <Text style={{color : 'white'}}>
@@ -139,7 +131,7 @@ function TelaColaborador(){
     return(
         <View>
             <View style={{height : 100, justifyContent: 'center', borderBottomWidth: 1, borderBottomColor : '#F7941D'}}>
-                <Text style={{paddingLeft : 10, fontSize : 20, fontWeight : 'bold'}}>
+                <Text style={{paddingLeft : 10, fontSize : 20, fontWeight : 'bold', color: '#004A8D'}}>
                     Salas
                 </Text>
             </View>
@@ -176,7 +168,8 @@ const style = StyleSheet.create({
         backgroundColor : '#004A8D'
     },
     flatList : {
-        width : '100%'
+        width : '100%',
+        height : '88%'
     },
     nomeinfo : {
         paddingLeft : 10
@@ -190,5 +183,9 @@ const style = StyleSheet.create({
     },
     textoLimpar : {
         color : 'white',
+    },
+    menu : {
+        width : 50,
+        alignItems : 'center'
     }
 })
