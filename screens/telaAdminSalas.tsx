@@ -11,7 +11,6 @@ import { obterToken } from "../services/servicoTokken"
 import { Dimensions } from "react-native"
 import api from "../api/api"
 import Load from "./telaLoad"
-import { tr } from "date-fns/locale";
 
 
 

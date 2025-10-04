@@ -13,7 +13,7 @@ function TelaColaborador(){
     const [salas, setSalas] = useState<CarregarSalas[]>([])
     const [carregando, setCarregando] = useState(true)
     const [grupo, setGrupo] = useState<boolean>()
-    const [visivelid, setVisivelID] = useState<number | null>()
+    const [fim_limpeza, set_Fim_limpeza] = useState<boolean>(false)
     const [usuario, setUsuario] = useState(null)
 
 
@@ -27,13 +27,16 @@ function TelaColaborador(){
     const comecarLimpeza = async (qr_code_id : any) => {
         try {
             const formData = new FormData()
-            const token = await obterToken()
         
 
             formData.append('sala', qr_code_id)
 
             const resposta = await api.post(`salas/${qr_code_id}/iniciar_limpeza/`, formData)
-            return resposta.status
+            console.log(resposta.data)
+            setCarregando(true)
+            await obterSalas()
+            set_Fim_limpeza(true)
+            setCarregando(false)
         } catch(error) {
             console.error('Erro ao iniciar limpeza da sala', error)
         }
@@ -64,7 +67,6 @@ function TelaColaborador(){
             setCarregando(true);
             try{
                 const Salas = await obterSalas()
-                console.log(salas)
                 const SalasFormatadas = Salas.map(sala => ({
                     ...sala,
                     isClean: sala.status_limpeza === 'Limpa'
@@ -89,20 +91,38 @@ function TelaColaborador(){
                             <View style={{width : '90%',  justifyContent : "center",flex : 1}}>
                                 <Text style={{marginLeft : 5}}>{item.nome_numero}</Text>
                             </View>
-                            <View style={{marginRight : 5}}>
-                                <Menu>
-                                    <MenuTrigger>
-                                        <View>
-                                            <Ionicons name="ellipsis-horizontal-outline" size={15}></Ionicons>
-                                        </View>
-                                    </MenuTrigger>
-                                    <MenuOptions customStyles={{optionsContainer : style.menu}}>
-                                        <MenuOption onSelect={() => comecarLimpeza(item.qr_code_id)}>
-                                            <Image style={{width : 25, height : 25}} source={require("../img/vassoura.png")}/>
-                                        </MenuOption>
-                                    </MenuOptions>
-                                </Menu>
-                            </View>
+                            {fim_limpeza ? (
+                                 <View style={{marginRight : 5}}>
+                                    <Menu>
+                                        <MenuTrigger>
+                                            <View>
+                                                <Ionicons name="ellipsis-horizontal-outline" size={15}></Ionicons>
+                                            </View>
+                                        </MenuTrigger>
+                                        <MenuOptions customStyles={{optionsContainer : style.menu}}>
+                                            <MenuOption onSelect={() => comecarLimpeza(item.qr_code_id)}>
+                                               <Ionicons name="stop-circle-outline" size={15}/>
+                                            </MenuOption>
+                                        </MenuOptions>
+                                    </Menu>
+                                </View>
+                            ) : (
+                                <View style={{marginRight : 5}}>
+                                    <Menu>
+                                        <MenuTrigger>
+                                            <View>
+                                                <Ionicons name="ellipsis-horizontal-outline" size={15}></Ionicons>
+                                            </View>
+                                        </MenuTrigger>
+                                        <MenuOptions customStyles={{optionsContainer : style.menu}}>
+                                            <MenuOption onSelect={() => comecarLimpeza(item.qr_code_id)}>
+                                                <Image style={{width : 25, height : 25}} source={require("../img/vassoura.png")}/>
+                                            </MenuOption>
+                                        </MenuOptions>
+                                    </Menu>
+                                </View>
+                            )}
+                            
                             
                         </View>
                         <Text style={style.nomeinfo}>{item.capacidade}</Text>
@@ -110,19 +130,10 @@ function TelaColaborador(){
                         <Text style={style.nomeinfo}>{item.descricao}</Text>
                         <View style={{flexDirection : 'row', alignItems : 'center', marginHorizontal : 10}}>
                             <Text>Status : </Text>
-                            <Text style={{paddingLeft : 10, color:item.isClean ? 'rgba(46, 147, 46, 1)' : 'rgba(178, 65, 65, 1)', backgroundColor : item.isClean ? 'rgba(178, 246, 206, 1)' : 'rgba(248, 173, 173, 1)', paddingRight : 10,padding : 5, textAlign : 'center', borderRadius : 5}}>
+                            <Text style={{paddingLeft : 10, color:item.status_limpeza==='Limpa' ? 'rgba(46, 147, 46, 1)' : item.status_limpeza==='Em Limpeza' ? 'white' : 'rgba(237, 8, 8, 0.91)', backgroundColor : item.status_limpeza==='Limpa' ? 'rgba(178, 246, 206, 1)' : item.status_limpeza==='Em Limpeza' ? 'rgba(38, 38, 253, 0.96)' : 'rgba(255, 0, 0, 0.62)', paddingRight : 10,padding : 5, textAlign : 'center', borderRadius : 5}}>
                                 {item.status_limpeza}
                             </Text>
                         </View>
-                        {grupo ? (
-                            <View/>
-                        ) : (
-                            <TouchableOpacity style={{backgroundColor : '#004A8D', padding : 5, marginLeft : 10, marginTop : 10, borderRadius: 5}}>
-                                <Text style={{color : 'white'}}>
-                                    Solicitar Limpeza
-                                </Text>
-                            </TouchableOpacity>
-                        )}
                     </View>
                 </View>
   
