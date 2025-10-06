@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, FlatList, ActivityIndicator, Image } from "react-native";
+import { Text, View, StyleSheet, FlatList, ActivityIndicator, Image, Modal } from "react-native";
 import { TouchableOpacity } from "react-native";
 import { useState, useEffect, useRef } from "react";
 import { CarregarSalas } from "../types/salas"
@@ -6,23 +6,20 @@ import { obterToken } from "../services/servicoTokken";
 import { Ionicons } from '@expo/vector-icons';
 import { Menu, MenuOption, MenuTrigger, MenuOptions } from "react-native-popup-menu";
 import { obterSalas, obterSalasporID, obterUsers } from "../services/servicoSalas";
+import { Camera, CameraView } from "expo-camera";
 import api from "../api/api";
-import { fi } from "date-fns/locale";
+import Load from "./telaLoad";
 
 function TelaColaborador(){
     const [salas, setSalas] = useState<CarregarSalas[]>([])
-    const [carregando, setCarregando] = useState(true)
-    const [grupo, setGrupo] = useState<boolean>()
-    const [fim_limpeza, set_Fim_limpeza] = useState<boolean>(false)
-    const [usuario, setUsuario] = useState(null)
+    const [carregando, setCarregando] = useState(false)
+    const [openCamera, setOpenCamera] = useState<boolean | null>(null)
+    const [grupo, setGrupo] = useState<boolean>()   
+    const [permissao, setPermissao] = useState<boolean>(false);
+    const [modal, showModal] = useState(false)
+    const foto = useRef<CameraView>(null)
 
 
-    const obterUser = async() => {
-        const resposta = await api.get('accounts/current_user')
-        const resposavel = resposta.data.username
-        setUsuario(resposavel)
-    
-    }
 
     const comecarLimpeza = async (qr_code_id : any) => {
         try {
@@ -32,15 +29,26 @@ function TelaColaborador(){
             formData.append('sala', qr_code_id)
 
             const resposta = await api.post(`salas/${qr_code_id}/iniciar_limpeza/`, formData)
-            console.log(resposta.data)
             setCarregando(true)
-            await obterSalas()
-            set_Fim_limpeza(true)
+            const newSalas = await obterSalas()
+            setSalas(newSalas)
             setCarregando(false)
+            console.log(resposta.status)
         } catch(error) {
             console.error('Erro ao iniciar limpeza da sala', error)
         }
     }
+
+    const concluirLimpeza = async (qr_code_id : any) => {
+
+    }
+
+    useEffect(() => {
+        (async () => {
+            const {status} = await Camera.requestCameraPermissionsAsync();
+            setPermissao(status === 'granted')
+        })();
+    });
 
     useEffect(() => {
         const group = async() => {
@@ -67,11 +75,7 @@ function TelaColaborador(){
             setCarregando(true);
             try{
                 const Salas = await obterSalas()
-                const SalasFormatadas = Salas.map(sala => ({
-                    ...sala,
-                    isClean: sala.status_limpeza === 'Limpa'
-                }));
-                setSalas(SalasFormatadas)
+                setSalas(Salas)
             } catch (error) {
                 console.error('Não foi possivel carregar os produtos', error)
             } finally {
@@ -82,62 +86,107 @@ function TelaColaborador(){
         carregarSalas()
     }, [])
 
+    if (carregando) {
+        return(
+            <Load/>
+        )
+        
+    }
+
+    if (openCamera) {
+        return(
+            <View style={{flex : 1}}>
+                <CameraView style={{flex : 1}} facing="back" zoom={0} ref={foto}/>
+                <TouchableOpacity onPress={() => setOpenCamera(false)}></TouchableOpacity>
+            </View>
+        )
+    }
 
 
-    const renderizarSala = ({item} : {item: CarregarSalas}) => (
-                <View style={{alignItems : 'center'}}>
+
+    const renderizarSala = ({item} : {item: CarregarSalas}) => {
+            if (item.status_limpeza === 'Em Limpeza'){
+                return (
+                    <View style={{alignItems : 'center'}}>
                     <View style={style.CardSala}>
                         <View style={{borderBottomWidth : 1, width : '100%', justifyContent : 'flex-end', flexDirection : 'row', borderBottomColor : '#004A8D'}}>
                             <View style={{width : '90%',  justifyContent : "center",flex : 1}}>
                                 <Text style={{marginLeft : 5}}>{item.nome_numero}</Text>
                             </View>
-                            {fim_limpeza ? (
-                                 <View style={{marginRight : 5}}>
-                                    <Menu>
-                                        <MenuTrigger>
-                                            <View>
-                                                <Ionicons name="ellipsis-horizontal-outline" size={15}></Ionicons>
-                                            </View>
-                                        </MenuTrigger>
-                                        <MenuOptions customStyles={{optionsContainer : style.menu}}>
-                                            <MenuOption onSelect={() => comecarLimpeza(item.qr_code_id)}>
-                                               <Ionicons name="stop-circle-outline" size={15}/>
-                                            </MenuOption>
-                                        </MenuOptions>
-                                    </Menu>
-                                </View>
-                            ) : (
-                                <View style={{marginRight : 5}}>
-                                    <Menu>
-                                        <MenuTrigger>
-                                            <View>
-                                                <Ionicons name="ellipsis-horizontal-outline" size={15}></Ionicons>
-                                            </View>
-                                        </MenuTrigger>
-                                        <MenuOptions customStyles={{optionsContainer : style.menu}}>
-                                            <MenuOption onSelect={() => comecarLimpeza(item.qr_code_id)}>
-                                                <Image style={{width : 25, height : 25}} source={require("../img/vassoura.png")}/>
-                                            </MenuOption>
-                                        </MenuOptions>
-                                    </Menu>
-                                </View>
-                            )}
-                            
-                            
+                            <View style={{marginRight : 5}}>
+                                <Menu>
+                                    <MenuTrigger>
+                                        <View>
+                                            <Ionicons name="ellipsis-horizontal-outline" size={15}></Ionicons>
+                                        </View>
+                                    </MenuTrigger>
+                                    <MenuOptions customStyles={{optionsContainer : style.menu}}>
+                                        <MenuOption onSelect={() => showModal(true)}>
+                                            <Ionicons name="stop-circle-outline" size={25}/>
+                                        </MenuOption>
+                                    </MenuOptions>
+                                </Menu>
+                            </View>
                         </View>
                         <Text style={style.nomeinfo}>{item.capacidade}</Text>
                         <Text style={style.nomeinfo}>{item.localizacao}</Text>
                         <Text style={style.nomeinfo}>{item.descricao}</Text>
                         <View style={{flexDirection : 'row', alignItems : 'center', marginHorizontal : 10}}>
                             <Text>Status : </Text>
-                            <Text style={{paddingLeft : 10, color:item.status_limpeza==='Limpa' ? 'rgba(46, 147, 46, 1)' : item.status_limpeza==='Em Limpeza' ? 'white' : 'rgba(237, 8, 8, 0.91)', backgroundColor : item.status_limpeza==='Limpa' ? 'rgba(178, 246, 206, 1)' : item.status_limpeza==='Em Limpeza' ? 'rgba(38, 38, 253, 0.96)' : 'rgba(255, 0, 0, 0.62)', paddingRight : 10,padding : 5, textAlign : 'center', borderRadius : 5}}>
+                            <Text style={{paddingLeft : 10, color:item.status_limpeza==='Limpa' ? 'rgba(46, 147, 46, 1)' : item.status_limpeza==='Em Limpeza' ? 'white' : 'rgba(237, 8, 8, 0.91)', backgroundColor : item.status_limpeza==='Limpa' ? 'rgba(178, 246, 206, 1)' : item.status_limpeza==='Em Limpeza' ? 'rgba(38, 38, 253, 0.96)' : 'rgba(253, 79, 79, 0.53)', paddingRight : 10,padding : 5, textAlign : 'center', borderRadius : 5}}>
+                                {item.status_limpeza}
+                            </Text>
+                        </View>
+                        {modal ? 
+                            <Modal transparent={true}>
+                                <View style={{flex : 1, alignItems : 'center', justifyContent : 'center', backgroundColor : 'rgba(0,0,0,0.1)'}}>
+                                    <View style={{borderWidth : 1, backgroundColor : 'white', padding : 20, alignItems : 'center', height : '50%', width : '90%', justifyContent : 'center'}}>
+                                        <TouchableOpacity onPress={() => showModal(false)} style={{alignItems : 'center', borderWidth : 1, width : '100%', height : '30%', justifyContent : 'center', backgroundColor : 'rgba(0,0,0,0.1)', borderColor : 'rgba(0,0,245,1)', borderStyle : 'dashed'}}>
+                                            <Ionicons name="camera-outline" size={30} color={'gray'}/>
+                                            <Text>Clique aqui para tirar a foto</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            </Modal> : null}
+                    </View>
+                </View>
+                )
+            }
+            return(
+                <View style={{alignItems : 'center'}}>
+                    <View style={style.CardSala}>
+                        <View style={{borderBottomWidth : 1, width : '100%', justifyContent : 'flex-end', flexDirection : 'row', borderBottomColor : '#004A8D'}}>
+                            <View style={{width : '90%',  justifyContent : "center",flex : 1}}>
+                                <Text style={{marginLeft : 5}}>{item.nome_numero}</Text>
+                            </View>
+                            <View style={{marginRight : 5}}>
+                                <Menu>
+                                    <MenuTrigger>
+                                        <View>
+                                            <Ionicons name="ellipsis-horizontal-outline" size={15}></Ionicons>
+                                        </View>
+                                    </MenuTrigger>
+                                    <MenuOptions customStyles={{optionsContainer : style.menu}}>
+                                        <MenuOption onSelect={() => comecarLimpeza(item.qr_code_id)}>
+                                            <Image style={{width : 25, height : 25}} source={require('../img/vassoura.png')}/>
+                                        </MenuOption>
+                                    </MenuOptions>
+                                </Menu>
+                            </View>
+                        </View>
+                        <Text style={style.nomeinfo}>{item.capacidade}</Text>
+                        <Text style={style.nomeinfo}>{item.localizacao}</Text>
+                        <Text style={style.nomeinfo}>{item.descricao}</Text>
+                        <View style={{flexDirection : 'row', alignItems : 'center', marginHorizontal : 10}}>
+                            <Text>Status : </Text>
+                            <Text style={{paddingLeft : 10, color:item.status_limpeza==='Limpa' ? 'rgba(46, 147, 46, 1)' : item.status_limpeza==='Em Limpeza' ? 'white' : 'rgba(237, 8, 8, 0.91)', backgroundColor : item.status_limpeza==='Limpa' ? 'rgba(178, 246, 206, 1)' : item.status_limpeza==='Em Limpeza' ? 'rgba(38, 38, 253, 0.96)' : 'rgba(253, 79, 79, 0.53)', paddingRight : 10,padding : 5, textAlign : 'center', borderRadius : 5}}>
                                 {item.status_limpeza}
                             </Text>
                         </View>
                     </View>
                 </View>
-  
-        );
+            )
+        };
 
     return(
         <View>
