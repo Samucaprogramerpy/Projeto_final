@@ -26,7 +26,7 @@ export default function Settings ({aoLogout} : telaColaboradorProps){
         const formData = new FormData()
         if (foto.current) {
             const newFoto = await foto.current.takePictureAsync({
-                quality : 1.0,
+                quality : 0.8,
                 skipProcessing : false
             });
             const filename = newFoto.uri.split('/').pop();

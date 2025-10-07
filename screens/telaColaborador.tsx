@@ -10,11 +10,12 @@ import { Camera, CameraView } from "expo-camera";
 import api from "../api/api";
 import Load from "./telaLoad";
 
-function TelaColaborador(){
+export default function TelaColaborador(){
     const [salas, setSalas] = useState<CarregarSalas[]>([])
     const [carregando, setCarregando] = useState(false)
-    const [openCamera, setOpenCamera] = useState<boolean | null>(null)
+    const [openCamera, setOpenCamera] = useState(false)
     const [grupo, setGrupo] = useState<boolean>()   
+        const [fotoTirada, setFotoTirada] = useState<string | null>(null)
     const [permissao, setPermissao] = useState<boolean>(false);
     const [modal, showModal] = useState(false)
     const foto = useRef<CameraView>(null)
@@ -39,6 +40,17 @@ function TelaColaborador(){
         }
     }
 
+    const tirarFoto = async () => {
+        if (foto.current) {
+            const newFoto = await foto.current.takePictureAsync({
+                quality : 1.0,
+                skipProcessing : false
+            });            
+            setFotoTirada(newFoto.uri)
+
+            setOpenCamera(false)
+        }
+    }
     const concluirLimpeza = async (qr_code_id : any) => {
 
     }
@@ -48,7 +60,7 @@ function TelaColaborador(){
             const {status} = await Camera.requestCameraPermissionsAsync();
             setPermissao(status === 'granted')
         })();
-    });
+    }, []);
 
     useEffect(() => {
         const group = async() => {
@@ -97,7 +109,11 @@ function TelaColaborador(){
         return(
             <View style={{flex : 1}}>
                 <CameraView style={{flex : 1}} facing="back" zoom={0} ref={foto}/>
-                <TouchableOpacity onPress={() => setOpenCamera(false)}></TouchableOpacity>
+                <View style={{borderWidth : 1, height : 200, backgroundColor : 'black', alignItems : 'center', justifyContent : 'center', borderRadius : 5}}>
+                    <TouchableOpacity onPress={tirarFoto}>
+                        <Ionicons name="ellipse" size={70} color={'white'}/>
+                    </TouchableOpacity>
+                </View>
             </View>
         )
     }
@@ -138,14 +154,36 @@ function TelaColaborador(){
                             </Text>
                         </View>
                         {modal ? 
-                            <Modal transparent={true}>
+                            <Modal transparent={true} onRequestClose={() => showModal(false)}>
                                 <View style={{flex : 1, alignItems : 'center', justifyContent : 'center', backgroundColor : 'rgba(0,0,0,0.1)'}}>
                                     <View style={{borderWidth : 1, backgroundColor : 'white', padding : 20, alignItems : 'center', height : '50%', width : '90%', justifyContent : 'center'}}>
-                                        <TouchableOpacity onPress={() => showModal(false)} style={{alignItems : 'center', borderWidth : 1, width : '100%', height : '30%', justifyContent : 'center', backgroundColor : 'rgba(0,0,0,0.1)', borderColor : 'rgba(0,0,245,1)', borderStyle : 'dashed'}}>
+                                        <TouchableOpacity onPress={() => {setOpenCamera(true)}} style={{alignItems : 'center', borderWidth : 1, width : '100%', height : '30%', justifyContent : 'center', backgroundColor : 'rgba(0,0,0,0.1)', borderColor : 'rgba(0,0,245,1)', borderStyle : 'dashed'}}>
                                             <Ionicons name="camera-outline" size={30} color={'gray'}/>
                                             <Text>Clique aqui para tirar a foto</Text>
                                         </TouchableOpacity>
+
+                                        {fotoTirada ? (
+                                        <View style={{ width : '100%'}}>
+                                            <View style={{marginTop : 10, marginRight : 92}}>
+                                                <View style={{borderWidth : 1, width : 100}}>
+                                                    <Image style={{width : 100, height : 100, resizeMode : 'cover'}} source={{uri : fotoTirada}}/>
+                                                    <TouchableOpacity style={{position : 'absolute', left : '85%'}} onPress={()=>setFotoTirada(null)}>
+                                                        <Ionicons name="close-circle" size={15} color={'black'}/>
+                                                    </TouchableOpacity>
+                                                </View>                                        
+                                            </View>
+                                             <TouchableOpacity onPress={() => showModal(false)} style={{backgroundColor : 'blue', width : 150, paddingVertical : 10, alignItems : 'center', borderRadius : 10, marginHorizontal : 'auto', marginTop : 50}}><Text style={{color : 'white'}}>Enviar</Text></TouchableOpacity>
+                                        </View>
+                                        ) : (
+                                            <View style={{marginTop : '65%'}}>
+                                            <Text style={{paddingVertical : 10, backgroundColor : 'rgba(67, 66, 66, 0.38)', borderRadius : 20, width : 80, textAlign : 'center'}}>
+                                                Enviar
+                                            </Text>
+                                            </View>
+                                            
+                                        )}
                                     </View>
+                
                                 </View>
                             </Modal> : null}
                     </View>
@@ -205,8 +243,6 @@ function TelaColaborador(){
         </View>
     )
 }
-
-export default TelaColaborador;
 
 const style = StyleSheet.create({
     cabecalho : {
