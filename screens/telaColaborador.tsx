@@ -2,7 +2,7 @@ import { Text, View, StyleSheet, FlatList, ActivityIndicator, Image, Modal } fro
 import { TouchableOpacity } from "react-native";
 import { useState, useEffect, useRef } from "react";
 import { CarregarSalas } from "../types/salas"
-import { obterToken } from "../services/servicoTokken";
+import * as ImageManipulador from 'expo-image-manipulator'
 import { Ionicons } from '@expo/vector-icons';
 import { Menu, MenuOption, MenuTrigger, MenuOptions } from "react-native-popup-menu";
 import { obterSalas, obterSalasporID, obterUsers } from "../services/servicoSalas";
@@ -15,11 +15,17 @@ export default function TelaColaborador(){
     const [carregando, setCarregando] = useState(false)
     const [openCamera, setOpenCamera] = useState(false)
     const [grupo, setGrupo] = useState<boolean>()   
-        const [fotoTirada, setFotoTirada] = useState<string | null>(null)
+    const [fotoTirada, setFotoTirada] = useState<string | null>(null)
     const [permissao, setPermissao] = useState<boolean>(false);
     const [modal, showModal] = useState(false)
+    const [salauuid, setSalaUUID] = useState('')
     const foto = useRef<CameraView>(null)
 
+
+    const abrirModal = (qr_code_id : any) => {
+        showModal(true),
+        setSalaUUID(qr_code_id)
+    }
 
 
     const comecarLimpeza = async (qr_code_id : any) => {
@@ -43,17 +49,65 @@ export default function TelaColaborador(){
     const tirarFoto = async () => {
         if (foto.current) {
             const newFoto = await foto.current.takePictureAsync({
-                quality : 1.0,
+                quality : 0.8,
                 skipProcessing : false
             });            
+
+            
+
             setFotoTirada(newFoto.uri)
 
             setOpenCamera(false)
         }
     }
-    const concluirLimpeza = async (qr_code_id : any) => {
+    const concluirLimpeza = async () => {
+            setCarregando(true)
+            try {
+                const formData = new FormData()
 
-    }
+                formData.append("sala", salauuid)
+
+                const maniFoto = await ImageManipulador.manipulateAsync(fotoTirada, [{resize : {width : 1280}}], {
+                    compress : 0.7,
+                    format : ImageManipulador.SaveFormat.JPEG
+                })
+
+
+                
+
+                const fileCompress = maniFoto.uri
+                const filename = fileCompress?.split('/').pop();
+                const filetype = 'image/jpeg'
+                
+                if (!fotoTirada){
+                    console.log('ops')
+                }
+
+                
+                formData.append("imagem", {
+                    uri: fileCompress,
+                    type: filetype,
+                    name: filename, 
+                } as any);
+
+
+                const resposta = await api.post(`salas/${salauuid}/concluir_limpeza/`, formData, {
+                    headers : {
+                        'Content-Type' : 'multipart/form-data'
+                    }
+                })
+                console.log(resposta.status)
+            } catch (error : any) {
+                console.error("Erro completo:", error);
+                console.error("Erro response:", error.response);
+                console.error("Erro response data:", error.response?.data);
+            } 
+            showModal(false)
+            setCarregando(false)
+            const newSalas = await obterSalas()
+            setSalas(newSalas)
+
+        }
 
     useEffect(() => {
         (async () => {
@@ -137,7 +191,7 @@ export default function TelaColaborador(){
                                         </View>
                                     </MenuTrigger>
                                     <MenuOptions customStyles={{optionsContainer : style.menu}}>
-                                        <MenuOption onSelect={() => showModal(true)}>
+                                        <MenuOption onSelect={() => abrirModal(item.qr_code_id)}>
                                             <Ionicons name="stop-circle-outline" size={25}/>
                                         </MenuOption>
                                     </MenuOptions>
@@ -172,7 +226,7 @@ export default function TelaColaborador(){
                                                     </TouchableOpacity>
                                                 </View>                                        
                                             </View>
-                                             <TouchableOpacity onPress={() => showModal(false)} style={{backgroundColor : 'blue', width : 150, paddingVertical : 10, alignItems : 'center', borderRadius : 10, marginHorizontal : 'auto', marginTop : 50}}><Text style={{color : 'white'}}>Enviar</Text></TouchableOpacity>
+                                             <TouchableOpacity onPress={concluirLimpeza} style={{backgroundColor : 'blue', width : 150, paddingVertical : 10, alignItems : 'center', borderRadius : 10, marginHorizontal : 'auto', marginTop : 50}}><Text style={{color : 'white'}}>Enviar</Text></TouchableOpacity>
                                         </View>
                                         ) : (
                                             <View style={{marginTop : '65%'}}>
