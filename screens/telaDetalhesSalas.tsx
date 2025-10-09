@@ -28,6 +28,7 @@ export default function TelaDetalhesSalas() {
     const {IdSala} = params
     const [sala, setSala] = useState<CarregarSalas | null>(null)
     const [carregando, setCarregando] = useState<boolean>(true)
+    const [funcionario, setfuncionario] = useState(false)
 
     
 
@@ -65,6 +66,10 @@ export default function TelaDetalhesSalas() {
                 } else {
                     SalaEncontrada.isClean = false
                 }
+                const funcionario_limpeza= SalaEncontrada.ultima_limpeza_funcionario
+                if (funcionario_limpeza?.length > 0) {
+                    setfuncionario(true)
+                }
             } catch(error) {
                 console.error("Erro ao encontrar Sala", error)
             } finally {
@@ -97,6 +102,7 @@ export default function TelaDetalhesSalas() {
                                 <Text style={{color : sala?.isClean ? 'green' : 'red', backgroundColor : sala?.isClean ? 'rgba(155, 248, 155, 0.69)' : 'rgba(249, 167, 167, 0.53)', padding : 5, marginLeft : 5, borderRadius : 5 }}>{sala?.status_limpeza}</Text>
                             </View>
                             <Text>Última Limpeza : {displayLastCleanedTime(sala?.ultima_limpeza_data_hora)}</Text>
+                            {funcionario ? <Text>Limpar por : {sala?.ultima_limpeza_funcionario}</Text> : null}
                         </View>
                     </View>
 

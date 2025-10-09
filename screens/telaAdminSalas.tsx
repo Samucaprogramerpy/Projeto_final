@@ -53,6 +53,40 @@ export default function Salas () {
         setVisivel(!visivel)
   }
 
+  const criarSala = async () => {
+    if (nomeSala === '' || capacidade === null ||localizacao === null || descricao === null) {
+        console.error("Insira todos os campos corretamente!")
+    }
+    try {
+        const formData = new FormData;
+        const dadosSala = {
+            nome_numero : nomeSala,
+            capacidade : capacidade,
+            localizacao : localizacao,
+            descricao : descricao
+        };
+
+        Object.entries(dadosSala).forEach(([key, value]) => {
+            formData.append(key, String(value))
+        })
+
+        const resposta = await criarSalas(formData)
+
+        console.log(resposta)
+        setCarregando(true)
+        const carregarSalas = await obterSalas()
+        setSalas(carregarSalas)
+        setCarregando(false)
+    } catch (error : any) {
+        throw new Error('Erro ao adicionar sala', error)
+    }
+    setNomeSala('')
+    setDescricao('')
+    setCapacidade(0),
+    setLocalizacao('')
+}
+
+
 
     useEffect( () => {
         const carregarSalas = async() => {
@@ -120,6 +154,39 @@ export default function Salas () {
             </Modal>
         )
     }
+    
+    if (visivel) {
+        return(
+            <Modal
+                animationType="slide"
+                transparent={true}>
+                    <View style={{flex : 1, paddingHorizontal : 10, paddingVertical : 30, backgroundColor : 'white'}}>
+                            <ScrollView showsVerticalScrollIndicator={false}>
+                                <Text>Nome da Sala*</Text>
+                                <TextInput placeholder="Ex : Informática 1" style={style.inputs} value={nomeSala} onChangeText={setNomeSala}></TextInput>
+                                <Text>Capacidade*</Text>
+                                <TextInput placeholder="Ex: 30" keyboardType="numeric" style={style.input2} value={capacidade} onChangeText={setCapacidade}></TextInput>
+                                <Text>Localização*</Text>
+                                <TextInput placeholder="Ex: BLOCO A" style={style.localizacao} value={localizacao} onChangeText={setLocalizacao}></TextInput>
+                                <Text>Descrição (Opcional)</Text>
+                                <TextInput placeholder="Ex: Sala de informatica, Vaio" style={style.descricao} value={descricao} onChangeText={setDescricao}></TextInput>
+                            </ScrollView>
+                            <View style={{flexDirection : 'row', justifyContent:'space-between', width : '100%', marginBottom : '40%'}}>
+                                        <TouchableOpacity style={{height : 40, width : 95, justifyContent : 'center', alignItems : 'center', backgroundColor : 'orange'}} onPress={mostrarModal}>
+                                            <Text style={{fontSize : 18}}>
+                                                Cancelar
+                                            </Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity style={style.limpar} onPress={criarSala}>
+                                            <Text style={style.textButton}>
+                                                +  Adicionar
+                                            </Text>
+                                        </TouchableOpacity>
+                            </View>
+                    </View>
+            </Modal>
+        )
+    }
 
     const renderizarSala = ({item} : {item: CarregarSalas}) => (
             <View>
@@ -172,75 +239,10 @@ export default function Salas () {
             </View>
     );
 
-    const criarSala = async () => {
-        mostrarModal() 
-        if (nomeSala === '' || capacidade === null ||localizacao === null || descricao === null) {
-            console.error("Insira todos os campos corretamente!")
-        }
-        try {
-            const formData = new FormData;
-            const dadosSala = {
-                nome_numero : nomeSala,
-                capacidade : capacidade,
-                localizacao : localizacao,
-                descricao : descricao
-            };
-
-            Object.entries(dadosSala).forEach(([key, value]) => {
-                formData.append(key, String(value))
-            })
-
-            const resposta = await criarSalas(formData)
-
-            console.log(resposta)
-            setCarregando(true)
-            const carregarSalas = await obterSalas()
-            setSalas(carregarSalas)
-            setCarregando(false)
-        } catch (error : any) {
-            throw new Error('Erro ao adicionar sala', error)
-        }
-        setNomeSala('')
-        setDescricao('')
-        setCapacidade(0),
-        setLocalizacao('')
-    }
-
+   
 
     return (
         <View style={{flex : 1}}>
-            <Modal 
-            animationType="slide"
-            transparent={true}
-            visible={visivel}
-            onRequestClose={mostrarModal}>
-                <View style={style.containerModal}>
-                    <View style={{backgroundColor : 'white', width : width > 600 ? 800 : '80%', padding : 30, borderRadius : 10}}>
-                            <ScrollView showsVerticalScrollIndicator={false}>
-                                <Text>Nome da Sala*</Text>
-                                <TextInput placeholder="Ex : Informática 1" style={style.inputs} value={nomeSala} onChangeText={setNomeSala}></TextInput>
-                                <Text>Capacidade*</Text>
-                                <TextInput placeholder="Ex: 30" keyboardType="numeric" style={style.input2} value={capacidade} onChangeText={setCapacidade}></TextInput>
-                                <Text>Localização*</Text>
-                                <TextInput placeholder="Ex: BLOCO A" style={style.localizacao} value={localizacao} onChangeText={setLocalizacao}></TextInput>
-                                <Text>Descrição (Opcional)</Text>
-                                <TextInput placeholder="Ex: Sala de informatica, Vaio" style={style.descricao} value={descricao} onChangeText={setDescricao}></TextInput>
-                            </ScrollView>
-                            <View style={{flexDirection : 'row', justifyContent:'space-between', paddingBlock : 10, width : '100%'}}>
-                                        <TouchableOpacity style={{padding : 10, backgroundColor : 'orange'}} onPress={mostrarModal}>
-                                            <Text style={{fontSize : 18}}>
-                                                Cancelar
-                                            </Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity style={style.limpar} onPress={criarSala}>
-                                            <Text style={style.textButton}>
-                                                +  Adicionar
-                                            </Text>
-                                        </TouchableOpacity>
-                            </View>
-                    </View>
-                </View>
-            </Modal>
             <View style={style.headerAdd}>
                 <TouchableOpacity style = {style.mostrarModal} onPress={mostrarModal}>
                     <Text style={style.buttonAdd}>+</Text>
@@ -286,7 +288,6 @@ const style = StyleSheet.create({
         borderRadius : 10
     },
     containerModal : {
-        ...StyleSheet.absoluteFillObject,
         justifyContent : 'center',
         alignItems : 'center',
         flex : 1,
@@ -332,7 +333,7 @@ const style = StyleSheet.create({
     },
     textButton : {
         fontSize : 18,
-        color : 'white'
+        color : 'white',
     },
     info : {
         fontSize : 10
@@ -356,8 +357,10 @@ const style = StyleSheet.create({
     },
     limpar : {
         backgroundColor : '#004A8D',
-        padding : 10,
+        height : 40,
+        width : 100,
         alignItems : 'center',
+        flexDirection : 'row'
     },
     flatList : {
         alignItems : 'center'

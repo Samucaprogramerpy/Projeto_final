@@ -14,16 +14,26 @@ export default function TelaColaborador(){
     const [salas, setSalas] = useState<CarregarSalas[]>([])
     const [carregando, setCarregando] = useState(false)
     const [openCamera, setOpenCamera] = useState(false)
-    const [grupo, setGrupo] = useState<boolean>()   
+    const [grupo, setGrupo] = useState<boolean>() 
+    const [idLimpeza, setIdLimpeza] = useState('') 
     const [fotoTirada, setFotoTirada] = useState<string | null>(null)
     const [permissao, setPermissao] = useState<boolean>(false);
     const [modal, showModal] = useState(false)
     const [salauuid, setSalaUUID] = useState('')
+    const [fotoEnviada, setFotoEnviada] = useState<boolean>(false)
     const foto = useRef<CameraView>(null)
 
 
-    const abrirModal = (qr_code_id : any) => {
-        showModal(true),
+    const abrirModal = async(qr_code_id : any) => {
+        showModal(true)
+        try {
+            const resposta = await api.get(`limpezas/?sala_uuid=${qr_code_id}`)
+            const sala = resposta.data
+            const id = sala[0].id 
+            setIdLimpeza(id)
+        } catch(error) {
+            console.error('erro ao procurar sala!', error)
+        }
         setSalaUUID(qr_code_id)
     }
 
@@ -36,6 +46,7 @@ export default function TelaColaborador(){
             formData.append('sala', qr_code_id)
 
             const resposta = await api.post(`salas/${qr_code_id}/iniciar_limpeza/`, formData)
+            setIdLimpeza(resposta.data.id)
             setCarregando(true)
             const newSalas = await obterSalas()
             setSalas(newSalas)
@@ -49,7 +60,7 @@ export default function TelaColaborador(){
     const tirarFoto = async () => {
         if (foto.current) {
             const newFoto = await foto.current.takePictureAsync({
-                quality : 0.8,
+                quality : 0.5,
                 skipProcessing : false
             });            
 
@@ -65,42 +76,34 @@ export default function TelaColaborador(){
             try {
                 const formData = new FormData()
 
-                formData.append("sala", salauuid)
-
-                const maniFoto = await ImageManipulador.manipulateAsync(fotoTirada, [{resize : {width : 1280}}], {
-                    compress : 0.7,
-                    format : ImageManipulador.SaveFormat.JPEG
-                })
-
-
-                
-
-                const fileCompress = maniFoto.uri
-                const filename = fileCompress?.split('/').pop();
+                const filename = fotoTirada?.split('/').pop();
                 const filetype = 'image/jpeg'
                 
-                if (!fotoTirada){
-                    console.log('ops')
-                }
-
+                formData.append('registro_limpeza', idLimpeza)
                 
                 formData.append("imagem", {
-                    uri: fileCompress,
-                    type: filetype,
+                    uri: fotoTirada,
                     name: filename, 
+                    type: filetype,
+       
                 } as any);
 
-
-                const resposta = await api.post(`salas/${salauuid}/concluir_limpeza/`, formData, {
+                const resposta = await api.post(`/fotos_limpeza/`, formData, {
                     headers : {
                         'Content-Type' : 'multipart/form-data'
                     }
                 })
-                console.log(resposta.status)
+                
+                try {
+
+                    const resposta = await api.post(`salas/${salauuid}/concluir_limpeza/`)
+                    console.log(resposta.status)
+                } catch (error) {
+                    console.error('Erro ao mudar status da sala', error)
+                }
+                
             } catch (error : any) {
-                console.error("Erro completo:", error);
-                console.error("Erro response:", error.response);
-                console.error("Erro response data:", error.response?.data);
+                console.error("Erro ao executar a limpeza", error);
             } 
             showModal(false)
             setCarregando(false)
