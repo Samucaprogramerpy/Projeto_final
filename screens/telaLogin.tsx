@@ -76,6 +76,9 @@ export default function TelaLogin({aoLoginSucesso,LoginAdmin } : telaLoginProps)
                         
                         <KeyboardAvoidingView behavior="padding" style={style.container}>
                             <View style={style.child}>
+                                <View style={{ alignItems : 'center'}}>
+                                    <Image style={{width : 100, height : 100, resizeMode : 'contain'}} source={require('../img/senac.jpg')}/>
+                                </View>
                                     <View style={style.container_input}>
                                         <TextInput style={style.input}
                                         label={"ID"}

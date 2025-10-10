@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Camera, CameraView } from "expo-camera"
 import { useState, useEffect } from "react"
 import { CarregarSalas } from "../types/salas"
-import { criarSalas, obterSalas } from "../services/servicoSalas"
+import { criarSalas, obterSalas, obterSalasporID } from "../services/servicoSalas"
 import { obterToken } from "../services/servicoTokken"
 import { Dimensions } from "react-native"
 import api from "../api/api"
@@ -22,9 +22,11 @@ export default function Salas () {
     const [ErroSala, setErroSala] = useState<boolean | null>(null)
     const [permissao, setPermissao] = useState<boolean>(false)
     const [showCamera, setShowCamera] = useState(false)
+    const [dadosSala, setDadosSala] = useState<CarregarSalas | null>(null)
     const [mensagemErro, setMensagemErro] = useState('')
+    const [qr_code_id, setQrcodeID] = useState<any>()
     const [nomeSala, setNomeSala] = useState('')
-    const [capacidade, setCapacidade] = useState(0)
+    const [capacidade, setCapacidade] = useState()
     const [localizacao, setLocalizacao] = useState('')
     const [descricao, setDescricao] = useState('')
     const [modalEditor, setModalEditor] = useState(false)
@@ -35,7 +37,6 @@ export default function Salas () {
     const telaMobile = width < 600
 
     const deletar  = async (qr_code_id : any) => {
-
         try{
             const resposta = await api.delete(`salas/${qr_code_id}/`)
             console.log(resposta.status)
@@ -54,37 +55,78 @@ export default function Salas () {
   }
 
   const criarSala = async () => {
-    if (nomeSala === '' || capacidade === null ||localizacao === null || descricao === null) {
-        console.error("Insira todos os campos corretamente!")
+        if (nomeSala === '' || capacidade === null ||localizacao === null || descricao === null) {
+            console.error("Insira todos os campos corretamente!")
+        }
+        try {
+            const formData = new FormData;
+            const dadosSala = {
+                nome_numero : nomeSala,
+                capacidade : capacidade,
+                localizacao : localizacao,
+                descricao : descricao
+            };
+
+            Object.entries(dadosSala).forEach(([key, value]) => {
+                formData.append(key, String(value))
+            })
+
+            const resposta = await criarSalas(formData)
+
+            console.log(resposta)
+            setCarregando(true)
+            const carregarSalas = await obterSalas()
+            setSalas(carregarSalas)
+            setCarregando(false)
+        } catch (error : any) {
+            throw new Error('Erro ao adicionar sala', error)
+        }
+        setNomeSala('')
+        setDescricao('')
+        setCapacidade(0),
+        setLocalizacao('')
     }
-    try {
-        const formData = new FormData;
+    const encontrarSala = async(qr_code_id : any) => {
+        setQrcodeID(qr_code_id)
+        const sala = await obterSalasporID(qr_code_id)
+        setModalEditor(true)
+        setCarregando(true)
+        setNomeSala(sala.nome_numero)
+        setCapacidade(sala.capacidade)
+        setLocalizacao(sala.localizacao)
+        setDescricao(sala.descricao)
+        setCarregando(false)
+    }
+
+    const atualizarSalas =async () => {
+        
         const dadosSala = {
             nome_numero : nomeSala,
             capacidade : capacidade,
             localizacao : localizacao,
+            ativa : true,
             descricao : descricao
         };
-
-        Object.entries(dadosSala).forEach(([key, value]) => {
-            formData.append(key, String(value))
-        })
-
-        const resposta = await criarSalas(formData)
-
-        console.log(resposta)
+        try {
+            const formData = new FormData()
+            Object.entries(dadosSala).forEach(([key, value]) => {
+                formData.append(key, String(value))
+            })
+            const resposta = await api.put(`salas/${qr_code_id}/`, formData, {
+                headers : {
+                    'Content-Type' : 'multipart/form-data'
+                }
+            })
+            console.log(resposta.status)
+        } catch (error : any) {
+            console.error('Erro ao atualizar campos', error.response?.data)
+        }
         setCarregando(true)
-        const carregarSalas = await obterSalas()
-        setSalas(carregarSalas)
+        setModalEditor(false)
+        const salas = await obterSalas()
+        setSalas(salas)
         setCarregando(false)
-    } catch (error : any) {
-        throw new Error('Erro ao adicionar sala', error)
     }
-    setNomeSala('')
-    setDescricao('')
-    setCapacidade(0),
-    setLocalizacao('')
-}
 
 
 
@@ -131,25 +173,25 @@ export default function Salas () {
             <Modal transparent={true}>
                 <View style={{flex : 1, padding : 15, marginTop : 10}}>
                 <View showsVerticalScrollIndicator={false}>
-                     <Text>Nome da Sala*</Text>
-                     <TextInput placeholder="Ex : Informática 1" style={style.inputs} value={nomeSala} onChangeText={setNomeSala}></TextInput>
-                     <Text>Capacidade*</Text>
-                     <TextInput placeholder="Ex: 30" keyboardType="numeric" style={style.input2} value={capacidade} onChangeText={setCapacidade}></TextInput>
-                     <Text>Localização*</Text>
-                     <TextInput placeholder="Ex: BLOCO A" style={style.localizacao} value={localizacao} onChangeText={setLocalizacao}></TextInput>
-                     <Text>Descrição (Opcional)</Text>
-                     <TextInput placeholder="Ex: Sala de informatica, Vaio" style={style.descricao} value={descricao} onChangeText={setDescricao}></TextInput>
-                     <View style={{flexDirection : 'row'}}>
-                         <TouchableOpacity style={{padding : 5, backgroundColor : '#F7941D'}} onPress={() => setModalEditor(false)}>
+                    <Text>Nome da Sala*</Text>
+                    <TextInput placeholder="Ex : Informática 1" style={style.inputs} value={nomeSala} onChangeText={setNomeSala}></TextInput>
+                    <Text>Capacidade*</Text>
+                    <TextInput placeholder="Ex: 30" keyboardType="numeric" style={style.input2} value={capacidade} onChangeText={setCapacidade}></TextInput>
+                    <Text>Localização*</Text>
+                    <TextInput placeholder="Ex: BLOCO A" style={style.localizacao} value={localizacao} onChangeText={setLocalizacao}></TextInput>
+                    <Text>Descrição (Opcional)</Text>
+                    <TextInput placeholder="Ex: Sala de informatica, Vaio" style={style.descricao} value={descricao} onChangeText={setDescricao}></TextInput>
+                    <View style={{flexDirection : 'row', justifyContent : 'space-around', marginTop : 10}}>
+                        <TouchableOpacity style={{padding : 5, backgroundColor : '#F7941D'}} onPress={() => setModalEditor(false)}>
                             <Text>Cancelar</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity>
-                            <Text>Atualizar</Text>
+                        <TouchableOpacity style={{backgroundColor : '#004A8D', padding : 5}} onPress={atualizarSalas}>
+                            <Text style={{color : 'white '}}>Atualizar</Text>
                         </TouchableOpacity>
-                     </View>
-                 </View>
-                 
-                 
+                    </View>
+                </View>
+                
+                
                 </View>
             </Modal>
         )
@@ -187,7 +229,6 @@ export default function Salas () {
             </Modal>
         )
     }
-
     const renderizarSala = ({item} : {item: CarregarSalas}) => (
             <View>
                 <View style={style.flatList}>
@@ -213,7 +254,7 @@ export default function Salas () {
                                             <MenuOption onSelect={() => deletar(item.qr_code_id)}>
                                                 <Ionicons name="trash-outline" size={25} color={'red'}></Ionicons>
                                             </MenuOption>
-                                            <MenuOption onSelect={()=> setModalEditor(true)}>
+                                            <MenuOption onSelect={()=> encontrarSala(item.qr_code_id)}>
                                                 <Ionicons name='color-wand-outline' size={25} color={'blue'}></Ionicons>
                                             </MenuOption>
                                         </MenuOptions>

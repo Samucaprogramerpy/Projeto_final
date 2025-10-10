@@ -14,7 +14,7 @@ export default function TelaColaborador(){
     const [salas, setSalas] = useState<CarregarSalas[]>([])
     const [carregando, setCarregando] = useState(false)
     const [openCamera, setOpenCamera] = useState(false)
-    const [grupo, setGrupo] = useState<boolean>() 
+    const [grupo, setGrupo] = useState<boolean>(false) 
     const [idLimpeza, setIdLimpeza] = useState('') 
     const [fotoTirada, setFotoTirada] = useState<string | null>(null)
     const [permissao, setPermissao] = useState<boolean>(false);
@@ -111,6 +111,21 @@ export default function TelaColaborador(){
             setSalas(newSalas)
 
         }
+    
+    const marcarComoSuja =async (qr_code_id : any) => {
+        try {
+            const resposta = await api.post(`salas/${qr_code_id}/marcar_como_suja/`)
+            console.log(resposta.status)
+        } catch (error) {
+            console.error("Erro ao marcar sala como suja", error)
+        }
+        setCarregando(true)
+        const newSalas = await obterSalas()
+        setSalas(newSalas)
+        setCarregando(false)
+    }
+    
+
 
     useEffect(() => {
         (async () => {
@@ -125,7 +140,7 @@ export default function TelaColaborador(){
                 const resposta = await api.get('accounts/current_user')
                 const grupo_usuario = resposta.data.groups
 
-                if (grupo_usuario.includes(1)) {
+                if (grupo_usuario.includes(2)) {
                     setGrupo(true)
                 } else {
                     setGrupo(false)
@@ -174,10 +189,46 @@ export default function TelaColaborador(){
             </View>
         )
     }
-
+    
 
 
     const renderizarSala = ({item} : {item: CarregarSalas}) => {
+            if (grupo === true) {
+                return(
+                    <View style={{alignItems : 'center'}}>
+                        <View style={style.CardSala}>
+                            <View style={{borderBottomWidth : 1, width : '100%', justifyContent : 'flex-end', flexDirection : 'row', borderBottomColor : '#004A8D'}}>
+                                <View style={{width : '90%',  justifyContent : "center",flex : 1}}>
+                                    <Text style={{marginLeft : 5}}>{item.nome_numero}</Text>
+                                </View>
+                                <View style={{marginRight : 5}}>
+                                    <Menu>
+                                        <MenuTrigger>
+                                            <View>
+                                                <Ionicons name="ellipsis-horizontal-outline" size={15}></Ionicons>
+                                            </View>
+                                        </MenuTrigger>
+                                        <MenuOptions customStyles={{optionsContainer : style.menu}}>
+                                            <MenuOption onSelect={() => marcarComoSuja(item.qr_code_id)}>
+                                                <Ionicons name="close-circle-outline" size={25}/>
+                                            </MenuOption>
+                                        </MenuOptions>
+                                    </Menu>
+                                </View>
+                            </View>
+                            <Text style={style.nomeinfo}>{item.capacidade}</Text>
+                            <Text style={style.nomeinfo}>{item.localizacao}</Text>
+                            <Text style={style.nomeinfo}>{item.descricao}</Text>
+                            <View style={{flexDirection : 'row', alignItems : 'center', marginHorizontal : 10}}>
+                                <Text>Status : </Text>
+                                <Text style={{paddingLeft : 10, color:item.status_limpeza==='Limpa' ? 'rgba(46, 147, 46, 1)' : item.status_limpeza==='Em Limpeza' ? 'white' : 'rgba(237, 8, 8, 0.91)', backgroundColor : item.status_limpeza==='Limpa' ? 'rgba(178, 246, 206, 1)' : item.status_limpeza==='Em Limpeza' ? 'rgba(38, 38, 253, 0.96)' : 'rgba(253, 79, 79, 0.53)', paddingRight : 10,padding : 5, textAlign : 'center', borderRadius : 5}}>
+                                    {item.status_limpeza}
+                                </Text>
+                            </View>
+                        </View>
+                    </View>
+                )
+            }
             if (item.status_limpeza === 'Em Limpeza'){
                 return (
                     <View style={{alignItems : 'center'}}>

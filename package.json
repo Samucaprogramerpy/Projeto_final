@@ -23,7 +23,7 @@
     "axios": "^1.11.0",
     "bootstrap": "^5.3.7",
     "date-fns": "^4.1.0",
-    "expo": "^54.0.12",
+    "expo": "^54.0.13",
     "expo-camera": "^17.0.8",
     "expo-image-manipulator": "~14.0.7",
     "expo-status-bar": "^3.0.8",
