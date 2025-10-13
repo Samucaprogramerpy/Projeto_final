@@ -1,6 +1,6 @@
 import { Text, View, StyleSheet, FlatList, ActivityIndicator, Image, Modal } from "react-native";
 import { TouchableOpacity } from "react-native";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, use } from "react";
 import { CarregarSalas } from "../types/salas"
 import * as ImageManipulador from 'expo-image-manipulator'
 import { Ionicons } from '@expo/vector-icons';
@@ -22,7 +22,6 @@ export default function TelaColaborador(){
     const [salauuid, setSalaUUID] = useState('')
     const [fotoEnviada, setFotoEnviada] = useState<boolean>(false)
     const foto = useRef<CameraView>(null)
-
 
     const abrirModal = async(qr_code_id : any) => {
         showModal(true)
@@ -153,8 +152,8 @@ export default function TelaColaborador(){
         group()
     }, [])
 
-    useEffect(() => {        
-        const carregarSalas = async () => {
+    useEffect(() => {       
+         const carregarSalas = async () => {
 
             setCarregando(true);
             try{
@@ -166,9 +165,19 @@ export default function TelaColaborador(){
                 setCarregando(false)
             }
             
-        };
+        }; 
+       
         carregarSalas()
     }, [])
+
+    useEffect(() => {
+        const atualizarSalas = async() => {
+            const resposta = await obterSalas()
+            setSalas(resposta)
+        }
+        const intervalo = setInterval(atualizarSalas, 5000)
+        return () => clearInterval(intervalo)
+    },[])
 
     if (carregando) {
         return(

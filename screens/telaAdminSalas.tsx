@@ -36,6 +36,8 @@ export default function Salas () {
 
     const telaMobile = width < 600
 
+    
+
     const deletar  = async (qr_code_id : any) => {
         try{
             const resposta = await api.delete(`salas/${qr_code_id}/`)
@@ -75,12 +77,14 @@ export default function Salas () {
 
             console.log(resposta)
             setCarregando(true)
+            setVisivel(false)
             const carregarSalas = await obterSalas()
             setSalas(carregarSalas)
             setCarregando(false)
         } catch (error : any) {
             throw new Error('Erro ao adicionar sala', error)
         }
+
         setNomeSala('')
         setDescricao('')
         setCapacidade(0),
@@ -128,6 +132,18 @@ export default function Salas () {
         setCarregando(false)
     }
 
+    const marcarComoSuja =async (qr_code_id : any) => {
+        try {
+            const resposta = await api.post(`salas/${qr_code_id}/marcar_como_suja/`)
+            console.log(resposta.status)
+        } catch (error : any) {
+            console.error("Erro ao marcar sala como suja", error)
+        }
+        setCarregando(true)
+        const newSalas = await obterSalas()
+        setSalas(newSalas)
+        setCarregando(false)
+    }
 
 
     useEffect( () => {
@@ -142,8 +158,22 @@ export default function Salas () {
             }
         }
         carregarSalas()
-       
+        
     }, []);
+
+    useEffect(() => {
+        const atualizarSalas = async() => {
+            try{
+                const resposta = await obterSalas()
+                setSalas(resposta)
+            } catch(error) {
+                console.error(error)
+            }
+        }
+        const intervalo = setInterval(atualizarSalas, 5000)
+
+        return () => clearInterval(intervalo)
+    }, [])
 
     useEffect(() => {
             (async () => {
@@ -256,6 +286,9 @@ export default function Salas () {
                                             </MenuOption>
                                             <MenuOption onSelect={()=> encontrarSala(item.qr_code_id)}>
                                                 <Ionicons name='color-wand-outline' size={25} color={'blue'}></Ionicons>
+                                            </MenuOption>
+                                            <MenuOption onSelect={() => marcarComoSuja(item.qr_code_id)}>
+                                                <Ionicons name="close-circle-outline" size={25}/>
                                             </MenuOption>
                                         </MenuOptions>
                                     </Menu>

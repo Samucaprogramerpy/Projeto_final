@@ -12,6 +12,8 @@
     "@expo/metro-runtime": "^6.1.2",
     "@ionic/core": "^8.7.4",
     "@react-native-async-storage/async-storage": "^2.2.0",
+    "@react-native-firebase/app": "^23.4.0",
+    "@react-native-firebase/firestore": "^23.4.0",
     "@react-navigation/bottom-tabs": "^7.4.7",
     "@react-navigation/elements": "^2.6.4",
     "@react-navigation/material-top-tabs": "^7.3.7",
