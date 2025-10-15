@@ -10,6 +10,7 @@ import { Camera, CameraView } from "expo-camera";
 import api from "../api/api";
 import Load from "./telaLoad";
 
+
 export default function TelaColaborador(){
     const [salas, setSalas] = useState<CarregarSalas[]>([])
     const [carregando, setCarregando] = useState(false)
@@ -22,6 +23,7 @@ export default function TelaColaborador(){
     const [salauuid, setSalaUUID] = useState('')
     const [fotoEnviada, setFotoEnviada] = useState<boolean>(false)
     const foto = useRef<CameraView>(null)
+
 
     const abrirModal = async(qr_code_id : any) => {
         showModal(true)
@@ -106,6 +108,7 @@ export default function TelaColaborador(){
             } 
             showModal(false)
             setCarregando(false)
+
             const newSalas = await obterSalas()
             setSalas(newSalas)
 
@@ -123,8 +126,6 @@ export default function TelaColaborador(){
         setSalas(newSalas)
         setCarregando(false)
     }
-    
-
 
     useEffect(() => {
         (async () => {
@@ -144,7 +145,6 @@ export default function TelaColaborador(){
                 } else {
                     setGrupo(false)
                 }
-
             } catch(error) {
                 console.error(error)
             }
@@ -152,9 +152,11 @@ export default function TelaColaborador(){
         group()
     }, [])
 
+
     useEffect(() => {       
          const carregarSalas = async () => {
-
+            const dado = await getStatus()
+            console.log(dado)
             setCarregando(true);
             try{
                 const Salas = await obterSalas()
@@ -169,15 +171,6 @@ export default function TelaColaborador(){
        
         carregarSalas()
     }, [])
-
-    useEffect(() => {
-        const atualizarSalas = async() => {
-            const resposta = await obterSalas()
-            setSalas(resposta)
-        }
-        const intervalo = setInterval(atualizarSalas, 5000)
-        return () => clearInterval(intervalo)
-    },[])
 
     if (carregando) {
         return(

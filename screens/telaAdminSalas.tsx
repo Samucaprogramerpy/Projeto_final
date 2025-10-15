@@ -5,12 +5,14 @@ import { Menu, MenuOptions, MenuOption, MenuTrigger } from "react-native-popup-m
 import { Ionicons } from '@expo/vector-icons';
 import { Camera, CameraView } from "expo-camera"
 import { useState, useEffect } from "react"
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CarregarSalas } from "../types/salas"
 import { criarSalas, obterSalas, obterSalasporID } from "../services/servicoSalas"
 import { obterToken } from "../services/servicoTokken"
 import { Dimensions } from "react-native"
 import api from "../api/api"
 import Load from "./telaLoad"
+
 
 
 
@@ -36,14 +38,12 @@ export default function Salas () {
 
     const telaMobile = width < 600
 
-    
-
     const deletar  = async (qr_code_id : any) => {
         try{
             const resposta = await api.delete(`salas/${qr_code_id}/`)
             console.log(resposta.status)
-        } catch(error) {
-            console.error('Erro ao excluir a sala', error)
+        } catch(error : any) {
+            console.error('Erro ao excluir a sala')
         }
         setCarregando(true)
         const resposta = await obterSalas()
@@ -158,22 +158,9 @@ export default function Salas () {
             }
         }
         carregarSalas()
+
         
     }, []);
-
-    useEffect(() => {
-        const atualizarSalas = async() => {
-            try{
-                const resposta = await obterSalas()
-                setSalas(resposta)
-            } catch(error) {
-                console.error(error)
-            }
-        }
-        const intervalo = setInterval(atualizarSalas, 5000)
-
-        return () => clearInterval(intervalo)
-    }, [])
 
     useEffect(() => {
             (async () => {
