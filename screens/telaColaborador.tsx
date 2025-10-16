@@ -1,11 +1,13 @@
 import { Text, View, StyleSheet, FlatList, ActivityIndicator, Image, Modal } from "react-native";
-import { TouchableOpacity } from "react-native";
-import { useState, useEffect, useRef, use } from "react";
+import { TouchableOpacity, AppState } from "react-native";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import { CarregarSalas } from "../types/salas"
 import * as ImageManipulador from 'expo-image-manipulator'
 import { Ionicons } from '@expo/vector-icons';
 import { Menu, MenuOption, MenuTrigger, MenuOptions } from "react-native-popup-menu";
 import { obterSalas, obterSalasporID, obterUsers } from "../services/servicoSalas";
+import { setValor, getValor} from "../services/servicoUpdate";
 import { Camera, CameraView } from "expo-camera";
 import api from "../api/api";
 import Load from "./telaLoad";
@@ -127,6 +129,21 @@ export default function TelaColaborador(){
         setCarregando(false)
     }
 
+    const carregarSalas = async () => {
+        setCarregando(true);
+        try{
+            const Salas = await obterSalas()
+            setSalas(Salas)
+        } catch (error) {
+            console.error('Não foi possivel carregar os produtos', error)
+        } finally {
+            setCarregando(false)
+        }
+        
+    }; 
+   
+
+
     useEffect(() => {
         (async () => {
             const {status} = await Camera.requestCameraPermissionsAsync();
@@ -155,8 +172,6 @@ export default function TelaColaborador(){
 
     useEffect(() => {       
          const carregarSalas = async () => {
-            const dado = await getStatus()
-            console.log(dado)
             setCarregando(true);
             try{
                 const Salas = await obterSalas()
@@ -171,6 +186,24 @@ export default function TelaColaborador(){
        
         carregarSalas()
     }, [])
+
+    useFocusEffect(
+        useCallback(() => {
+            const verificar = async() => {
+               const status = await getValor()
+               if (status === 'true'){
+                await carregarSalas()
+                await setValor(false)
+               }
+            };
+            
+            const IniciarVerificacao = () => {
+                const intervalo = setInterval(verificar, 15000)
+            }
+
+            
+        }, [])
+    )
 
     if (carregando) {
         return(

@@ -19,12 +19,10 @@ import Load from "./telaLoad"
 export default function Salas () {
     const [carregando, setCarregando] = useState(true)
     const [salas, setSalas] = useState<CarregarSalas[]>([])
-    const {width : number} = useWindowDimensions()
     const [visivel, setVisivel] = useState(false)
     const [ErroSala, setErroSala] = useState<boolean | null>(null)
     const [permissao, setPermissao] = useState<boolean>(false)
     const [showCamera, setShowCamera] = useState(false)
-    const [dadosSala, setDadosSala] = useState<CarregarSalas | null>(null)
     const [mensagemErro, setMensagemErro] = useState('')
     const [qr_code_id, setQrcodeID] = useState<any>()
     const [nomeSala, setNomeSala] = useState('')
