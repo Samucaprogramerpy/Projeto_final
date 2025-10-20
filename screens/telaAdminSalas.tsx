@@ -2,6 +2,8 @@ import React from "react"
 import { useIsFocused, useNavigation, useRoute } from "@react-navigation/native"
 import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet, FlatList, Modal, ScrollView, ActivityIndicator, useWindowDimensions } from "react-native"
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from "react-native-popup-menu"
+import { useCallback } from "react"
+import { useFocusEffect } from "@react-navigation/native"
 import { Ionicons } from '@expo/vector-icons';
 import { Camera, CameraView } from "expo-camera"
 import { useState, useEffect } from "react"
@@ -12,6 +14,7 @@ import { obterToken } from "../services/servicoTokken"
 import { Dimensions } from "react-native"
 import api from "../api/api"
 import Load from "./telaLoad"
+import { setValor } from "../services/servicoUpdate";
 
 
 
@@ -32,9 +35,20 @@ export default function Salas () {
     const [modalEditor, setModalEditor] = useState(false)
     const navigation = useNavigation()
     const {width, height } = Dimensions.get('window')
+    const [search, setSearch] = useState<string>('')
+    const [SalasFiltradas, setSalasFiltradas] = useState<CarregarSalas[]>([])
 
 
     const telaMobile = width < 600
+
+    const carregarSalas = async() => {
+            try{
+                const resposta = await obterSalas()
+                setSalas(resposta)
+            } catch(Error) {
+                console.error(Error);
+        }
+    }
 
     const deletar  = async (qr_code_id : any) => {
         try{
@@ -72,10 +86,9 @@ export default function Salas () {
             })
 
             const resposta = await criarSalas(formData)
-
-            console.log(resposta)
             setCarregando(true)
             setVisivel(false)
+            setValor(true)
             const carregarSalas = await obterSalas()
             setSalas(carregarSalas)
             setCarregando(false)
@@ -159,6 +172,31 @@ export default function Salas () {
 
         
     }, []);
+
+    useEffect(() => {
+        if (search === '') {
+          setSalasFiltradas(salas);
+        } else {
+          const produtosEncontrados = salas.filter(sala =>
+            sala.nome_numero.toLowerCase().includes(search.toLowerCase()) ||
+            sala.localizacao.toLowerCase().includes(search.toLowerCase())
+          );
+          setSalasFiltradas(produtosEncontrados);
+        }
+      }, [search, salas]);
+
+    useFocusEffect(
+        useCallback(() => {
+            const verificar = async() => {
+                await carregarSalas()
+            };
+            
+            const intervalo = setInterval(verificar, 20000)
+
+            return () => clearInterval(intervalo)
+        }, [])
+    )
+
 
     useEffect(() => {
             (async () => {
@@ -255,10 +293,10 @@ export default function Salas () {
                         {/* view com o nome das salas */}
                         <View style={{flex : 1,flexDirection : 'column'}}>
                             <View style={{ width : '100%', flexDirection : 'row', justifyContent : 'space-around', borderBottomWidth : 1, paddingVertical : 5}}>
-                                <Text style={{fontSize : 18}}>{item.nome_numero}</Text>
+                                <Text style={{fontSize : 18, flexShrink : 1, width : '85%'}}>{item.nome_numero}</Text>
 
                                 {/* View com as demais informações das salas */}
-                                <View style={{flex : 0.9, alignItems : 'flex-end', justifyContent : 'center'}}>
+                                <View style={{flex : 1, alignItems : 'flex-end', justifyContent : 'center', position : 'static'}}>
                                     <Menu style={{marginRight : 5}}>
                                         <MenuTrigger>
                                             <View>
@@ -303,6 +341,7 @@ export default function Salas () {
     return (
         <View style={{flex : 1}}>
             <View style={style.headerAdd}>
+                <TextInput style={{width : '55%', paddingHorizontal : 5, marginRight : 10, backgroundColor : 'rgba(146, 146, 146, 0.5)', borderRadius : 20}} placeholder="Procure por uma sala" value={search} onChangeText={setSearch}></TextInput>
                 <TouchableOpacity style = {style.mostrarModal} onPress={mostrarModal}>
                     <Text style={style.buttonAdd}>+</Text>
                 </TouchableOpacity>
@@ -310,9 +349,9 @@ export default function Salas () {
                 
             </View>
                 <FlatList
-                data={salas}
+                data={SalasFiltradas}
                 key={1}
-                keyExtractor={(item) => item.nome_numero.toString()}
+                keyExtractor={(item) => item.id.toString()}
                 renderItem={renderizarSala}
                 nestedScrollEnabled={true}
                 />
@@ -324,10 +363,10 @@ const style = StyleSheet.create({
 
     headerAdd : {
         marginTop : 20,
-        alignItems : 'flex-end',
-        justifyContent:"center",
+        justifyContent:"space-around",
         paddingTop : 10,
-        paddingBottom : 10
+        paddingBottom : 10,
+        flexDirection : 'row'
         
     },
     mostrarModal : {
@@ -335,7 +374,7 @@ const style = StyleSheet.create({
         borderRadius : 50,
         paddingLeft : 15,
         paddingRight : 15,
-        marginRight : 10,
+        marginRight : 10
     },
     modal : {
         padding : 30,

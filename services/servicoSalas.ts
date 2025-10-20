@@ -49,7 +49,6 @@ export async function CriarUsers(credenciais: CriarUsuarios) {
             username : credenciais.username,
             password : credenciais.password,
             confirm_password : credenciais.confirm_password,
-            is_staff : credenciais.is_staff,
             is_superuser : credenciais.is_superuser
 
         })

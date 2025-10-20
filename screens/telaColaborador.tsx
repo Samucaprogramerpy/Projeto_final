@@ -130,16 +130,12 @@ export default function TelaColaborador(){
     }
 
     const carregarSalas = async () => {
-        setCarregando(true);
         try{
             const Salas = await obterSalas()
             setSalas(Salas)
         } catch (error) {
             console.error('Não foi possivel carregar os produtos', error)
-        } finally {
-            setCarregando(false)
         }
-        
     }; 
    
 
@@ -190,18 +186,13 @@ export default function TelaColaborador(){
     useFocusEffect(
         useCallback(() => {
             const verificar = async() => {
-               const status = await getValor()
-               if (status === 'true'){
                 await carregarSalas()
-                await setValor(false)
-               }
+                console.log('201')
             };
             
-            const IniciarVerificacao = () => {
-                const intervalo = setInterval(verificar, 15000)
-            }
+            const intervalo = setInterval(verificar, 20000)
 
-            
+            return () => clearInterval(intervalo)
         }, [])
     )
 

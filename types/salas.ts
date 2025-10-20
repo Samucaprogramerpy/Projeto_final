@@ -23,6 +23,7 @@ export interface CarregarUsuarios {
     id: number,
     username: string,
     email: string,
+    groups : [],
     profile? :{
         profile_picture : string | null
     }
@@ -32,6 +33,5 @@ export interface CriarUsuarios {
     username: string,
     password : number,
     confirm_password : number,
-    is_staff : boolean,
     is_superuser : boolean
 }

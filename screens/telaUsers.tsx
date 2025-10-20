@@ -2,6 +2,7 @@ import React from "react"
 import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet, FlatList, Modal, ScrollView, ActivityIndicator, Switch , useWindowDimensions} from "react-native"
 import { useState, useEffect } from "react"
 import { Dimensions } from "react-native"
+import RNPickerSelect from 'react-native-picker-select';
 import { criarSalas, CriarUsers, obterSalas, obterUsers } from "../services/servicoSalas"
 import { CarregarUsuarios } from "../types/salas"
 import api from "../api/api"
@@ -17,17 +18,31 @@ export default function Users () {
     const [on, setOn] = useState<boolean>(false)
     const [admin, setAdmin] = useState<boolean>(false)
     const {width, height} = Dimensions.get('window')
+    const [search, setSearch] = useState('')
+    const [usuariosFiltrados, setUsuariosFiltrados] = useState<CarregarUsuarios[]>([])
+    const [selected, setSelected] = useState(null)
 
 
     const viewWidth = width * 0.78;
     const viewHeight = height * 0.5;
 
+    const options = [
+        { label : 1, value : 1},
+        {label : 2, value : 2},
+        {label : [1, 2], value : [1, 2]}
+    ]
 
+    const placeholder = {
+        label : 'Escolha um grupo',
+        value : null
+    }
 
     const handleSwitch = () => {
         setOn(!on)
         if (on === false) {
             setAdmin(true)
+        } else {
+            setAdmin(false)
         }
     }
     const mostrarModal = () => {
@@ -44,9 +59,60 @@ export default function Users () {
     useEffect(() => {
         carregarUsers()
     }, []);
+
+    useEffect(() => {
+        if (search === '') {
+            setUsuariosFiltrados(users)
+        } else {
+            const filtrarUsers = users.filter(usuario => 
+                usuario.username.toLowerCase().includes(search.toLowerCase())
+            )
+            setUsuariosFiltrados(filtrarUsers)
+        }
+    }, [search, users])
     
      const renderizarSala = ({item} : {item: CarregarUsuarios}) => {
         const imageURL = item.profile?.profile_picture ? `https://zeladoria.tsr.net.br/${item.profile.profile_picture}` : null
+        if (item.groups.length === 2) {
+            return(
+                <View style={style.containerList}>
+                <View style={style.CardSala}>
+                {imageURL ? (
+                        <Image style={{width : 60, height : 60, borderRadius: 30, marginBottom : 30}} source={{uri : imageURL}}/>
+                    ) : (
+                        <View></View>
+                    )}
+                    <View style={{flex : 1}}>
+                        <Text style={style.nome}>{item.username}</Text>
+                        <Text style={{flex : 1, marginTop : 10, textAlign : 'center'}}>obs : Este usuário pertence aos dois grupos</Text>
+                        <Text style={style.nome}>{item.email}</Text>
+                    </View>
+                    
+                </View>
+     
+            </View>
+            )
+        }
+        else if (item.groups.length < 1) {
+            return (
+                 <View style={style.containerList}>
+                <View style={style.CardSala}>
+                {imageURL ? (
+                        <Image style={{width : 60, height : 60, borderRadius: 30, marginBottom : 30}} source={{uri : imageURL}}/>
+                    ) : (
+                        <View></View>
+                    )}
+                    <View style={{flex : 1}}>
+                        <Text style={style.nome}>{item.username}</Text>
+                        <Text style={{flex : 1, marginTop : 10, textAlign : 'center'}}>obs : Este usuário ainda não pertence a um grupo</Text>
+                        <Text style={style.nome}>{item.email}</Text>
+                    </View>
+                    
+                </View>
+     
+            </View>
+            )
+        }
         return(
             <View style={style.containerList}>
                 <View style={style.CardSala}>
@@ -57,6 +123,7 @@ export default function Users () {
                     )}
                     <View style={{flex : 1}}>
                         <Text style={style.nome}>{item.username}</Text>
+                        <Text>grupo : {item.groups}</Text>
                         <Text style={style.nome}>{item.email}</Text>
                     </View>
                     
@@ -74,7 +141,7 @@ export default function Users () {
             console.error("Insira todos os campos corretamente")
         } else {
             try{
-                const resposta = CriarUsers({username : nome, password : Senha, confirm_password : confirm_Senha, is_staff : admin, is_superuser : admin})
+                const resposta = CriarUsers({username : nome, password : Senha, confirm_password : confirm_Senha, is_superuser : admin})
                 carregarUsers()
                 setNome('')
                 setSenha(0)
@@ -87,60 +154,75 @@ export default function Users () {
         
 
     }
-
-    return (
-        <View style={style.container}>  
+    if (visivel) {
+        return(
             <Modal 
             animationType="slide"
             transparent={true}
             visible={visivel}
             onRequestClose={mostrarModal}>
                 <View style={style.containerModal}>
-                    <View style={{width : viewWidth > 600 ? width * 0.8 : width * 1, backgroundColor : 'white', padding : 20, borderRadius : 10, height : viewHeight}}>
-                            <ScrollView showsVerticalScrollIndicator={false}>
-                                <Text style={{fontSize : 16}}>Nome*</Text>
-                                <TextInput placeholder="Manuela" style={style.inputs} value={nome} onChangeText={setNome}></TextInput>
-                                <Text style={{fontSize : 16}}>Senha*</Text>
-                                <TextInput placeholder="Insira a senha" style={style.input2} value={Senha} onChangeText={setSenha}></TextInput>
-                                <Text style={{fontSize : 16}}>Confirme a senha*</Text>
-                                <TextInput placeholder="Confirme a senha" style={style.localizacao} value={confirm_Senha} onChangeText={setConfirm_Senha}></TextInput>
-                                <View style={style.setAdmin}>
-                                    <Text style={{fontSize : 16}}>É Admin ?</Text>
-                                    <View style={style.Switch}>
-                                        <Switch
-                                        value={on}
-                                        onValueChange={handleSwitch}
-                                        />
-                                    </View>    
+                    <Text style={{fontSize : 30, width : '100%', textAlign : 'left', marginLeft : 20}}>Criar Usuário</Text>
+                    <View style={{ height : '80%', marginBottom : 50}}>
+                        <ScrollView showsVerticalScrollIndicator={false}>
+                            <Text style={{fontSize : 16}}>Nome*</Text>
+                            <TextInput placeholder="Manuela" style={style.inputs} value={nome} onChangeText={setNome}></TextInput>
+                            <Text style={{fontSize : 16}}>Senha*</Text>
+                            <TextInput placeholder="Insira a senha" style={style.input2} value={Senha} onChangeText={setSenha}></TextInput>
+                            <Text style={{fontSize : 16}}>Confirme a senha*</Text>
+                            <TextInput placeholder="Confirme a senha" style={style.localizacao} value={confirm_Senha} onChangeText={setConfirm_Senha}></TextInput>
+                            <View style={style.setAdmin}>
+                                <Text style={{fontSize : 16}}>É Admin ?</Text>
+                                <View style={style.Switch}>
+                                    <Switch
+                                    value={on}
+                                    onValueChange={handleSwitch}
+                                    />
                                 </View>
-                            </ScrollView>
-                            <View style={{alignItems : 'center', flexDirection : 'row', justifyContent : 'space-around', marginTop : 10, position : 'relative'}}>
-                                    <TouchableOpacity onPress={mostrarModal} style={{padding : 10, backgroundColor : 'orange'}}>
-                                        <Text style={{fontSize : 18}}>
-                                            Cancelar
-                                        </Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity style={style.buttonAdd} onPress={criarSala}>
-                                        <Text style={style.textButton}>
-                                            +  Adicionar
-                                        </Text>
-                                    </TouchableOpacity>
                             </View>
+                            <View style={{borderWidth : 1, justifyContent : 'center'}}>
+                                <Text>Qual o grupo?</Text>
+                                <RNPickerSelect
+                                style={style.options}
+                                placeholder={placeholder}
+                                items={options}
+                                value={selected}
+                                onValueChange={(value) => setSelected(value)}/>
+                            </View>
+                        </ScrollView>
+                        <View style={{alignItems : 'center', flexDirection : 'row', justifyContent : 'space-around', marginTop : 10, position : 'relative'}}>
+                                <TouchableOpacity onPress={mostrarModal} style={{padding : 10, backgroundColor : 'orange'}}>
+                                    <Text style={{fontSize : 18}}>
+                                        Cancelar
+                                    </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={style.buttonAdd} onPress={criarSala}>
+                                    <Text style={style.textButton}>
+                                        +  Adicionar
+                                    </Text>
+                                </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
             </Modal>
+        )
+    }
+
+    return (
+        <View style={style.container}>  
             <View style={style.headerAdd}>
                 <View style={{width : '100%', alignItems : 'center', justifyContent : 'space-around', flexDirection : 'row'}}>
                     <View style={{marginRight : '30%'}}>
                         <Text style={style.gerenciarUsuarios}>Gerenciar Usuários</Text>
                     </View>
-                    <TouchableOpacity style={style.mostrarModal} onPress={mostrarModal}>
+                    <TouchableOpacity style={style.mostrarModal} onPress={() => setVisivel(true)}>
                         <Text style={style.textplus}>+</Text>
                     </TouchableOpacity>
                 </View>
             </View>
+                <TextInput style={{width : '100%', backgroundColor : 'rgba(121, 118, 118, 0.5)', borderRadius : 15}} placeholder="Encontre algum usuário" value={search} onChangeText={setSearch}></TextInput>
                 <FlatList
-                data={users}
+                data={usuariosFiltrados}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={renderizarSala}
                 nestedScrollEnabled={true}
@@ -164,6 +246,9 @@ const style = StyleSheet.create({
         borderBottomWidth : 1,  
         borderBottomColor : '#F7941D'
     },
+    options : {
+        borderWidth : 1
+    },
     CardSala : {
         backgroundColor : "white",
         borderRadius : 10,
@@ -177,7 +262,7 @@ const style = StyleSheet.create({
         justifyContent : 'space-around',
         alignItems : 'center',
         flex : 1,
-        backgroundColor : 'rgba(99, 99, 99, 0.8)',
+        backgroundColor : 'white',
     },
     containerList : {
         justifyContent : 'center',
