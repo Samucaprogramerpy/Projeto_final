@@ -2,7 +2,7 @@ import React from "react"
 import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet, FlatList, Modal, ScrollView, ActivityIndicator, Switch , useWindowDimensions} from "react-native"
 import { useState, useEffect } from "react"
 import { Dimensions } from "react-native"
-import RNPickerSelect from 'react-native-picker-select';
+import {Picker} from '@react-native-picker/picker'
 import { criarSalas, CriarUsers, obterSalas, obterUsers } from "../services/servicoSalas"
 import { CarregarUsuarios } from "../types/salas"
 import api from "../api/api"
@@ -20,22 +20,12 @@ export default function Users () {
     const {width, height} = Dimensions.get('window')
     const [search, setSearch] = useState('')
     const [usuariosFiltrados, setUsuariosFiltrados] = useState<CarregarUsuarios[]>([])
-    const [selected, setSelected] = useState(null)
+    const [selected, setSelected] = useState<any>()
 
 
     const viewWidth = width * 0.78;
     const viewHeight = height * 0.5;
 
-    const options = [
-        { label : 1, value : 1},
-        {label : 2, value : 2},
-        {label : [1, 2], value : [1, 2]}
-    ]
-
-    const placeholder = {
-        label : 'Escolha um grupo',
-        value : null
-    }
 
     const handleSwitch = () => {
         setOn(!on)
@@ -133,6 +123,9 @@ export default function Users () {
         );
      };
     
+    const ValorPicker = (itemValue : any, itemIndex : any) => {
+        setSelected(parseInt(itemValue))
+    }
     const criarSala = async () => {
         mostrarModal()
         if (Senha !== confirm_Senha){
@@ -180,14 +173,14 @@ export default function Users () {
                                     />
                                 </View>
                             </View>
-                            <View style={{borderWidth : 1, justifyContent : 'center'}}>
+                            <View style={{justifyContent : 'space-around', flexDirection : 'row', alignItems : 'center'}}>
                                 <Text>Qual o grupo?</Text>
-                                <RNPickerSelect
-                                style={style.options}
-                                placeholder={placeholder}
-                                items={options}
-                                value={selected}
-                                onValueChange={(value) => setSelected(value)}/>
+                                <Picker 
+                                selectedValue={selected}
+                                onValueChange={ValorPicker}
+                                style={{width : 50}}>
+                                    <Picker.Item label="1" value="1"/>
+                                </Picker>
                             </View>
                         </ScrollView>
                         <View style={{alignItems : 'center', flexDirection : 'row', justifyContent : 'space-around', marginTop : 10, position : 'relative'}}>
@@ -245,9 +238,6 @@ const style = StyleSheet.create({
         paddingVertical : 20,
         borderBottomWidth : 1,  
         borderBottomColor : '#F7941D'
-    },
-    options : {
-        borderWidth : 1
     },
     CardSala : {
         backgroundColor : "white",
@@ -340,7 +330,7 @@ const style = StyleSheet.create({
     },
     setAdmin : {
         flexDirection : 'row',
-        justifyContent : 'center',
+        justifyContent : 'space-around',
         alignItems : 'center',
         width : '100%',
     },
@@ -348,6 +338,7 @@ const style = StyleSheet.create({
         marginLeft : 90,
         alignItems : 'center',
         paddingLeft : 30
-    }
+    },
+
 });
 
