@@ -49,12 +49,13 @@ export async function CriarUsers(credenciais: CriarUsuarios) {
             username : credenciais.username,
             password : credenciais.password,
             confirm_password : credenciais.confirm_password,
-            is_superuser : credenciais.is_superuser
+            is_superuser : credenciais.is_superuser,
+            groups : credenciais.groups
 
         })
         console.log(resposta.status)
-    } catch(error){
-        console.error("Erro na requisição", error)
+    } catch(error : any){
+        console.error("Erro na requisição", error.response.data)
     }
 }
 

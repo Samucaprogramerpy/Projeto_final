@@ -61,7 +61,7 @@ export default function Users () {
         }
     }, [search, users])
     
-     const renderizarSala = ({item} : {item: CarregarUsuarios}) => {
+     const renderizarUsers = ({item} : {item: CarregarUsuarios}) => {
         const imageURL = item.profile?.profile_picture ? `https://zeladoria.tsr.net.br/${item.profile.profile_picture}` : null
         if (item.groups.length === 2) {
             return(
@@ -124,9 +124,9 @@ export default function Users () {
      };
     
     const ValorPicker = (itemValue : any, itemIndex : any) => {
-        setSelected(parseInt(itemValue))
+        setSelected(itemValue)
     }
-    const criarSala = async () => {
+    const criarUsuario = async () => {
         mostrarModal()
         if (Senha !== confirm_Senha){
             console.error("Tente colocar senhas iguais")
@@ -134,13 +134,13 @@ export default function Users () {
             console.error("Insira todos os campos corretamente")
         } else {
             try{
-                const resposta = CriarUsers({username : nome, password : Senha, confirm_password : confirm_Senha, is_superuser : admin})
-                carregarUsers()
+                const resposta = CriarUsers({username : nome, password : Senha, confirm_password : confirm_Senha, is_superuser : admin, groups : selected})
+                await carregarUsers()
                 setNome('')
                 setSenha(0)
                 setConfirm_Senha(0)
-            } catch (error) {
-                console.error("Erro ao criar usuário", error);
+            } catch (error : any) {
+                console.error("Erro ao criar usuário", error.response.data);
             }
             
         }
@@ -174,13 +174,17 @@ export default function Users () {
                                 </View>
                             </View>
                             <View style={{justifyContent : 'space-around', flexDirection : 'row', alignItems : 'center'}}>
-                                <Text>Qual o grupo?</Text>
-                                <Picker 
-                                selectedValue={selected}
-                                onValueChange={ValorPicker}
-                                style={{width : 50}}>
-                                    <Picker.Item label="1" value="1"/>
-                                </Picker>
+                                <View style={{flex : 1, paddingHorizontal : 10}}>
+                                    <Text>Qual o grupo?</Text>
+                                </View>
+                                    <Picker
+                                    selectedValue={selected}
+                                    onValueChange={ValorPicker}
+                                    style={{width : 50}}>
+                                        <Picker.Item label="1" value="1"/>
+                                        <Picker.Item label="2" value={2}/>
+                                        <Picker.Item label="1, 2" value={[1, 2]}/>
+                                    </Picker>
                             </View>
                         </ScrollView>
                         <View style={{alignItems : 'center', flexDirection : 'row', justifyContent : 'space-around', marginTop : 10, position : 'relative'}}>
@@ -189,7 +193,7 @@ export default function Users () {
                                         Cancelar
                                     </Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity style={style.buttonAdd} onPress={criarSala}>
+                                <TouchableOpacity style={style.buttonAdd} onPress={criarUsuario}>
                                     <Text style={style.textButton}>
                                         +  Adicionar
                                     </Text>
@@ -213,13 +217,13 @@ export default function Users () {
                     </TouchableOpacity>
                 </View>
             </View>
-                <TextInput style={{width : '100%', backgroundColor : 'rgba(121, 118, 118, 0.5)', borderRadius : 15}} placeholder="Encontre algum usuário" value={search} onChangeText={setSearch}></TextInput>
-                <FlatList
-                data={usuariosFiltrados}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={renderizarSala}
-                nestedScrollEnabled={true}
-                />
+             <TextInput style={{width : '100%', backgroundColor : 'rgba(121, 118, 118, 0.5)', borderRadius : 5}} placeholder="Encontre algum usuário" value={search} onChangeText={setSearch}></TextInput>
+            <FlatList
+            data={usuariosFiltrados}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={renderizarUsers}
+            nestedScrollEnabled={true}
+            />
 
             
         </View>

@@ -285,15 +285,21 @@ export default function Salas () {
     const renderizarSala = ({item} : {item: CarregarSalas}) => (
             <View>
                 <View style={style.flatList}>
-                    <TouchableOpacity onPress={() => navigation.navigate("DetalhesSalas", {IdSala : item.qr_code_id}) } style={{backgroundColor : "white",flexDirection : 'row', borderRadius : 10, margin : 10, height : telaMobile ? 150 : 190, width : '90%'}}>
+                    <TouchableOpacity onPress={() => navigation.navigate("DetalhesSalas", {IdSala : item.qr_code_id}) } style={{backgroundColor : "white",flexDirection : 'row', borderRadius : 10, margin : 10, height : telaMobile ? 170 : 190, width : '90%'}}>
                         <View style={{height : '100%', width : 100, borderRightWidth : 0, borderRadius : 10}}>
-                            <Image style={{flex : 1, resizeMode : 'cover', borderTopLeftRadius : 10, borderBottomLeftRadius : 10}} source={{uri : `https://zeladoria.tsr.net.br/${item.imagem}`}}></Image>
+                            {item.imagem ? (
+                                 <Image style={{flex : 1, resizeMode : 'cover', borderTopLeftRadius : 10, borderBottomLeftRadius : 10}} source={{uri : `https://zeladoria.tsr.net.br/${item.imagem}`}}></Image>
+                            ) : (
+                                <Image style={{flex : 1, resizeMode: 'cover', width : '100%' }} source={require('../img/Image-not-found.png')}/>
+                            )}
+                            
+
                         </View>
 
                         {/* view com o nome das salas */}
                         <View style={{flex : 1,flexDirection : 'column'}}>
-                            <View style={{ width : '100%', flexDirection : 'row', justifyContent : 'space-around', borderBottomWidth : 1, paddingVertical : 5}}>
-                                <Text style={{fontSize : 18, flexShrink : 1, width : '85%'}}>{item.nome_numero}</Text>
+                            <View style={{ width : '100%', flexDirection : 'row', justifyContent : 'space-around', borderBottomWidth : 1, paddingLeft : 10, paddingVertical : 5}}>
+                                <Text style={{fontSize : 14, flexShrink : 1, width : '85%'}}>{item.nome_numero}</Text>
 
                                 {/* View com as demais informações das salas */}
                                 <View style={{flex : 1, alignItems : 'flex-end', justifyContent : 'center', position : 'static'}}>
@@ -317,14 +323,14 @@ export default function Salas () {
                                     </Menu>
                                 </View>
                             </View>
-                                <View style={{paddingLeft : 5}}>
-                                    <Text style={{fontSize : telaMobile ? 14 : 18}}><Text>Capacidade : </Text>{item.capacidade}</Text>
-                                    <Text style={{fontSize : telaMobile ? 14 : 18}}>Localização : {item.localizacao}</Text>
-                                    <View style={{flexDirection : 'row', alignItems : 'center'}}>
-                                        <Text style={{fontSize : telaMobile ? 14 : 18, marginTop : 5}}>
+                                <View style={{paddingLeft : 5, padding : 10}}>
+                                    <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2}}><Text>Capacidade : </Text>{item.capacidade}</Text>
+                                    <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2}}>Localização : {item.localizacao}</Text>
+                                    <View style={{flexDirection : 'row', alignItems : 'center', padding : 2}}>
+                                        <Text style={{fontSize : telaMobile ? 12 : 14, marginTop : 5}}>
                                             Status:
                                         </Text>
-                                        <Text style={{ color: item.status_limpeza === 'Limpa' ? 'green' : item.status_limpeza === 'Em Limpeza' ? 'white' : item.status_limpeza === 'limpeza Pendente' ? 'red' : 'red', 
+                                        <Text style={{fontSize : 12, color: item.status_limpeza === 'Limpa' ? 'green' : item.status_limpeza === 'Em Limpeza' ? 'white' : item.status_limpeza === 'limpeza Pendente' ? 'red' : 'red', 
                                             padding : 5, backgroundColor : item.status_limpeza === 'Limpa' ? 'rgba(162, 255, 162, 0.56)'  : item.status_limpeza === 'Em Limpeza' ? 'rgba(42, 42, 241, 0.81)' : 'rgba(241, 130, 130, 0.5)', borderRadius : 5, marginLeft : 5, marginTop : 5}}>
                                             {item.status_limpeza}
                                         </Text>

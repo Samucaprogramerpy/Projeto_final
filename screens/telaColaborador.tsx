@@ -190,7 +190,7 @@ export default function TelaColaborador(){
                 console.log('201')
             };
             
-            const intervalo = setInterval(verificar, 20000)
+            const intervalo = setInterval(verificar, 30000)
 
             return () => clearInterval(intervalo)
         }, [])

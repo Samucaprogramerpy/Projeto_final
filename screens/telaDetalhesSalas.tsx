@@ -88,7 +88,7 @@ export default function TelaDetalhesSalas() {
                 </View>
             ) : (
                 
-                <View style={{width : '100%', marginTop : 30}}>
+                <View style={{width : '100%', marginTop : 30, padding : 10}}>
                     <TouchableOpacity style={{marginLeft : 10}} onPress={()=> navigation.goBack()}>
                         <Text style={{padding : 10, backgroundColor : 'rgb(230, 229, 227)', width : 80, borderRadius : 5, textAlign : 'center'}}>{"< Voltar"}</Text>
                     </TouchableOpacity>
@@ -96,13 +96,13 @@ export default function TelaDetalhesSalas() {
                         <Image style={{height : 200, width : '100%', resizeMode : 'cover'}} source={{uri : `https://zeladoria.tsr.net.br/${sala?.imagem}`}}/>
                         <View style={{marginLeft : 5}}>
                             <Text style={{fontSize : 25, marginBottom : 20, marginTop : 15}}>{sala?.nome_numero}</Text>
-                            <Text>Capacidade: {sala?.capacidade} pessoas</Text>
-                            <View style={{flexDirection : 'row', alignItems : 'center',}}>
+                            <Text style={{paddingVertical : 5}}>Capacidade: {sala?.capacidade} pessoas</Text>
+                            <View style={{flexDirection : 'row', alignItems : 'center', paddingVertical : 5}}>
                                 <Text>Status:</Text>
                                 <Text style={{color : sala?.isClean ? 'green' : 'red', backgroundColor : sala?.isClean ? 'rgba(155, 248, 155, 0.69)' : 'rgba(249, 167, 167, 0.53)', padding : 5, marginLeft : 5, borderRadius : 5 }}>{sala?.status_limpeza}</Text>
                             </View>
-                            <Text>Última Limpeza : {displayLastCleanedTime(sala?.ultima_limpeza_data_hora)}</Text>
-                            {funcionario ? <Text>Limpar por : {sala?.ultima_limpeza_funcionario}</Text> : null}
+                            <Text style={{paddingVertical : 5}}>Última Limpeza : {displayLastCleanedTime(sala?.ultima_limpeza_data_hora)}</Text>
+                            {funcionario ? <Text style={{paddingVertical : 5}}>Limpar por : {sala?.ultima_limpeza_funcionario}</Text> : null}
                         </View>
                     </View>
 
