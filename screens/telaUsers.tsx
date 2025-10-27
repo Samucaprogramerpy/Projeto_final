@@ -85,7 +85,7 @@ export default function Users () {
         }
         else if (item.groups.length < 1) {
             return (
-                 <View style={style.containerList}>
+                <View style={style.containerList}>
                 <View style={style.CardSala}>
                 {imageURL ? (
                         <Image style={{width : 60, height : 60, borderRadius: 30, marginBottom : 30}} source={{uri : imageURL}}/>

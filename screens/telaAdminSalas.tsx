@@ -156,7 +156,6 @@ export default function Salas () {
         setCarregando(false)
     }
 
-
     useEffect( () => {
         const carregarSalas = async() => {
             try{
@@ -282,7 +281,8 @@ export default function Salas () {
             </Modal>
         )
     }
-    const renderizarSala = ({item} : {item: CarregarSalas}) => (
+    const renderizarSala = ({item} : {item: CarregarSalas}) => {
+        return (
             <View>
                 <View style={style.flatList}>
                     <TouchableOpacity onPress={() => navigation.navigate("DetalhesSalas", {IdSala : item.qr_code_id}) } style={{backgroundColor : "white",flexDirection : 'row', borderRadius : 10, margin : 10, height : telaMobile ? 170 : 190, width : '90%'}}>
@@ -322,6 +322,7 @@ export default function Salas () {
                                         </MenuOptions>
                                     </Menu>
                                 </View>
+
                             </View>
                                 <View style={{paddingLeft : 5, padding : 10}}>
                                     <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2}}><Text>Capacidade : </Text>{item.capacidade}</Text>
@@ -340,7 +341,8 @@ export default function Salas () {
                     </TouchableOpacity>
                 </View>
             </View>
-    );
+    )
+};
 
    
 
