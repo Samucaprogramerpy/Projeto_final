@@ -1,6 +1,9 @@
 import React from "react"
 import { useIsFocused, useNavigation, useRoute } from "@react-navigation/native"
 import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet, FlatList, Modal, ScrollView, ActivityIndicator, useWindowDimensions } from "react-native"
+import { 
+  NotoSans_400Regular, NotoSans_700Bold} from '@expo-google-fonts/noto-sans';
+import { useFonts } from "expo-font";
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from "react-native-popup-menu"
 import { useCallback } from "react"
 import { useFocusEffect } from "@react-navigation/native"
@@ -37,6 +40,10 @@ export default function Salas () {
     const {width, height } = Dimensions.get('window')
     const [search, setSearch] = useState<string>('')
     const [SalasFiltradas, setSalasFiltradas] = useState<CarregarSalas[]>([])
+    let [fontsLoaded] = useFonts({
+        'NotoSansRegular' : NotoSans_400Regular,
+        'NotoSansBold' : NotoSans_700Bold
+    })
 
 
     const telaMobile = width < 600
@@ -281,6 +288,19 @@ export default function Salas () {
             </Modal>
         )
     }
+
+    if (showCamera) {
+        return(
+             <View style={{flex : 1}}>
+                <CameraView style={{flex : 1}} facing="back" zoom={0} ref={foto}/>
+                <View style={{borderWidth : 1, height : 200, backgroundColor : 'black', alignItems : 'center', justifyContent : 'center', borderRadius : 5}}>
+                    <TouchableOpacity>
+                        <Ionicons name="ellipse" size={70} color={'white'}/>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        )
+    }
     const renderizarSala = ({item} : {item: CarregarSalas}) => {
         return (
             <View>
@@ -299,7 +319,7 @@ export default function Salas () {
                         {/* view com o nome das salas */}
                         <View style={{flex : 1,flexDirection : 'column'}}>
                             <View style={{ width : '100%', flexDirection : 'row', justifyContent : 'space-around', borderBottomWidth : 1, paddingLeft : 10, paddingVertical : 5}}>
-                                <Text style={{fontSize : 14, flexShrink : 1, width : '85%'}}>{item.nome_numero}</Text>
+                                <Text style={{fontSize : 14, flexShrink : 1, width : '85%', fontFamily : 'NotoSansBold'}}>{item.nome_numero}</Text>
 
                                 {/* View com as demais informações das salas */}
                                 <View style={{flex : 1, alignItems : 'flex-end', justifyContent : 'center', position : 'static'}}>
@@ -319,20 +339,24 @@ export default function Salas () {
                                             <MenuOption onSelect={() => marcarComoSuja(item.qr_code_id)}>
                                                 <Ionicons name="close-circle-outline" size={25}/>
                                             </MenuOption>
+                                            <MenuOption>
+                                                <Image style={{height : 25, width : 25}} source={require('../img/vassoura.png')}/>
+                                            </MenuOption>
                                         </MenuOptions>
                                     </Menu>
                                 </View>
 
                             </View>
                                 <View style={{paddingLeft : 5, padding : 10}}>
-                                    <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2}}><Text>Capacidade : </Text>{item.capacidade}</Text>
-                                    <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2}}>Localização : {item.localizacao}</Text>
+                                    <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}><Text>Capacidade : </Text>{item.capacidade}</Text>
+                                    <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}>Localização : {item.localizacao}</Text>
                                     <View style={{flexDirection : 'row', alignItems : 'center', padding : 2}}>
-                                        <Text style={{fontSize : telaMobile ? 12 : 14, marginTop : 5}}>
+                                        <Text style={{fontSize : telaMobile ? 13 : 14, marginTop : 5, fontFamily : 'NotoSansRegular'}}>
                                             Status:
                                         </Text>
                                         <Text style={{fontSize : 12, color: item.status_limpeza === 'Limpa' ? 'green' : item.status_limpeza === 'Em Limpeza' ? 'white' : item.status_limpeza === 'limpeza Pendente' ? 'red' : 'red', 
-                                            padding : 5, backgroundColor : item.status_limpeza === 'Limpa' ? 'rgba(162, 255, 162, 0.56)'  : item.status_limpeza === 'Em Limpeza' ? 'rgba(42, 42, 241, 0.81)' : 'rgba(241, 130, 130, 0.5)', borderRadius : 5, marginLeft : 5, marginTop : 5}}>
+                                            padding : 5, backgroundColor : item.status_limpeza === 'Limpa' ? 'rgba(162, 255, 162, 0.56)'  : item.status_limpeza === 'Em Limpeza' ? 'rgba(42, 42, 241, 0.81)' : 'rgba(241, 130, 130, 0.5)', borderRadius : 5, marginLeft : 5, marginTop : 5, 
+                                            fontFamily : 'NotoSansRegular'}}>
                                             {item.status_limpeza}
                                         </Text>
                                     </View>
