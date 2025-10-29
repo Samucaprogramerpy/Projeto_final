@@ -26,7 +26,7 @@
     "axios": "^1.11.0",
     "bootstrap": "^5.3.7",
     "date-fns": "^4.1.0",
-    "expo": "^54.0.20",
+    "expo": "^54.0.21",
     "expo-camera": "^17.0.8",
     "expo-font": "~14.0.9",
     "expo-image-manipulator": "~14.0.7",

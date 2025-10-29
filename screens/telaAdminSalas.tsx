@@ -1,15 +1,14 @@
 import React from "react"
 import { useIsFocused, useNavigation, useRoute } from "@react-navigation/native"
 import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet, FlatList, Modal, ScrollView, ActivityIndicator, useWindowDimensions } from "react-native"
-import { 
-  NotoSans_400Regular, NotoSans_700Bold} from '@expo-google-fonts/noto-sans';
+import { NotoSans_400Regular, NotoSans_700Bold} from '@expo-google-fonts/noto-sans';
 import { useFonts } from "expo-font";
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from "react-native-popup-menu"
 import { useCallback } from "react"
 import { useFocusEffect } from "@react-navigation/native"
 import { Ionicons } from '@expo/vector-icons';
 import { Camera, CameraView } from "expo-camera"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CarregarSalas } from "../types/salas"
 import { criarSalas, obterSalas, obterSalasporID } from "../services/servicoSalas"
@@ -17,7 +16,6 @@ import { obterToken } from "../services/servicoTokken"
 import { Dimensions } from "react-native"
 import api from "../api/api"
 import Load from "./telaLoad"
-import { setValor } from "../services/servicoUpdate";
 
 
 
@@ -36,10 +34,17 @@ export default function Salas () {
     const [localizacao, setLocalizacao] = useState('')
     const [descricao, setDescricao] = useState('')
     const [modalEditor, setModalEditor] = useState(false)
+    const [modal, setModal] = useState<boolean>(false)
     const navigation = useNavigation()
     const {width, height } = Dimensions.get('window')
     const [search, setSearch] = useState<string>('')
+    const [idLimpeza, setIdLimpeza] = useState<string>('')
+    const [salauuid, setSalaUuid] = useState<string>('')
     const [SalasFiltradas, setSalasFiltradas] = useState<CarregarSalas[]>([])
+    const [fotoTirada, setFotoTirada] = useState<string | null>(null)
+    const [grupo, setGrupo] = useState<boolean>(false)
+    const foto = useRef<CameraView>(null)
+
     let [fontsLoaded] = useFonts({
         'NotoSansRegular' : NotoSans_400Regular,
         'NotoSansBold' : NotoSans_700Bold
@@ -150,6 +155,10 @@ export default function Salas () {
         setCarregando(false)
     }
 
+    const abrirCamera = () => {
+        setShowCamera(true)
+    }
+
     const marcarComoSuja =async (qr_code_id : any) => {
         try {
             const resposta = await api.post(`salas/${qr_code_id}/marcar_como_suja/`)
@@ -161,6 +170,95 @@ export default function Salas () {
         const newSalas = await obterSalas()
         setSalas(newSalas)
         setCarregando(false)
+    }
+
+    const comecarLimpeza = async (qr_code_id : any) => {
+        try {
+            const formData = new FormData()
+        
+
+            formData.append('sala', qr_code_id)
+
+            const resposta = await api.post(`salas/${qr_code_id}/iniciar_limpeza/`, formData)
+            setIdLimpeza(resposta.data.id)
+            setCarregando(true)
+            const newSalas = await obterSalas()
+            setSalas(newSalas)
+            setCarregando(false)
+            console.log(resposta.status)
+        } catch(error : any) {
+            console.error('Erro ao iniciar limpeza da sala', error.response.data)
+        }
+    }
+
+    const concluirLimpeza = async () => {
+            setCarregando(true)
+            try {
+                const formData = new FormData()
+
+                const filename = fotoTirada?.split('/').pop();
+                const filetype = 'image/jpeg'
+                
+                formData.append('registro_limpeza', idLimpeza)
+                
+                formData.append("imagem", {
+                    uri: fotoTirada,
+                    name: filename, 
+                    type: filetype,
+       
+                } as any);
+
+                const resposta = await api.post(`/fotos_limpeza/`, formData, {
+                    headers : {
+                        'Content-Type' : 'multipart/form-data'
+                    }
+                })
+                
+                try {
+
+                    const resposta = await api.post(`salas/${salauuid}/concluir_limpeza/`)
+                    console.log(resposta.status)
+                } catch (error) {
+                    console.error('Erro ao mudar status da sala', error)
+                }
+                
+            } catch (error : any) {
+                console.error("Erro ao executar a limpeza", error);
+            } 
+            setModal(false)
+            setCarregando(false)
+
+            const newSalas = await obterSalas()
+            setSalas(newSalas)
+
+        }
+
+    const tirarFoto = async () => {
+        if (foto.current) {
+            const newFoto = await foto.current.takePictureAsync({
+                quality : 0.5,
+                skipProcessing : false
+            });            
+
+            
+
+            setFotoTirada(newFoto.uri)
+
+            setShowCamera(false)
+        }
+    }
+
+    const abrirModal = async(qr_code_id : any) => {
+        setModal(true)
+        try {
+            const resposta = await api.get(`limpezas/?sala_uuid=${qr_code_id}`)
+            const sala = resposta.data
+            const id = sala[0].id 
+            setIdLimpeza(id)
+        } catch(error) {
+            console.error('erro ao procurar sala!', error)
+        }
+        setSalaUuid(qr_code_id)
     }
 
     useEffect( () => {
@@ -210,6 +308,24 @@ export default function Salas () {
                 setPermissao(status === 'granted')
         })()  
     },[])
+
+     useEffect(() => {
+        const group = async() => {
+            try{
+                const resposta = await api.get('accounts/current_user')
+                const grupo_usuario = resposta.data.groups
+
+                if (grupo_usuario.includes(2)) {
+                    setGrupo(true)
+                } else {
+                    setGrupo(false)
+                }
+            } catch(error) {
+                console.error(error)
+            }
+        } 
+        group()
+    }, [])
 
     if(carregando) {
         return(
@@ -273,16 +389,16 @@ export default function Salas () {
                                 <TextInput placeholder="Ex: Sala de informatica, Vaio" style={style.descricao} value={descricao} onChangeText={setDescricao}></TextInput>
                             </ScrollView>
                             <View style={{flexDirection : 'row', justifyContent:'space-between', width : '100%', marginBottom : '40%'}}>
-                                        <TouchableOpacity style={{height : 40, width : 95, justifyContent : 'center', alignItems : 'center', backgroundColor : 'orange'}} onPress={mostrarModal}>
-                                            <Text style={{fontSize : 18}}>
-                                                Cancelar
-                                            </Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity style={style.limpar} onPress={criarSala}>
-                                            <Text style={style.textButton}>
-                                                +  Adicionar
-                                            </Text>
-                                        </TouchableOpacity>
+                                <TouchableOpacity style={{height : 40, width : 95, justifyContent : 'center', alignItems : 'center', backgroundColor : 'orange'}} onPress={mostrarModal}>
+                                    <Text style={{fontSize : 18}}>
+                                        Cancelar
+                                    </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={style.limpar} onPress={criarSala}>
+                                    <Text style={style.textButton}>
+                                        +  Adicionar
+                                    </Text>
+                                </TouchableOpacity>
                             </View>
                     </View>
             </Modal>
@@ -293,16 +409,23 @@ export default function Salas () {
         return(
              <View style={{flex : 1}}>
                 <CameraView style={{flex : 1}} facing="back" zoom={0} ref={foto}/>
-                <View style={{borderWidth : 1, height : 200, backgroundColor : 'black', alignItems : 'center', justifyContent : 'center', borderRadius : 5}}>
-                    <TouchableOpacity>
+                <View style={{borderWidth : 1, height : 200, backgroundColor : 'black', alignItems : 'center', justifyContent : 'center', borderRadius : 5, flexDirection : 'row'}}>
+                    <TouchableOpacity onPress={tirarFoto} style={{position : 'static'}}>
                         <Ionicons name="ellipse" size={70} color={'white'}/>
                     </TouchableOpacity>
+                    <View style={{left : '30%'}}>
+                        <TouchableOpacity onPress={() => setShowCamera(false)}>
+                            <Text style={{padding : 15, borderRadius : 50, fontSize : 20, backgroundColor : 'white'}}>
+                                X
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
         )
     }
     const renderizarSala = ({item} : {item: CarregarSalas}) => {
-        return (
+        if (grupo === true) {
             <View>
                 <View style={style.flatList}>
                     <TouchableOpacity onPress={() => navigation.navigate("DetalhesSalas", {IdSala : item.qr_code_id}) } style={{backgroundColor : "white",flexDirection : 'row', borderRadius : 10, margin : 10, height : telaMobile ? 170 : 190, width : '90%'}}>
@@ -339,8 +462,166 @@ export default function Salas () {
                                             <MenuOption onSelect={() => marcarComoSuja(item.qr_code_id)}>
                                                 <Ionicons name="close-circle-outline" size={25}/>
                                             </MenuOption>
-                                            <MenuOption>
+                                            <MenuOption onSelect={() => comecarLimpeza(item.qr_code_id)}>
                                                 <Image style={{height : 25, width : 25}} source={require('../img/vassoura.png')}/>
+                                            </MenuOption>
+                                        </MenuOptions>
+                                    </Menu>
+                                </View>
+
+                            </View>
+                                <View style={{paddingLeft : 5, padding : 10}}>
+                                    <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}><Text>Capacidade : </Text>{item.capacidade}</Text>
+                                    <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}>Localização : {item.localizacao}</Text>
+                                    <View style={{flexDirection : 'row', alignItems : 'center', padding : 2}}>
+                                        <Text style={{fontSize : telaMobile ? 13 : 14, marginTop : 5, fontFamily : 'NotoSansRegular'}}>
+                                            Status:
+                                        </Text>
+                                        <Text style={{fontSize : 12, color: item.status_limpeza === 'Limpa' ? 'green' : item.status_limpeza === 'Em Limpeza' ? 'white' : item.status_limpeza === 'limpeza Pendente' ? 'red' : 'red', 
+                                            padding : 5, backgroundColor : item.status_limpeza === 'Limpa' ? 'rgba(162, 255, 162, 0.56)'  : item.status_limpeza === 'Em Limpeza' ? 'rgba(42, 42, 241, 0.81)' : 'rgba(241, 130, 130, 0.5)', borderRadius : 5, marginLeft : 5, marginTop : 5, 
+                                            fontFamily : 'NotoSansRegular'}}>
+                                            {item.status_limpeza}
+                                        </Text>
+                                    </View>
+                                </View>
+                        </View>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        }
+        if (item.status_limpeza === 'Em Limpeza'){
+            return (
+                <View>
+                    <View style={style.flatList}>
+                        <TouchableOpacity onPress={() => navigation.navigate("DetalhesSalas", {IdSala : item.qr_code_id}) } style={{backgroundColor : "white",flexDirection : 'row', borderRadius : 10, margin : 10, height : telaMobile ? 170 : 190, width : '90%'}}>
+                            <View style={{height : '100%', width : 100, borderRightWidth : 0, borderRadius : 10}}>
+                                {item.imagem ? (
+                                    <Image style={{flex : 1, resizeMode : 'cover', borderTopLeftRadius : 10, borderBottomLeftRadius : 10}} source={{uri : `https://zeladoria.tsr.net.br/${item.imagem}`}}></Image>
+                                ) : (
+                                    <Image style={{flex : 1, resizeMode: 'cover', width : '100%' }} source={require('../img/Image-not-found.png')}/>
+                                )}
+                                
+
+                            </View>
+
+                            {modal ? 
+                            <Modal transparent={true}>
+                                <View style={{flex : 1, alignItems : 'center', justifyContent : 'center', backgroundColor : 'white'}}>
+                                    <View style={{borderWidth : 1, backgroundColor : 'white', padding : 20, alignItems : 'center', height : '50%', width : '90%', justifyContent : 'center'}}>
+                                        <TouchableOpacity style={{alignItems : 'center', borderWidth : 1, padding : 30, backgroundColor : 'rgba(0,0,0,0.05)'}} onPress={abrirCamera}>
+                                            <Ionicons name="camera-outline" size={30} color={'gray'}/>
+                                            <Text>Clique aqui para tirar fotos</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                    {fotoTirada ? (
+                                        <View style={{ width : '100%'}}>
+                                            <View style={{marginTop : 10, marginRight : 92}}>
+                                                <View style={{borderWidth : 1, width : 100, marginLeft : '20%'}}>
+                                                    <Image style={{width : 100, height : 100, resizeMode : 'cover'}} source={{uri : fotoTirada}}/>
+                                                    <TouchableOpacity style={{position : 'absolute', left : '85%'}} onPress={()=>setFotoTirada(null)}>
+                                                        <Ionicons name="close-circle" size={15} color={'black'}/>
+                                                    </TouchableOpacity>
+                                                </View>                                        
+                                            </View>
+                                                <TouchableOpacity onPress={concluirLimpeza} style={{backgroundColor : 'blue', width : 150, paddingVertical : 10, alignItems : 'center', borderRadius : 10, marginHorizontal : 'auto', marginTop : 50}}><Text style={{color : 'white'}}>Enviar</Text></TouchableOpacity>
+                                        </View>
+                                    ) : (
+                                        <View style={{marginTop : '65%'}}>
+                                            <Text style={{paddingVertical : 10, backgroundColor : 'rgba(67, 66, 66, 0.38)', borderRadius : 20, width : 80, textAlign : 'center', bottom : '100%'}}>
+                                                Enviar
+                                            </Text>
+                                        </View>
+                                    )}
+                                </View>
+                            </Modal> : null
+                        }
+
+                            {/* view com o nome das salas */}
+                            <View style={{flex : 1,flexDirection : 'column'}}>
+                                <View style={{ width : '100%', flexDirection : 'row', justifyContent : 'space-around', borderBottomWidth : 1, paddingLeft : 10, paddingVertical : 5}}>
+                                    <Text style={{fontSize : 14, flexShrink : 1, width : '85%', fontFamily : 'NotoSansBold'}}>{item.nome_numero}</Text>
+
+                                    {/* View com as demais informações das salas */}
+                                    <View style={{flex : 1, alignItems : 'flex-end', justifyContent : 'center', position : 'static'}}>
+                                        <Menu style={{marginRight : 5}}>
+                                            <MenuTrigger>
+                                                <View>
+                                                    <Ionicons name="ellipsis-horizontal-outline" size={15}></Ionicons>
+                                                </View>
+                                            </MenuTrigger>
+                                            <MenuOptions customStyles={{optionsContainer: style.menu}}>
+                                                <MenuOption onSelect={() => deletar(item.qr_code_id)}>
+                                                    <Ionicons name="trash-outline" size={25} color={'red'}></Ionicons>
+                                                </MenuOption>
+                                                <MenuOption onSelect={()=> encontrarSala(item.qr_code_id)}>
+                                                    <Ionicons name='color-wand-outline' size={25} color={'blue'}></Ionicons>
+                                                </MenuOption>
+                                                <MenuOption onSelect={() => marcarComoSuja(item.qr_code_id)}>
+                                                    <Ionicons name="close-circle-outline" size={25}/>
+                                                </MenuOption>
+                                                <MenuOption onSelect={() => abrirModal(item.qr_code_id)}>
+                                                    <Ionicons name="stop-circle-outline" size={25}/>
+                                                </MenuOption>
+                                            </MenuOptions>
+                                        </Menu>
+                                    </View>
+
+                                </View>
+                                    <View style={{paddingLeft : 5, padding : 10}}>
+                                        <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}><Text>Capacidade : </Text>{item.capacidade}</Text>
+                                        <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}>Localização : {item.localizacao}</Text>
+                                        <View style={{flexDirection : 'row', alignItems : 'center', padding : 2}}>
+                                            <Text style={{fontSize : telaMobile ? 13 : 14, marginTop : 5, fontFamily : 'NotoSansRegular'}}>
+                                                Status:
+                                            </Text>
+                                            <Text style={{fontSize : 12, color: item.status_limpeza === 'Limpa' ? 'green' : item.status_limpeza === 'Em Limpeza' ? 'white' : item.status_limpeza === 'limpeza Pendente' ? 'red' : 'red', 
+                                                padding : 5, backgroundColor : item.status_limpeza === 'Limpa' ? 'rgba(162, 255, 162, 0.56)'  : item.status_limpeza === 'Em Limpeza' ? 'rgba(42, 42, 241, 0.81)' : 'rgba(241, 130, 130, 0.5)', borderRadius : 5, marginLeft : 5, marginTop : 5, 
+                                                fontFamily : 'NotoSansRegular'}}>
+                                                {item.status_limpeza}
+                                            </Text>
+                                        </View>
+                                    </View>
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+            </View>
+        )}
+        return (
+            <View>
+                <View style={style.flatList}>
+                    <TouchableOpacity onPress={() => navigation.navigate("DetalhesSalas", {IdSala : item.qr_code_id}) } style={{backgroundColor : "white",flexDirection : 'row', borderRadius : 10, margin : 10, height : telaMobile ? 170 : 190, width : '90%'}}>
+                        <View style={{height : '100%', width : 100, borderRightWidth : 0, borderRadius : 10}}>
+                            {item.imagem ? (
+                                 <Image style={{flex : 1, resizeMode : 'cover', borderTopLeftRadius : 10, borderBottomLeftRadius : 10}} source={{uri : `https://zeladoria.tsr.net.br/${item.imagem}`}}></Image>
+                            ) : (
+                                <Image style={{flex : 1, resizeMode: 'cover', width : '100%' }} source={require('../img/Image-not-found.png')}/>
+                            )}
+                            
+
+                        </View>
+
+                        {/* view com o nome das salas */}
+                        <View style={{flex : 1,flexDirection : 'column'}}>
+                            <View style={{ width : '100%', flexDirection : 'row', justifyContent : 'space-around', borderBottomWidth : 1, paddingLeft : 10, paddingVertical : 5}}>
+                                <Text style={{fontSize : 14, flexShrink : 1, width : '85%', fontFamily : 'NotoSansBold'}}>{item.nome_numero}</Text>
+
+                                {/* View com as demais informações das salas */}
+                                <View style={{flex : 1, alignItems : 'flex-end', justifyContent : 'center', position : 'static'}}>
+                                    <Menu style={{marginRight : 5}}>
+                                        <MenuTrigger>
+                                            <View>
+                                                <Ionicons name="ellipsis-horizontal-outline" size={15}></Ionicons>
+                                            </View>
+                                        </MenuTrigger>
+                                        <MenuOptions customStyles={{optionsContainer: style.menu}}>
+                                            <MenuOption onSelect={() => deletar(item.qr_code_id)}>
+                                                <Ionicons name="trash-outline" size={25} color={'red'}></Ionicons>
+                                            </MenuOption>
+                                            <MenuOption onSelect={()=> encontrarSala(item.qr_code_id)}>
+                                                <Ionicons name='color-wand-outline' size={25} color={'blue'}></Ionicons>
+                                            </MenuOption>
+                                            <MenuOption onSelect={() => marcarComoSuja(item.qr_code_id)}>
+                                                <Ionicons name="close-circle-outline" size={25}/>
                                             </MenuOption>
                                         </MenuOptions>
                                     </Menu>

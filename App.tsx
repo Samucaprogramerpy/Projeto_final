@@ -18,7 +18,6 @@ import Settings from './screens/telaConfigurações';
 import Salas from './screens/telaAdminSalas';
 import Users from './screens/telaUsers';
 import TelaDetalhesSalas from './screens/telaDetalhesSalas';
-import { transparent } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
 
 const tab = createMaterialTopTabNavigator();
 const Stack = createNativeStackNavigator();
