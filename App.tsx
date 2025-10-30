@@ -75,19 +75,21 @@ function UserTabNavigator({Logout} : {Logout : () => Promise<void>}) {
             iconName = focused ? 'settings' : 'settings-outline';
           }
           return (
-            <View style={{backgroundColor : focused ? '#F7941D' : 'transparent'}}>
-              <Ionicons name={iconName} size={size} color={focused ? '#F7941D' : 'black'}/> 
+            <View style={{backgroundColor : focused ? '#F7941D' : 'transparent', padding : 12, borderRadius : 10, marginBottom : 5}}>
+                <Ionicons name={iconName} size={size} color={'black'} />
             </View>
+
           );
         },
         tabBarActiveTintColor: '#F7941D',
         tabBarInactiveTintColor: 'black',
-        tabBarIndicatorStyle:{backgroundColor : '#F7941D', top : 0},
-        tabBarStyle: { paddingBottom: 5, height: 70, backgroundColor: 'white' },
+        tabBarIndicatorStyle:{backgroundColor : 'transparent'},
+        tabBarStyle: { paddingBottom: 5, height: 70, backgroundColor: 'white', borderTopWidth : 0.15, borderTopColor: 'black' },
+        tabBarItemStyle : {borderWidth : 2, borderColor : 'transparent', borderRadius : 8, marginHorizontal : 6},
         swipeEnabled: true,
       })}
     >
-      <tab.Screen component={TelaColaborador}/>
+      <tab.Screen name="Sala" component={TelaColaborador}/>
       <tab.Screen name="Configurações">
         {(props) => <Settings {...props} aoLogout={Logout}/>}
       </tab.Screen>

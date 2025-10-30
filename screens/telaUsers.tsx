@@ -20,7 +20,7 @@ export default function Users () {
     const {width, height} = Dimensions.get('window')
     const [search, setSearch] = useState('')
     const [usuariosFiltrados, setUsuariosFiltrados] = useState<CarregarUsuarios[]>([])
-    const [selected, setSelected] = useState<any>()
+    const [selected, setSelected] = useState<[]>([])
 
 
     const viewWidth = width * 0.78;
@@ -123,7 +123,7 @@ export default function Users () {
         );
      };
     
-    const ValorPicker = (itemValue : any, itemIndex : any) => {
+    const ValorPicker = (itemValue : [], itemIndex : any) => {
         setSelected(itemValue)
     }
     const criarUsuario = async () => {
@@ -135,12 +135,14 @@ export default function Users () {
         } else {
             try{
                 const resposta = CriarUsers({username : nome, password : Senha, confirm_password : confirm_Senha, is_superuser : admin, groups : selected})
-                await carregarUsers()
+                const newUsers = await carregarUsers()
+                setUsers(newUsers)
                 setNome('')
                 setSenha(0)
                 setConfirm_Senha(0)
             } catch (error : any) {
                 console.error("Erro ao criar usuário", error.response.data);
+                console.log(selected)
             }
             
         }
@@ -181,8 +183,8 @@ export default function Users () {
                                     selectedValue={selected}
                                     onValueChange={ValorPicker}
                                     style={{width : 50}}>
-                                        <Picker.Item label="1" value="1"/>
-                                        <Picker.Item label="2" value={2}/>
+                                        <Picker.Item label="1" value={[1]}/>
+                                        <Picker.Item label="2" value={[2]}/>
                                         <Picker.Item label="1, 2" value={[1, 2]}/>
                                     </Picker>
                             </View>

@@ -103,6 +103,7 @@ export default function TelaDetalhesSalas() {
                             </View>
                             <Text style={{paddingVertical : 5}}>Última Limpeza : {displayLastCleanedTime(sala?.ultima_limpeza_data_hora)}</Text>
                             {funcionario ? <Text style={{paddingVertical : 5}}>Limpar por : {sala?.ultima_limpeza_funcionario}</Text> : null}
+                            <Text style={{paddingVertical : 5}}>Atividade da sala : {sala?.ativa ? 'Ativa' : 'Não Ativa'}</Text>
                         </View>
                     </View>
 

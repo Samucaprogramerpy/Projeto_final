@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, FlatList, ActivityIndicator, Image, Modal } from "react-native";
+import { Text, View, StyleSheet, FlatList, ActivityIndicator, Image, Modal, TextInput } from "react-native";
 import { TouchableOpacity, AppState } from "react-native";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
@@ -24,6 +24,8 @@ export default function TelaColaborador(){
     const [modal, showModal] = useState(false)
     const [salauuid, setSalaUUID] = useState('')
     const [fotoEnviada, setFotoEnviada] = useState<boolean>(false)
+    const [search, setSearch] = useState('')
+    const [salasFiltradas, setSalasFiltradas] = useState<CarregarSalas[]>([])
     const foto = useRef<CameraView>(null)
 
 
@@ -165,6 +167,18 @@ export default function TelaColaborador(){
         group()
     }, [])
 
+    useEffect(() => {
+            if (search === '') {
+              setSalasFiltradas(salas);
+            } else {
+              const produtosEncontrados = salas.filter(sala =>
+                sala.nome_numero.toLowerCase().includes(search.toLowerCase()) ||
+                sala.status_limpeza.toLowerCase().includes(search.toLowerCase())
+              );
+              setSalasFiltradas(produtosEncontrados);
+            }
+    }, [search, salas]);
+
 
     useEffect(() => {       
          const carregarSalas = async () => {
@@ -223,36 +237,46 @@ export default function TelaColaborador(){
                 return(
                     <View style={{alignItems : 'center'}}>
                         <View style={style.CardSala}>
-                            <View style={{borderBottomWidth : 1, width : '100%', justifyContent : 'flex-end', flexDirection : 'row', borderBottomColor : '#004A8D'}}>
-                                <View style={{width : '90%',  justifyContent : "center",flex : 1}}>
-                                    <Text style={{marginLeft : 5}}>{item.nome_numero}</Text>
-                                </View>
-                                <View style={{marginRight : 5}}>
-                                    <Menu>
-                                        <MenuTrigger>
-                                            <View>
-                                                <Ionicons name="ellipsis-horizontal-outline" size={15}></Ionicons>
-                                            </View>
-                                        </MenuTrigger>
-                                        <MenuOptions customStyles={{optionsContainer : style.menu}}>
-                                            <MenuOption onSelect={() => marcarComoSuja(item.qr_code_id)}>
-                                                <Ionicons name="close-circle-outline" size={25}/>
-                                            </MenuOption>
-                                        </MenuOptions>
-                                    </Menu>
-                                </View>
+                            <View style={{height : '100%', width : 100}}>
+                                {item.imagem ? (
+                                    <Image style={{flex : 1, resizeMode : 'cover', borderTopLeftRadius : 10, borderBottomLeftRadius : 10}} source={{uri : `https://zeladoria.tsr.net.br/${item.imagem}`}}></Image>
+                                ) : (
+                                    <Image style={{flex : 1, resizeMode: 'cover', width : '100%' }} source={require('../img/Image-not-found.png')}/>
+                                )}
+                                                                
                             </View>
-                            <Text style={style.nomeinfo}>{item.capacidade}</Text>
-                            <Text style={style.nomeinfo}>{item.localizacao}</Text>
-                            <Text style={style.nomeinfo}>{item.descricao}</Text>
-                            <View style={{flexDirection : 'row', alignItems : 'center', marginHorizontal : 10}}>
-                                <Text>Status : </Text>
-                                <Text style={{paddingLeft : 10, color:item.status_limpeza==='Limpa' ? 'rgba(46, 147, 46, 1)' : item.status_limpeza==='Em Limpeza' ? 'white' : 'rgba(237, 8, 8, 0.91)', backgroundColor : item.status_limpeza==='Limpa' ? 'rgba(178, 246, 206, 1)' : item.status_limpeza==='Em Limpeza' ? 'rgba(38, 38, 253, 0.96)' : 'rgba(253, 79, 79, 0.53)', paddingRight : 10,padding : 5, textAlign : 'center', borderRadius : 5}}>
-                                    {item.status_limpeza}
-                                </Text>
+                            <View style={{flex : 1,marginTop : 5}}>
+                                <View style={{borderBottomWidth : 1, width : '100%', justifyContent : 'flex-end', flexDirection : 'row', borderBottomColor : '#004A8D'}}>
+                                    <View style={{width : '90%',  justifyContent : "center",flex : 1}}>
+                                        <Text style={{marginLeft : 5}}>{item.nome_numero}</Text>
+                                    </View>
+                                    <View style={{marginRight : 5}}>
+                                        <Menu>
+                                            <MenuTrigger>
+                                                <View>
+                                                    <Ionicons name="ellipsis-horizontal-outline" size={15}></Ionicons>
+                                                </View>
+                                            </MenuTrigger>
+                                            <MenuOptions customStyles={{optionsContainer : style.menu}}>
+                                                <MenuOption onSelect={() => marcarComoSuja(item.qr_code_id)}>
+                                                    <Ionicons name="close-circle-outline" size={25}/>
+                                                </MenuOption>
+                                            </MenuOptions>
+                                        </Menu>
+                                    </View>
+                                </View>
+                                <Text style={style.nomeinfo}>{item.capacidade}</Text>
+                                <Text style={style.nomeinfo}>{item.localizacao}</Text>
+                                <View style={{flexDirection : 'row', alignItems : 'center', marginHorizontal : 10}}>
+                                    <Text>Status : </Text>
+                                    <Text style={{paddingLeft : 10, color:item.status_limpeza==='Limpa' ? 'rgba(46, 147, 46, 1)' : item.status_limpeza==='Em Limpeza' ? 'white' : 'rgba(237, 8, 8, 0.91)', backgroundColor : item.status_limpeza==='Limpa' ? 'rgba(178, 246, 206, 1)' : item.status_limpeza==='Em Limpeza' ? 'rgba(38, 38, 253, 0.96)' : 'rgba(253, 79, 79, 0.53)', 
+                                        paddingRight : 10,padding : 5, textAlign : 'center', borderRadius : 5, fontSize : 12}}>
+                                        {item.status_limpeza}
+                                    </Text>
+                                </View>
+                                </View>
                             </View>
                         </View>
-                    </View>
                 )
             }
             if (item.status_limpeza === 'Em Limpeza'){
@@ -362,14 +386,15 @@ export default function TelaColaborador(){
 
     return(
         <View>
-            <View style={{height : 100, justifyContent: 'center', borderBottomWidth: 1, borderBottomColor : '#F7941D'}}>
+            <View style={{height : 110, justifyContent: 'center', borderBottomWidth: 1, borderBottomColor : '#F7941D'}}>
                 <Text style={{paddingLeft : 10, fontSize : 20, fontWeight : 'bold', color: '#004A8D'}}>
                     Salas
                 </Text>
+                <TextInput style={{width : '100%', height : 50, backgroundColor : 'rgba(146, 146, 146, 0.5)', borderRadius : 20}} placeholder="Procure por uma sala" value={search} onChangeText={setSearch}></TextInput>
             </View>
             <FlatList 
                 style={style.flatList}
-                data={salas}
+                data={salasFiltradas}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={renderizarSala}
                 nestedScrollEnabled={true}
@@ -389,17 +414,17 @@ const style = StyleSheet.create({
         backgroundColor : "white",
         borderRadius : 10,
         margin : 10,
+        flexDirection : 'row',
         alignItems : 'flex-start',
         height : 180,
         width : '90%',
-        paddingTop : 10
     },
     limparSala : {
         backgroundColor : '#004A8D'
     },
     flatList : {
         width : '100%',
-        height : '88%'
+        height : '83%'
     },
     nomeinfo : {
         paddingLeft : 10

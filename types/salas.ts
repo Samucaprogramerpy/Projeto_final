@@ -16,7 +16,7 @@ export interface CarregarSalas {
     status_limpeza : string;
     ultima_limpeza_data_hora : string | null;
     ultima_limpeza_funcionario : string | null;
-    isClean? : boolean;
+    ativa : boolean;
 }
 
 export interface CarregarUsuarios {

@@ -100,7 +100,6 @@ export default function Salas () {
             const resposta = await criarSalas(formData)
             setCarregando(true)
             setVisivel(false)
-            setValor(true)
             const carregarSalas = await obterSalas()
             setSalas(carregarSalas)
             setCarregando(false)
@@ -283,7 +282,7 @@ export default function Salas () {
         } else {
           const produtosEncontrados = salas.filter(sala =>
             sala.nome_numero.toLowerCase().includes(search.toLowerCase()) ||
-            sala.localizacao.toLowerCase().includes(search.toLowerCase())
+            sala.status_limpeza.toLowerCase().includes(search.toLowerCase())
           );
           setSalasFiltradas(produtosEncontrados);
         }
@@ -314,8 +313,7 @@ export default function Salas () {
             try{
                 const resposta = await api.get('accounts/current_user')
                 const grupo_usuario = resposta.data.groups
-
-                if (grupo_usuario.includes(2)) {
+                if (grupo_usuario.includes([1,2])) {
                     setGrupo(true)
                 } else {
                     setGrupo(false)
@@ -425,116 +423,118 @@ export default function Salas () {
         )
     }
     const renderizarSala = ({item} : {item: CarregarSalas}) => {
-        if (grupo === true) {
-            <View>
-                <View style={style.flatList}>
-                    <TouchableOpacity onPress={() => navigation.navigate("DetalhesSalas", {IdSala : item.qr_code_id}) } style={{backgroundColor : "white",flexDirection : 'row', borderRadius : 10, margin : 10, height : telaMobile ? 170 : 190, width : '90%'}}>
-                        <View style={{height : '100%', width : 100, borderRightWidth : 0, borderRadius : 10}}>
-                            {item.imagem ? (
-                                 <Image style={{flex : 1, resizeMode : 'cover', borderTopLeftRadius : 10, borderBottomLeftRadius : 10}} source={{uri : `https://zeladoria.tsr.net.br/${item.imagem}`}}></Image>
-                            ) : (
-                                <Image style={{flex : 1, resizeMode: 'cover', width : '100%' }} source={require('../img/Image-not-found.png')}/>
-                            )}
-                            
+        if (grupo) {
+            if (item.status_limpeza === 'Em Limpeza'){
+                return (
+                    <View>
+                        <View style={style.flatList}>
+                            <TouchableOpacity onPress={() => navigation.navigate("DetalhesSalas", {IdSala : item.qr_code_id}) } style={{backgroundColor : "white",flexDirection : 'row', borderRadius : 10, margin : 10, height : telaMobile ? 170 : 190, width : '90%'}}>
+                                <View style={{height : '100%', width : 100, borderRightWidth : 0, borderRadius : 10}}>
+                                    {item.imagem ? (
+                                        <Image style={{flex : 1, resizeMode : 'cover', borderTopLeftRadius : 10, borderBottomLeftRadius : 10}} source={{uri : `https://zeladoria.tsr.net.br/${item.imagem}`}}></Image>
+                                    ) : (
+                                        <Image style={{flex : 1, resizeMode: 'cover', width : '100%' }} source={require('../img/Image-not-found.png')}/>
+                                    )}
+                                    
 
-                        </View>
+                                </View>
 
-                        {/* view com o nome das salas */}
-                        <View style={{flex : 1,flexDirection : 'column'}}>
-                            <View style={{ width : '100%', flexDirection : 'row', justifyContent : 'space-around', borderBottomWidth : 1, paddingLeft : 10, paddingVertical : 5}}>
-                                <Text style={{fontSize : 14, flexShrink : 1, width : '85%', fontFamily : 'NotoSansBold'}}>{item.nome_numero}</Text>
-
-                                {/* View com as demais informações das salas */}
-                                <View style={{flex : 1, alignItems : 'flex-end', justifyContent : 'center', position : 'static'}}>
-                                    <Menu style={{marginRight : 5}}>
-                                        <MenuTrigger>
-                                            <View>
-                                                <Ionicons name="ellipsis-horizontal-outline" size={15}></Ionicons>
+                                {modal ? 
+                                <Modal transparent={true}>
+                                    <View style={{flex : 1, alignItems : 'center', justifyContent : 'center', backgroundColor : 'white'}}>
+                                        <View style={{borderWidth : 1, backgroundColor : 'white', padding : 20, alignItems : 'center', height : '50%', width : '90%', justifyContent : 'center'}}>
+                                            <TouchableOpacity style={{alignItems : 'center', borderWidth : 1, padding : 30, backgroundColor : 'rgba(0,0,0,0.05)'}} onPress={abrirCamera}>
+                                                <Ionicons name="camera-outline" size={30} color={'gray'}/>
+                                                <Text>Clique aqui para tirar fotos</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                        {fotoTirada ? (
+                                            <View style={{ width : '100%'}}>
+                                                <View style={{marginTop : 10, marginRight : 92}}>
+                                                    <View style={{borderWidth : 1, width : 100, marginLeft : '20%'}}>
+                                                        <Image style={{width : 100, height : 100, resizeMode : 'cover'}} source={{uri : fotoTirada}}/>
+                                                        <TouchableOpacity style={{position : 'absolute', left : '85%'}} onPress={()=>setFotoTirada(null)}>
+                                                            <Ionicons name="close-circle" size={15} color={'black'}/>
+                                                        </TouchableOpacity>
+                                                    </View>                                        
+                                                </View>
+                                                    <TouchableOpacity onPress={concluirLimpeza} style={{backgroundColor : 'blue', width : 150, paddingVertical : 10, alignItems : 'center', borderRadius : 10, marginHorizontal : 'auto', marginTop : 50}}><Text style={{color : 'white'}}>Enviar</Text></TouchableOpacity>
                                             </View>
-                                        </MenuTrigger>
-                                        <MenuOptions customStyles={{optionsContainer: style.menu}}>
-                                            <MenuOption onSelect={() => deletar(item.qr_code_id)}>
-                                                <Ionicons name="trash-outline" size={25} color={'red'}></Ionicons>
-                                            </MenuOption>
-                                            <MenuOption onSelect={()=> encontrarSala(item.qr_code_id)}>
-                                                <Ionicons name='color-wand-outline' size={25} color={'blue'}></Ionicons>
-                                            </MenuOption>
-                                            <MenuOption onSelect={() => marcarComoSuja(item.qr_code_id)}>
-                                                <Ionicons name="close-circle-outline" size={25}/>
-                                            </MenuOption>
-                                            <MenuOption onSelect={() => comecarLimpeza(item.qr_code_id)}>
-                                                <Image style={{height : 25, width : 25}} source={require('../img/vassoura.png')}/>
-                                            </MenuOption>
-                                        </MenuOptions>
-                                    </Menu>
-                                </View>
-
-                            </View>
-                                <View style={{paddingLeft : 5, padding : 10}}>
-                                    <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}><Text>Capacidade : </Text>{item.capacidade}</Text>
-                                    <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}>Localização : {item.localizacao}</Text>
-                                    <View style={{flexDirection : 'row', alignItems : 'center', padding : 2}}>
-                                        <Text style={{fontSize : telaMobile ? 13 : 14, marginTop : 5, fontFamily : 'NotoSansRegular'}}>
-                                            Status:
-                                        </Text>
-                                        <Text style={{fontSize : 12, color: item.status_limpeza === 'Limpa' ? 'green' : item.status_limpeza === 'Em Limpeza' ? 'white' : item.status_limpeza === 'limpeza Pendente' ? 'red' : 'red', 
-                                            padding : 5, backgroundColor : item.status_limpeza === 'Limpa' ? 'rgba(162, 255, 162, 0.56)'  : item.status_limpeza === 'Em Limpeza' ? 'rgba(42, 42, 241, 0.81)' : 'rgba(241, 130, 130, 0.5)', borderRadius : 5, marginLeft : 5, marginTop : 5, 
-                                            fontFamily : 'NotoSansRegular'}}>
-                                            {item.status_limpeza}
-                                        </Text>
+                                        ) : (
+                                            <View style={{marginTop : '65%'}}>
+                                                <Text style={{paddingVertical : 10, backgroundColor : 'rgba(67, 66, 66, 0.38)', borderRadius : 20, width : 80, textAlign : 'center', bottom : '100%'}}>
+                                                    Enviar
+                                                </Text>
+                                            </View>
+                                        )}
                                     </View>
+                                </Modal> : null
+                            }
+
+
+                                {/* view com o nome das salas */}
+                                <View style={{flex : 1,flexDirection : 'column'}}>
+                                    <View style={{ width : '100%', flexDirection : 'row', justifyContent : 'space-around', borderBottomWidth : 1, paddingLeft : 10, paddingVertical : 5}}>
+                                        <Text style={{fontSize : 14, flexShrink : 1, width : '85%', fontFamily : 'NotoSansBold'}}>{item.nome_numero}</Text>
+
+                                        {/* View com as demais informações das salas */}
+                                        <View style={{flex : 1, alignItems : 'flex-end', justifyContent : 'center', position : 'static'}}>
+                                            <Menu style={{marginRight : 5}}>
+                                                <MenuTrigger>
+                                                    <View>
+                                                        <Ionicons name="ellipsis-horizontal-outline" size={15}></Ionicons>
+                                                    </View>
+                                                </MenuTrigger>
+                                                <MenuOptions customStyles={{optionsContainer: style.menu}}>
+                                                    <MenuOption onSelect={() => deletar(item.qr_code_id)}>
+                                                        <Ionicons name="trash-outline" size={25} color={'red'}></Ionicons>
+                                                    </MenuOption>
+                                                    <MenuOption onSelect={()=> encontrarSala(item.qr_code_id)}>
+                                                        <Ionicons name='color-wand-outline' size={25} color={'blue'}></Ionicons>
+                                                    </MenuOption>
+                                                    <MenuOption onSelect={() => marcarComoSuja(item.qr_code_id)}>
+                                                        <Ionicons name="close-circle-outline" size={25}/>
+                                                    </MenuOption>
+                                                    <MenuOption onSelect={() => abrirModal(item.qr_code_id)}>
+                                                        <Ionicons name="stop-circle-outline" size={25}/>
+                                                    </MenuOption>
+                                                </MenuOptions>
+                                            </Menu>
+                                        </View>
+
+                                    </View>
+                                        <View style={{paddingLeft : 5, padding : 10}}>
+                                            <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}><Text>Capacidade : </Text>{item.capacidade}</Text>
+                                            <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}>Localização : {item.localizacao}</Text>
+                                            <View style={{flexDirection : 'row', alignItems : 'center', padding : 2}}>
+                                                <Text style={{fontSize : telaMobile ? 13 : 14, marginTop : 5, fontFamily : 'NotoSansRegular'}}>
+                                                    Status:
+                                                </Text>
+                                                <Text style={{fontSize : 12, color: item.status_limpeza === 'Limpa' ? 'green' : item.status_limpeza === 'Em Limpeza' ? 'white' : item.status_limpeza === 'limpeza Pendente' ? 'red' : 'red', 
+                                                    padding : 5, backgroundColor : item.status_limpeza === 'Limpa' ? 'rgba(162, 255, 162, 0.56)'  : item.status_limpeza === 'Em Limpeza' ? 'rgba(42, 42, 241, 0.81)' : 'rgba(241, 130, 130, 0.5)', borderRadius : 5, marginLeft : 5, marginTop : 5, 
+                                                    fontFamily : 'NotoSansRegular'}}>
+                                                    {item.status_limpeza}
+                                                </Text>
+                                            </View>
+                                        </View>
                                 </View>
+                            </TouchableOpacity>
                         </View>
-                    </TouchableOpacity>
                 </View>
-            </View>
-        }
-        if (item.status_limpeza === 'Em Limpeza'){
-            return (
+            )}
+             return (
                 <View>
                     <View style={style.flatList}>
                         <TouchableOpacity onPress={() => navigation.navigate("DetalhesSalas", {IdSala : item.qr_code_id}) } style={{backgroundColor : "white",flexDirection : 'row', borderRadius : 10, margin : 10, height : telaMobile ? 170 : 190, width : '90%'}}>
                             <View style={{height : '100%', width : 100, borderRightWidth : 0, borderRadius : 10}}>
                                 {item.imagem ? (
-                                    <Image style={{flex : 1, resizeMode : 'cover', borderTopLeftRadius : 10, borderBottomLeftRadius : 10}} source={{uri : `https://zeladoria.tsr.net.br/${item.imagem}`}}></Image>
+                                        <Image style={{flex : 1, resizeMode : 'cover', borderTopLeftRadius : 10, borderBottomLeftRadius : 10}} source={{uri : `https://zeladoria.tsr.net.br/${item.imagem}`}}></Image>
                                 ) : (
                                     <Image style={{flex : 1, resizeMode: 'cover', width : '100%' }} source={require('../img/Image-not-found.png')}/>
                                 )}
                                 
 
                             </View>
-
-                            {modal ? 
-                            <Modal transparent={true}>
-                                <View style={{flex : 1, alignItems : 'center', justifyContent : 'center', backgroundColor : 'white'}}>
-                                    <View style={{borderWidth : 1, backgroundColor : 'white', padding : 20, alignItems : 'center', height : '50%', width : '90%', justifyContent : 'center'}}>
-                                        <TouchableOpacity style={{alignItems : 'center', borderWidth : 1, padding : 30, backgroundColor : 'rgba(0,0,0,0.05)'}} onPress={abrirCamera}>
-                                            <Ionicons name="camera-outline" size={30} color={'gray'}/>
-                                            <Text>Clique aqui para tirar fotos</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                    {fotoTirada ? (
-                                        <View style={{ width : '100%'}}>
-                                            <View style={{marginTop : 10, marginRight : 92}}>
-                                                <View style={{borderWidth : 1, width : 100, marginLeft : '20%'}}>
-                                                    <Image style={{width : 100, height : 100, resizeMode : 'cover'}} source={{uri : fotoTirada}}/>
-                                                    <TouchableOpacity style={{position : 'absolute', left : '85%'}} onPress={()=>setFotoTirada(null)}>
-                                                        <Ionicons name="close-circle" size={15} color={'black'}/>
-                                                    </TouchableOpacity>
-                                                </View>                                        
-                                            </View>
-                                                <TouchableOpacity onPress={concluirLimpeza} style={{backgroundColor : 'blue', width : 150, paddingVertical : 10, alignItems : 'center', borderRadius : 10, marginHorizontal : 'auto', marginTop : 50}}><Text style={{color : 'white'}}>Enviar</Text></TouchableOpacity>
-                                        </View>
-                                    ) : (
-                                        <View style={{marginTop : '65%'}}>
-                                            <Text style={{paddingVertical : 10, backgroundColor : 'rgba(67, 66, 66, 0.38)', borderRadius : 20, width : 80, textAlign : 'center', bottom : '100%'}}>
-                                                Enviar
-                                            </Text>
-                                        </View>
-                                    )}
-                                </View>
-                            </Modal> : null
-                        }
 
                             {/* view com o nome das salas */}
                             <View style={{flex : 1,flexDirection : 'column'}}>
@@ -559,8 +559,8 @@ export default function Salas () {
                                                 <MenuOption onSelect={() => marcarComoSuja(item.qr_code_id)}>
                                                     <Ionicons name="close-circle-outline" size={25}/>
                                                 </MenuOption>
-                                                <MenuOption onSelect={() => abrirModal(item.qr_code_id)}>
-                                                    <Ionicons name="stop-circle-outline" size={25}/>
+                                                <MenuOption>
+                                                    <Image style={{height : 25, width : 25}} source={require('../img/vassoura.png')}/>
                                                 </MenuOption>
                                             </MenuOptions>
                                         </Menu>
@@ -584,68 +584,70 @@ export default function Salas () {
                             </View>
                         </TouchableOpacity>
                     </View>
-            </View>
-        )}
-        return (
-            <View>
-                <View style={style.flatList}>
-                    <TouchableOpacity onPress={() => navigation.navigate("DetalhesSalas", {IdSala : item.qr_code_id}) } style={{backgroundColor : "white",flexDirection : 'row', borderRadius : 10, margin : 10, height : telaMobile ? 170 : 190, width : '90%'}}>
-                        <View style={{height : '100%', width : 100, borderRightWidth : 0, borderRadius : 10}}>
-                            {item.imagem ? (
-                                 <Image style={{flex : 1, resizeMode : 'cover', borderTopLeftRadius : 10, borderBottomLeftRadius : 10}} source={{uri : `https://zeladoria.tsr.net.br/${item.imagem}`}}></Image>
-                            ) : (
-                                <Image style={{flex : 1, resizeMode: 'cover', width : '100%' }} source={require('../img/Image-not-found.png')}/>
-                            )}
-                            
-
-                        </View>
-
-                        {/* view com o nome das salas */}
-                        <View style={{flex : 1,flexDirection : 'column'}}>
-                            <View style={{ width : '100%', flexDirection : 'row', justifyContent : 'space-around', borderBottomWidth : 1, paddingLeft : 10, paddingVertical : 5}}>
-                                <Text style={{fontSize : 14, flexShrink : 1, width : '85%', fontFamily : 'NotoSansBold'}}>{item.nome_numero}</Text>
-
-                                {/* View com as demais informações das salas */}
-                                <View style={{flex : 1, alignItems : 'flex-end', justifyContent : 'center', position : 'static'}}>
-                                    <Menu style={{marginRight : 5}}>
-                                        <MenuTrigger>
-                                            <View>
-                                                <Ionicons name="ellipsis-horizontal-outline" size={15}></Ionicons>
-                                            </View>
-                                        </MenuTrigger>
-                                        <MenuOptions customStyles={{optionsContainer: style.menu}}>
-                                            <MenuOption onSelect={() => deletar(item.qr_code_id)}>
-                                                <Ionicons name="trash-outline" size={25} color={'red'}></Ionicons>
-                                            </MenuOption>
-                                            <MenuOption onSelect={()=> encontrarSala(item.qr_code_id)}>
-                                                <Ionicons name='color-wand-outline' size={25} color={'blue'}></Ionicons>
-                                            </MenuOption>
-                                            <MenuOption onSelect={() => marcarComoSuja(item.qr_code_id)}>
-                                                <Ionicons name="close-circle-outline" size={25}/>
-                                            </MenuOption>
-                                        </MenuOptions>
-                                    </Menu>
-                                </View>
-
-                            </View>
-                                <View style={{paddingLeft : 5, padding : 10}}>
-                                    <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}><Text>Capacidade : </Text>{item.capacidade}</Text>
-                                    <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}>Localização : {item.localizacao}</Text>
-                                    <View style={{flexDirection : 'row', alignItems : 'center', padding : 2}}>
-                                        <Text style={{fontSize : telaMobile ? 13 : 14, marginTop : 5, fontFamily : 'NotoSansRegular'}}>
-                                            Status:
-                                        </Text>
-                                        <Text style={{fontSize : 12, color: item.status_limpeza === 'Limpa' ? 'green' : item.status_limpeza === 'Em Limpeza' ? 'white' : item.status_limpeza === 'limpeza Pendente' ? 'red' : 'red', 
-                                            padding : 5, backgroundColor : item.status_limpeza === 'Limpa' ? 'rgba(162, 255, 162, 0.56)'  : item.status_limpeza === 'Em Limpeza' ? 'rgba(42, 42, 241, 0.81)' : 'rgba(241, 130, 130, 0.5)', borderRadius : 5, marginLeft : 5, marginTop : 5, 
-                                            fontFamily : 'NotoSansRegular'}}>
-                                            {item.status_limpeza}
-                                        </Text>
-                                    </View>
-                                </View>
-                        </View>
-                    </TouchableOpacity>
                 </View>
+        )}
+
+        
+    return (
+        <View>
+            <View style={style.flatList}>
+                <TouchableOpacity onPress={() => navigation.navigate("DetalhesSalas", {IdSala : item.qr_code_id}) } style={{backgroundColor : "white",flexDirection : 'row', borderRadius : 10, margin : 10, height : telaMobile ? 170 : 190, width : '90%'}}>
+                    <View style={{height : '100%', width : 100, borderRightWidth : 0, borderRadius : 10}}>
+                        {item.imagem ? (
+                                <Image style={{flex : 1, resizeMode : 'cover', borderTopLeftRadius : 10, borderBottomLeftRadius : 10}} source={{uri : `https://zeladoria.tsr.net.br/${item.imagem}`}}></Image>
+                        ) : (
+                            <Image style={{flex : 1, resizeMode: 'cover', width : '100%' }} source={require('../img/Image-not-found.png')}/>
+                        )}
+                        
+
+                    </View>
+
+                    {/* view com o nome das salas */}
+                    <View style={{flex : 1,flexDirection : 'column'}}>
+                        <View style={{ width : '100%', flexDirection : 'row', justifyContent : 'space-around', borderBottomWidth : 1, paddingLeft : 10, paddingVertical : 5}}>
+                            <Text style={{fontSize : 14, flexShrink : 1, width : '85%', fontFamily : 'NotoSansBold'}}>{item.nome_numero}</Text>
+
+                            {/* View com as demais informações das salas */}
+                            <View style={{flex : 1, alignItems : 'flex-end', justifyContent : 'center', position : 'static'}}>
+                                <Menu style={{marginRight : 5}}>
+                                    <MenuTrigger>
+                                        <View>
+                                            <Ionicons name="ellipsis-horizontal-outline" size={15}></Ionicons>
+                                        </View>
+                                    </MenuTrigger>
+                                    <MenuOptions customStyles={{optionsContainer: style.menu}}>
+                                        <MenuOption onSelect={() => deletar(item.qr_code_id)}>
+                                            <Ionicons name="trash-outline" size={25} color={'red'}></Ionicons>
+                                        </MenuOption>
+                                        <MenuOption onSelect={()=> encontrarSala(item.qr_code_id)}>
+                                            <Ionicons name='color-wand-outline' size={25} color={'blue'}></Ionicons>
+                                        </MenuOption>
+                                        <MenuOption onSelect={() => marcarComoSuja(item.qr_code_id)}>
+                                            <Ionicons name="close-circle-outline" size={25}/>
+                                        </MenuOption>
+                                    </MenuOptions>
+                                </Menu>
+                            </View>
+
+                        </View>
+                            <View style={{paddingLeft : 5, padding : 10}}>
+                                <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}><Text>Capacidade : </Text>{item.capacidade}</Text>
+                                <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}>Localização : {item.localizacao}</Text>
+                                <View style={{flexDirection : 'row', alignItems : 'center', padding : 2}}>
+                                    <Text style={{fontSize : telaMobile ? 13 : 14, marginTop : 5, fontFamily : 'NotoSansRegular'}}>
+                                        Status:
+                                    </Text>
+                                    <Text style={{fontSize : 12, color: item.status_limpeza === 'Limpa' ? 'green' : item.status_limpeza === 'Em Limpeza' ? 'white' : item.status_limpeza === 'limpeza Pendente' ? 'red' : 'red', 
+                                        padding : 5, backgroundColor : item.status_limpeza === 'Limpa' ? 'rgba(162, 255, 162, 0.56)'  : item.status_limpeza === 'Em Limpeza' ? 'rgba(42, 42, 241, 0.81)' : 'rgba(241, 130, 130, 0.5)', borderRadius : 5, marginLeft : 5, marginTop : 5, 
+                                        fontFamily : 'NotoSansRegular'}}>
+                                        {item.status_limpeza}
+                                    </Text>
+                                </View>
+                            </View>
+                    </View>
+                </TouchableOpacity>
             </View>
+        </View>
     )
 };
 
