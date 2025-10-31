@@ -18,6 +18,7 @@ import Settings from './screens/telaConfigurações';
 import Salas from './screens/telaAdminSalas';
 import Users from './screens/telaUsers';
 import TelaDetalhesSalas from './screens/telaDetalhesSalas';
+import GraficoPizza from './screens/telaGrafico';
 
 const tab = createMaterialTopTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -37,6 +38,9 @@ function AdminTabNavigator({Logout} : {Logout : () => Promise<void>}) {
           } else if (route.name === 'Configurações') {
             iconName = focused ? 'settings' : 'settings-outline';
           }
+          else if (route.name === 'Informações') {
+            iconName = focused ? 'bar-chart' : 'bar-chart-outline';
+          }
           return (
             <View style={{backgroundColor : focused ? '#F7941D' : 'transparent', padding : 12, borderRadius : 10, marginBottom : 5}}>
                 <Ionicons name={iconName} size={size} color={'black'} />
@@ -54,9 +58,11 @@ function AdminTabNavigator({Logout} : {Logout : () => Promise<void>}) {
     >
       <tab.Screen name="Salas" component={Salas}/>
       <tab.Screen name="Users" component={Users} />
+      <tab.Screen name='Informações' component={GraficoPizza}/>
       <tab.Screen name="Configurações">
         {(props) => <Settings {...props} aoLogout={Logout}/>}
       </tab.Screen>
+      
     </tab.Navigator>
   );
 }
