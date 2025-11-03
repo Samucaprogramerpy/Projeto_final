@@ -5,13 +5,18 @@ import { PieChart } from 'react-native-chart-kit';
 import { CarregarSalas } from '../types/salas';
 import { useState } from 'react';
 import { obterSalas, obterUsers } from '../services/servicoSalas';
+import { useFonts } from 'expo-font';
 
 const screenWidht = Dimensions.get('window').width
 
 export default function GraficoPizza() {
     const [contagemLimpezas, setContagensLimpezas] = useState<[]>([])
+    const [grafico, setgrafico] = useState<boolean>(false)
     const [usuarios, setUsuarios] = useState<[string]>([''])
     const [carregando, setCarregando] = useState<boolean>(false)
+    const [fontsLoaded] = useFonts({
+        "UBuntu-Regular" : require('../fonts/MomoTrustDisplay-Regular.ttf')
+    })
 
     const CORES_FUNCIONARIOS = { 'senac': '#36A2EB', 'zelador': '#FF6384' };
 
@@ -20,6 +25,15 @@ export default function GraficoPizza() {
             const CarregarSalas = async() => {
                 const resposta = await obterSalas()
                 const filter = resposta.map(item => item.ultima_limpeza_funcionario)
+                const filterNull = filter.every(ultimaLimpeza => ultimaLimpeza === null)
+
+
+                if (filterNull) {
+                    setgrafico(false)
+                } else {
+                    setgrafico(true)
+                }
+                
                 const filtroNomes = filter.filter(nome => nome)
                 
                 const contagem = filtroNomes.reduce((contador, nomeAtual) => {
@@ -59,20 +73,21 @@ export default function GraficoPizza() {
     }
 
     return (
-        <View style={{flex : 1, alignItems : 'center', justifyContent : 'center'}}>
-            <Text>Informações</Text>
+        <View style={{flex : 1, alignItems : 'center', justifyContent : 'center',}}>
+            <Text style={{fontSize : 30, fontFamily : 'MomoDisplay-Regular', color : '#004A8D'}}>Informações</Text>
 
-            <PieChart
+            {grafico ? (
+                <PieChart
                 data={dadosDoGrafico}
-                width={screenWidht-40}
-                height={220}
+                width={screenWidht-10}
+                height={200}
                 chartConfig={{
-                    backgroundColor: '#FFFFFF', // Cor base do gráfico
-                    backgroundGradientFrom: '#F0F0F0', // Início do gradiente (cinza claro)
-                    backgroundGradientTo: '#FFFFFF',   // Fim do gradiente (branco)
+                    backgroundColor: '#FFFFFF', 
+                    backgroundGradientFrom: '#F0F0F0', 
+                    backgroundGradientTo: '#FFFFFF',   
                     
                     decimalPlaces: 0,
-                    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`, // Cor das linhas/texto
+                    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
                     style: {
                         borderRadius: 16
                     }
@@ -82,6 +97,10 @@ export default function GraficoPizza() {
                 paddingLeft={"15"}
                 absolute
             />
+            ) : (
+                <Text>Não há informações nesse momento!</Text>
+            )}
+            
         </View>
     )
     

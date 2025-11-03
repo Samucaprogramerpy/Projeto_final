@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import {
   createMaterialTopTabNavigator,
 } from '@react-navigation/material-top-tabs';
+import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,6 +26,8 @@ const Stack = createNativeStackNavigator();
 
 function AdminTabNavigator({Logout} : {Logout : () => Promise<void>}) {
 
+  const insets = useSafeAreaInsets();
+
   return (
     <tab.Navigator
       tabBarPosition="bottom"
@@ -33,16 +36,16 @@ function AdminTabNavigator({Logout} : {Logout : () => Promise<void>}) {
           let iconName;
           if (route.name === 'Salas') {
             iconName = focused ? 'book' : 'book-outline';
-          } else if (route.name === 'Users') {
+          } else if (route.name === 'Usuários') {
             iconName = focused ? 'person' : 'person-outline';
-          } else if (route.name === 'Configurações') {
+          } else if (route.name === 'Perfil') {
             iconName = focused ? 'settings' : 'settings-outline';
           }
-          else if (route.name === 'Informações') {
+          else if (route.name === 'Infos') {
             iconName = focused ? 'bar-chart' : 'bar-chart-outline';
           }
           return (
-            <View style={{backgroundColor : focused ? '#F7941D' : 'transparent', padding : 12, borderRadius : 10, marginBottom : 5}}>
+            <View style={{backgroundColor : focused ? '#F7941D' : 'transparent', padding : 12, borderRadius : 10}}>
                 <Ionicons name={iconName} size={size} color={'black'} />
             </View>
 
@@ -51,15 +54,15 @@ function AdminTabNavigator({Logout} : {Logout : () => Promise<void>}) {
         tabBarActiveTintColor: '#F7941D',
         tabBarInactiveTintColor: 'black',
         tabBarIndicatorStyle:{backgroundColor : 'transparent'},
-        tabBarStyle: { paddingBottom: 5, height: 70, backgroundColor: 'white', borderTopWidth : 0.15, borderTopColor: 'black' },
-        tabBarItemStyle : {borderWidth : 2, borderColor : 'transparent', borderRadius : 8, marginHorizontal : 6},
+        tabBarStyle: { height: 100, backgroundColor: 'white', borderTopWidth : 0.15, width : '100%', alignItems : 'center'},
+        tabBarItemStyle : {borderWidth : 2, borderColor : 'transparent', borderRadius : 8, paddingHorizontal : 5, marginBottom : 10},
         swipeEnabled: true,
       })}
     >
       <tab.Screen name="Salas" component={Salas}/>
-      <tab.Screen name="Users" component={Users} />
-      <tab.Screen name='Informações' component={GraficoPizza}/>
-      <tab.Screen name="Configurações">
+      <tab.Screen name="Usuários" component={Users} />
+      <tab.Screen name='Infos' component={GraficoPizza}/>
+      <tab.Screen name="Perfil">
         {(props) => <Settings {...props} aoLogout={Logout}/>}
       </tab.Screen>
       
@@ -90,8 +93,8 @@ function UserTabNavigator({Logout} : {Logout : () => Promise<void>}) {
         tabBarActiveTintColor: '#F7941D',
         tabBarInactiveTintColor: 'black',
         tabBarIndicatorStyle:{backgroundColor : 'transparent'},
-        tabBarStyle: { paddingBottom: 5, height: 70, backgroundColor: 'white', borderTopWidth : 0.15, borderTopColor: 'black' },
-        tabBarItemStyle : {borderWidth : 2, borderColor : 'transparent', borderRadius : 8, marginHorizontal : 6},
+        tabBarStyle: { paddingBottom: 5, height: 70, backgroundColor: 'white', borderTopWidth : 0.15, borderTopColor: 'black'},
+        tabBarItemStyle : {borderWidth : 2, borderColor : 'transparent', borderRadius : 8, marginHorizontal : 6, flex : 1},
         swipeEnabled: true,
       })}
     >

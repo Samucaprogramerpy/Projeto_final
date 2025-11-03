@@ -9,6 +9,7 @@ import { Menu, MenuOption, MenuTrigger, MenuOptions } from "react-native-popup-m
 import { obterSalas, obterSalasporID, obterUsers } from "../services/servicoSalas";
 import { setValor, getValor} from "../services/servicoUpdate";
 import { Camera, CameraView } from "expo-camera";
+import { useFonts } from 'expo-font';
 import api from "../api/api";
 import Load from "./telaLoad";
 
@@ -26,6 +27,10 @@ export default function TelaColaborador(){
     const [fotoEnviada, setFotoEnviada] = useState<boolean>(false)
     const [search, setSearch] = useState('')
     const [salasFiltradas, setSalasFiltradas] = useState<CarregarSalas[]>([])
+    const [fontsLoaded] = useFonts({
+        "Ubuntu-Regular" : require('../fonts/Ubuntu-Regular.ttf'),
+        "Ubunt-Bold" : require('../fonts/Ubuntu-Bold.ttf')
+    })
     const foto = useRef<CameraView>(null)
 
 
@@ -248,7 +253,7 @@ export default function TelaColaborador(){
                             <View style={{flex : 1,marginTop : 5}}>
                                 <View style={{borderBottomWidth : 1, width : '100%', justifyContent : 'flex-end', flexDirection : 'row', borderBottomColor : '#004A8D'}}>
                                     <View style={{width : '90%',  justifyContent : "center",flex : 1}}>
-                                        <Text style={{marginLeft : 5}}>{item.nome_numero}</Text>
+                                        <Text style={{marginLeft : 5, fontFamily : "Ubuntu-Regular"}}>{item.nome_numero}</Text>
                                     </View>
                                     <View style={{marginRight : 5}}>
                                         <Menu>
@@ -265,122 +270,176 @@ export default function TelaColaborador(){
                                         </Menu>
                                     </View>
                                 </View>
-                                <Text style={style.nomeinfo}>{item.capacidade}</Text>
-                                <Text style={style.nomeinfo}>{item.localizacao}</Text>
-                                <View style={{flexDirection : 'row', alignItems : 'center', marginHorizontal : 10}}>
-                                    <Text>Status : </Text>
-                                    <Text style={{paddingLeft : 10, color:item.status_limpeza==='Limpa' ? 'rgba(46, 147, 46, 1)' : item.status_limpeza==='Em Limpeza' ? 'white' : 'rgba(237, 8, 8, 0.91)', backgroundColor : item.status_limpeza==='Limpa' ? 'rgba(178, 246, 206, 1)' : item.status_limpeza==='Em Limpeza' ? 'rgba(38, 38, 253, 0.96)' : 'rgba(253, 79, 79, 0.53)', 
-                                        paddingRight : 10,padding : 5, textAlign : 'center', borderRadius : 5, fontSize : 12}}>
-                                        {item.status_limpeza}
-                                    </Text>
-                                </View>
+                                <View style={{flex : 1, justifyContent : 'space-around', paddingLeft : 5}}>
+                                    <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                                        <Ionicons name="cube-outline" size={20}/>
+                                        <Text style={style.nomeinfo}>Capacidade: {item.capacidade}</Text>
+                                    </View>
+                                    <View style={{flexDirection : 'row', width : '90%', alignItems : 'center'}}>
+                                        <Ionicons name="location-outline" size={20}/>
+                                        <Text style={style.nomeinfo}>Localização: {item.localizacao}</Text>
+                                    </View>
+                                    <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                                        <Ionicons name="alert-circle-outline" size={20}/>
+                                        <Text style={style.nomeinfo}>Estado : {item.ativa ? 'Ativa' : 'Não Ativa'}</Text>
+                                    </View>
+                                    <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                                        <Ionicons name="checkmark-circle-outline" size={20}/>
+                                        <Text style={style.nomeinfo}>Status : </Text>
+                                        <Text style={{ fontSize : 12, color:item.status_limpeza==='Limpa' ? 'rgba(46, 147, 46, 1)' : item.status_limpeza==='Em Limpeza' ? 'white' : 'rgba(237, 8, 8, 0.91)', backgroundColor : item.status_limpeza==='Limpa' ? 'rgba(178, 246, 206, 1)' : item.status_limpeza==='Em Limpeza' ? 'rgba(38, 38, 253, 0.96)' : 'rgba(253, 79, 79, 0.53)',padding : 5, textAlign : 'center', borderRadius : 5}}>
+                                            {item.status_limpeza}
+                                        </Text>
+                                    </View>
                                 </View>
                             </View>
                         </View>
+                    </View>
                 )
             }
             if (item.status_limpeza === 'Em Limpeza'){
                 return (
                     <View style={{alignItems : 'center'}}>
                     <View style={style.CardSala}>
-                        <View style={{borderBottomWidth : 1, width : '100%', justifyContent : 'flex-end', flexDirection : 'row', borderBottomColor : '#004A8D'}}>
-                            <View style={{width : '90%',  justifyContent : "center",flex : 1}}>
-                                <Text style={{marginLeft : 5}}>{item.nome_numero}</Text>
-                            </View>
-                            <View style={{marginRight : 5}}>
-                                <Menu>
-                                    <MenuTrigger>
-                                        <View>
-                                            <Ionicons name="ellipsis-horizontal-outline" size={15}></Ionicons>
-                                        </View>
-                                    </MenuTrigger>
-                                    <MenuOptions customStyles={{optionsContainer : style.menu}}>
-                                        <MenuOption onSelect={() => abrirModal(item.qr_code_id)}>
-                                            <Ionicons name="stop-circle-outline" size={25}/>
-                                        </MenuOption>
-                                    </MenuOptions>
-                                </Menu>
-                            </View>
+                        <View style={{height : '100%', width : 100}}>
+                                {item.imagem ? (
+                                    <Image style={{flex : 1, resizeMode : 'cover', borderTopLeftRadius : 10, borderBottomLeftRadius : 10}} source={{uri : `https://zeladoria.tsr.net.br/${item.imagem}`}}></Image>
+                                ) : (
+                                    <Image style={{flex : 1, resizeMode: 'cover', width : '100%' }} source={require('../img/Image-not-found.png')}/>
+                                )}
+                                                                
                         </View>
-                        <Text style={style.nomeinfo}>{item.capacidade}</Text>
-                        <Text style={style.nomeinfo}>{item.localizacao}</Text>
-                        <Text style={style.nomeinfo}>{item.descricao}</Text>
-                        <View style={{flexDirection : 'row', alignItems : 'center', marginHorizontal : 10}}>
-                            <Text>Status : </Text>
-                            <Text style={{paddingLeft : 10, color:item.status_limpeza==='Limpa' ? 'rgba(46, 147, 46, 1)' : item.status_limpeza==='Em Limpeza' ? 'white' : 'rgba(237, 8, 8, 0.91)', backgroundColor : item.status_limpeza==='Limpa' ? 'rgba(178, 246, 206, 1)' : item.status_limpeza==='Em Limpeza' ? 'rgba(38, 38, 253, 0.96)' : 'rgba(253, 79, 79, 0.53)', paddingRight : 10,padding : 5, textAlign : 'center', borderRadius : 5}}>
-                                {item.status_limpeza}
-                            </Text>
-                        </View>
-                        {modal ? 
-                            <Modal transparent={true} onRequestClose={() => showModal(false)}>
-                                <View style={{flex : 1, alignItems : 'center', justifyContent : 'center', backgroundColor : 'rgba(0,0,0,0.1)'}}>
-                                    <View style={{borderWidth : 1, backgroundColor : 'white', padding : 20, alignItems : 'center', height : '50%', width : '90%', justifyContent : 'center'}}>
-                                        <TouchableOpacity onPress={() => {setOpenCamera(true)}} style={{alignItems : 'center', borderWidth : 1, width : '100%', height : '30%', justifyContent : 'center', backgroundColor : 'rgba(0,0,0,0.1)', borderColor : 'rgba(0,0,245,1)', borderStyle : 'dashed'}}>
-                                            <Ionicons name="camera-outline" size={30} color={'gray'}/>
-                                            <Text>Clique aqui para tirar a foto</Text>
-                                        </TouchableOpacity>
-
-                                        {fotoTirada ? (
-                                        <View style={{ width : '100%'}}>
-                                            <View style={{marginTop : 10, marginRight : 92}}>
-                                                <View style={{borderWidth : 1, width : 100}}>
-                                                    <Image style={{width : 100, height : 100, resizeMode : 'cover'}} source={{uri : fotoTirada}}/>
-                                                    <TouchableOpacity style={{position : 'absolute', left : '85%'}} onPress={()=>setFotoTirada(null)}>
-                                                        <Ionicons name="close-circle" size={15} color={'black'}/>
-                                                    </TouchableOpacity>
-                                                </View>                                        
-                                            </View>
-                                             <TouchableOpacity onPress={concluirLimpeza} style={{backgroundColor : 'blue', width : 150, paddingVertical : 10, alignItems : 'center', borderRadius : 10, marginHorizontal : 'auto', marginTop : 50}}><Text style={{color : 'white'}}>Enviar</Text></TouchableOpacity>
-                                        </View>
-                                        ) : (
-                                            <View style={{marginTop : '65%'}}>
-                                            <Text style={{paddingVertical : 10, backgroundColor : 'rgba(67, 66, 66, 0.38)', borderRadius : 20, width : 80, textAlign : 'center'}}>
-                                                Enviar
-                                            </Text>
-                                            </View>
-                                            
-                                        )}
-                                    </View>
-                
+                        <View style={{flex : 1, marginTop : 5}}>
+                            <View style={{borderBottomWidth : 1, width : '100%', justifyContent : 'flex-end', flexDirection : 'row', borderBottomColor : '#004A8D'}}>
+                                <View style={{width : '90%',  justifyContent : "center",flex : 1}}>
+                                    <Text style={{marginLeft : 5, fontFamily : "Ubuntu-Bold"}}>{item.nome_numero}</Text>
                                 </View>
-                            </Modal> : null}
-                    </View>
-                </View>
+                                <View style={{marginRight : 5}}>
+                                    <Menu>
+                                        <MenuTrigger>
+                                            <View>
+                                                <Ionicons name="ellipsis-horizontal-outline" size={15}></Ionicons>
+                                            </View>
+                                        </MenuTrigger>
+                                        <MenuOptions customStyles={{optionsContainer : style.menu}}>
+                                            <MenuOption onSelect={() => abrirModal(item.qr_code_id)}>
+                                                <Ionicons name="stop-circle-outline" size={25}/>
+                                            </MenuOption>
+                                        </MenuOptions>
+                                    </Menu>
+                                </View>
+                            </View>
+                            <View style={{flex : 1, justifyContent : 'space-around', paddingLeft : 5}}>
+                                <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                                    <Ionicons name="cube-outline" size={20}/>
+                                    <Text style={style.nomeinfo}>Capacidade: {item.capacidade}</Text>
+                                </View>
+                                <View style={{flexDirection : 'row', width : '90%', alignItems : 'center'}}>
+                                    <Ionicons name="location-outline" size={20}/>
+                                    <Text style={style.nomeinfo}>Localização: {item.localizacao}</Text>
+                                </View>
+                                <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                                    <Ionicons name="alert-circle-outline" size={20}/>
+                                    <Text style={style.nomeinfo}>Estado : {item.ativa ? 'Ativa' : 'Não Ativa'}</Text>
+                                </View>
+                                <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                                    <Ionicons name="checkmark-circle-outline" size={20}/>
+                                    <Text style={style.nomeinfo}>Status : </Text>
+                                    <Text style={{ fontSize : 12, color:item.status_limpeza==='Limpa' ? 'rgba(46, 147, 46, 1)' : item.status_limpeza==='Em Limpeza' ? 'white' : 'rgba(237, 8, 8, 0.91)', backgroundColor : item.status_limpeza==='Limpa' ? 'rgba(178, 246, 206, 1)' : item.status_limpeza==='Em Limpeza' ? 'rgba(38, 38, 253, 0.96)' : 'rgba(253, 79, 79, 0.53)',padding : 5, textAlign : 'center', borderRadius : 5}}>
+                                        {item.status_limpeza}
+                                    </Text>
+                                </View>
+                            </View>
+                            {modal ?
+                                <Modal transparent={true} onRequestClose={() => showModal(false)}>
+                                    <View style={{flex : 1, alignItems : 'center', justifyContent : 'center', backgroundColor : 'rgba(0,0,0,0.1)'}}>
+                                        <View style={{borderWidth : 1, backgroundColor : 'white', padding : 20, alignItems : 'center', height : '50%', width : '90%', justifyContent : 'center'}}>
+                                            <TouchableOpacity onPress={() => {setOpenCamera(true)}} style={{alignItems : 'center', borderWidth : 1, width : '100%', height : '30%', justifyContent : 'center', backgroundColor : 'rgba(0,0,0,0.1)', borderColor : 'rgba(0,0,245,1)', borderStyle : 'dashed'}}>
+                                                <Ionicons name="camera-outline" size={30} color={'gray'}/>
+                                                <Text>Clique aqui para tirar a foto</Text>
+                                            </TouchableOpacity>
+                                            {fotoTirada ? (
+                                            <View style={{ width : '100%'}}>
+                                                <View style={{marginTop : 10, marginRight : 92}}>
+                                                    <View style={{borderWidth : 1, width : 100}}>
+                                                        <Image style={{width : 100, height : 100, resizeMode : 'cover'}} source={{uri : fotoTirada}}/>
+                                                        <TouchableOpacity style={{position : 'absolute', left : '85%'}} onPress={()=>setFotoTirada(null)}>
+                                                            <Ionicons name="close-circle" size={15} color={'black'}/>
+                                                        </TouchableOpacity>
+                                                    </View>
+                                                </View>
+                                                 <TouchableOpacity onPress={concluirLimpeza} style={{backgroundColor : 'blue', width : 150, paddingVertical : 10, alignItems : 'center', borderRadius : 10, marginHorizontal : 'auto', marginTop : 50}}><Text style={{color : 'white'}}>Enviar</Text></TouchableOpacity>
+                                            </View>
+                                            ) : (
+                                                <View style={{marginTop : '65%'}}>
+                                                <Text style={{paddingVertical : 10, backgroundColor : 'rgba(67, 66, 66, 0.38)', borderRadius : 20, width : 80, textAlign : 'center'}}>
+                                                    Enviar
+                                                </Text>
+                                                </View>
+                            
+                                            )}
+                                        </View>
+                                    </View>
+                                </Modal> : null}
+                                                </View>
+                                            </View>
+                        </View>
                 )
             }
             return(
                 <View style={{alignItems : 'center'}}>
                     <View style={style.CardSala}>
-                        <View style={{borderBottomWidth : 1, width : '100%', justifyContent : 'flex-end', flexDirection : 'row', borderBottomColor : '#004A8D'}}>
-                            <View style={{width : '90%',  justifyContent : "center",flex : 1}}>
-                                <Text style={{marginLeft : 5}}>{item.nome_numero}</Text>
-                            </View>
-                            <View style={{marginRight : 5}}>
-                                <Menu>
-                                    <MenuTrigger>
-                                        <View>
-                                            <Ionicons name="ellipsis-horizontal-outline" size={15}></Ionicons>
-                                        </View>
-                                    </MenuTrigger>
-                                    <MenuOptions customStyles={{optionsContainer : style.menu}}>
-                                        <MenuOption onSelect={() => comecarLimpeza(item.qr_code_id)}>
-                                            <Image style={{width : 25, height : 25}} source={require('../img/vassoura.png')}/>
-                                        </MenuOption>
-                                    </MenuOptions>
-                                </Menu>
-                            </View>
+                         <View style={{height : '100%', width : 100}}>
+                                {item.imagem ? (
+                                    <Image style={{flex : 1, resizeMode : 'cover', borderTopLeftRadius : 10, borderBottomLeftRadius : 10}} source={{uri : `https://zeladoria.tsr.net.br/${item.imagem}`}}></Image>
+                                ) : (
+                                    <Image style={{flex : 1, resizeMode: 'cover', width : '100%' }} source={require('../img/Image-not-found.png')}/>
+                                )}
+                                                                
                         </View>
-                        <Text style={style.nomeinfo}>{item.capacidade}</Text>
-                        <Text style={style.nomeinfo}>{item.localizacao}</Text>
-                        <Text style={style.nomeinfo}>{item.descricao}</Text>
-                        <View style={{flexDirection : 'row', alignItems : 'center', marginHorizontal : 10}}>
-                            <Text>Status : </Text>
-                            <Text style={{paddingLeft : 10, color:item.status_limpeza==='Limpa' ? 'rgba(46, 147, 46, 1)' : item.status_limpeza==='Em Limpeza' ? 'white' : 'rgba(237, 8, 8, 0.91)', backgroundColor : item.status_limpeza==='Limpa' ? 'rgba(178, 246, 206, 1)' : item.status_limpeza==='Em Limpeza' ? 'rgba(38, 38, 253, 0.96)' : 'rgba(253, 79, 79, 0.53)', paddingRight : 10,padding : 5, textAlign : 'center', borderRadius : 5}}>
-                                {item.status_limpeza}
-                            </Text>
+                        <View style={{flex : 1, marginTop : 5, justifyContent : 'space-around', width : '100%'}}>
+                            <View style={{borderBottomWidth : 1, width : '100%', justifyContent : 'flex-end', flexDirection : 'row', borderBottomColor : '#004A8D'}}>
+                                <View style={{width : '90%',  justifyContent : "center",flex : 1}}>
+                                    <Text style={{marginLeft : 5, fontFamily : "MomoDisplay-Regular"}}>{item.nome_numero}</Text>
+                                </View>
+                                <View style={{marginRight : 5}}>
+                                    <Menu>
+                                        <MenuTrigger>
+                                            <View>
+                                                <Ionicons name="ellipsis-horizontal-outline" size={15}></Ionicons>
+                                            </View>
+                                        </MenuTrigger>
+                                        <MenuOptions customStyles={{optionsContainer : style.menu}}>
+                                            <MenuOption onSelect={() => comecarLimpeza(item.qr_code_id)}>
+                                                <Image style={{width : 25, height : 25}} source={require('../img/vassoura.png')}/>
+                                            </MenuOption>
+                                        </MenuOptions>
+                                    </Menu>
+                                </View>
+                            </View>
+                            <View style={{flex : 1, justifyContent : 'space-around', paddingLeft : 5}}>
+                                <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                                    <Ionicons name="cube-outline" size={20}/>
+                                    <Text style={style.nomeinfo}>Capacidade: {item.capacidade}</Text>
+                                </View>
+                                <View style={{flexDirection : 'row', width : '90%', alignItems : 'center'}}>
+                                    <Ionicons name="location-outline" size={20}/>
+                                    <Text style={style.nomeinfo}>Localização: {item.localizacao}</Text>
+                                </View>
+                                <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                                    <Ionicons name="alert-circle-outline" size={20}/>
+                                    <Text style={style.nomeinfo}>Estado : {item.ativa ? 'Ativa' : 'Não Ativa'}</Text>
+                                </View>
+                                <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                                    <Ionicons name="checkmark-circle-outline" size={20}/>
+                                    <Text style={style.nomeinfo}>Status : </Text>
+                                    <Text style={{ fontSize : 12, color:item.status_limpeza==='Limpa' ? 'rgba(46, 147, 46, 1)' : item.status_limpeza==='Em Limpeza' ? 'white' : 'rgba(237, 8, 8, 0.91)', backgroundColor : item.status_limpeza==='Limpa' ? 'rgba(178, 246, 206, 1)' : item.status_limpeza==='Em Limpeza' ? 'rgba(38, 38, 253, 0.96)' : 'rgba(253, 79, 79, 0.53)',padding : 5, textAlign : 'center', borderRadius : 5}}>
+                                        {item.status_limpeza}
+                                    </Text>
+                                </View>
+                            </View>
                         </View>
                     </View>
-                </View>
+            </View>
             )
         };
 
@@ -416,7 +475,7 @@ const style = StyleSheet.create({
         margin : 10,
         flexDirection : 'row',
         alignItems : 'flex-start',
-        height : 180,
+        height : 200,
         width : '90%',
     },
     limparSala : {
@@ -427,7 +486,9 @@ const style = StyleSheet.create({
         height : '83%'
     },
     nomeinfo : {
-        paddingLeft : 10
+        paddingLeft : 5,
+        fontFamily : "Ubuntu-Regular",
+        fontSize : 13
     },
     botaoLimpar : {
         marginTop : 30,
