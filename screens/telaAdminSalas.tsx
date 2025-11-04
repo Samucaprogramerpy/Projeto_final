@@ -47,7 +47,8 @@ export default function Salas () {
 
     let [fontsLoaded] = useFonts({
         'NotoSansRegular' : NotoSans_400Regular,
-        'NotoSansBold' : NotoSans_700Bold
+        'NotoSansBold' : NotoSans_700Bold,
+        'UbutuRegular' : require('../fonts/Ubuntu-Regular.ttf')
     })
 
 
@@ -504,7 +505,9 @@ export default function Salas () {
 
                                     </View>
                                         <View style={{paddingLeft : 5, padding : 10}}>
-                                            <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}><Text>Capacidade : </Text>{item.capacidade}</Text>
+                                            <View>
+                                                <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}><Text>Capacidade : </Text>{item.capacidade}</Text>
+                                            </View>
                                             <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}>Localização : {item.localizacao}</Text>
                                             <View style={{flexDirection : 'row', alignItems : 'center', padding : 2}}>
                                                 <Text style={{fontSize : telaMobile ? 13 : 14, marginTop : 5, fontFamily : 'NotoSansRegular'}}>
@@ -591,7 +594,7 @@ export default function Salas () {
     return (
         <View>
             <View style={style.flatList}>
-                <TouchableOpacity onPress={() => navigation.navigate("DetalhesSalas", {IdSala : item.qr_code_id}) } style={{backgroundColor : "white",flexDirection : 'row', borderRadius : 10, margin : 10, height : telaMobile ? 170 : 190, width : '90%'}}>
+                <TouchableOpacity onPress={() => navigation.navigate("DetalhesSalas", {IdSala : item.qr_code_id}) } style={{backgroundColor : "white",flexDirection : 'row', borderRadius : 10, margin : 10, height : telaMobile ? 180 : 190, width : '90%'}}>
                     <View style={{height : '100%', width : 100, borderRightWidth : 0, borderRadius : 10}}>
                         {item.imagem ? (
                                 <Image style={{flex : 1, resizeMode : 'cover', borderTopLeftRadius : 10, borderBottomLeftRadius : 10}} source={{uri : `https://zeladoria.tsr.net.br/${item.imagem}`}}></Image>
@@ -604,7 +607,7 @@ export default function Salas () {
 
                     {/* view com o nome das salas */}
                     <View style={{flex : 1,flexDirection : 'column'}}>
-                        <View style={{ width : '100%', flexDirection : 'row', justifyContent : 'space-around', borderBottomWidth : 1, paddingLeft : 10, paddingVertical : 5}}>
+                        <View style={{ width : '100%', flexDirection : 'row', justifyContent : 'space-around', borderBottomWidth : 1, paddingLeft : 10, paddingVertical : 2}}>
                             <Text style={{fontSize : 14, flexShrink : 1, width : '85%', fontFamily : 'NotoSansBold'}}>{item.nome_numero}</Text>
 
                             {/* View com as demais informações das salas */}
@@ -630,16 +633,26 @@ export default function Salas () {
                             </View>
 
                         </View>
-                            <View style={{paddingLeft : 5, padding : 10}}>
-                                <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}><Text>Capacidade : </Text>{item.capacidade}</Text>
-                                <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}>Localização : {item.localizacao}</Text>
-                                <View style={{flexDirection : 'row', alignItems : 'center', padding : 2}}>
-                                    <Text style={{fontSize : telaMobile ? 13 : 14, marginTop : 5, fontFamily : 'NotoSansRegular'}}>
+                            <View style={{paddingLeft : 5, padding : 10,  flex : 1, justifyContent : 'space-around'}}>
+                                <View style={{flexDirection : 'row'}}>
+                                    <Ionicons name="cube-outline" size={20}/>
+                                    <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}>Capacidade: {item.capacidade}</Text>
+                                </View>
+                                <View style={{flexDirection : 'row', width : '95%'}}>
+                                    <Ionicons name="location-outline" size={20}/>
+                                    <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}>Localização: {item.localizacao}</Text>
+                                </View>
+                                <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                                    <Ionicons name="alert-circle-outline" size={20}/>
+                                    <Text style={{fontFamily : 'NotoSansRegular', fontSize : telaMobile ? 12 : 14}}>Estado : {item.ativa ? 'Ativa' : 'Não Ativa'}</Text>
+                                </View>
+                                <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                                    <Ionicons name="checkmark-circle-outline" size={20}/>
+                                    <Text style={{fontSize : telaMobile ? 12 : 14, marginTop : 5, fontFamily : 'NotoSansRegular'}}>
                                         Status:
                                     </Text>
-                                    <Text style={{fontSize : 12, color: item.status_limpeza === 'Limpa' ? 'green' : item.status_limpeza === 'Em Limpeza' ? 'white' : item.status_limpeza === 'limpeza Pendente' ? 'red' : 'red', 
-                                        padding : 5, backgroundColor : item.status_limpeza === 'Limpa' ? 'rgba(162, 255, 162, 0.56)'  : item.status_limpeza === 'Em Limpeza' ? 'rgba(42, 42, 241, 0.81)' : 'rgba(241, 130, 130, 0.5)', borderRadius : 5, marginLeft : 5, marginTop : 5, 
-                                        fontFamily : 'NotoSansRegular'}}>
+                                    <Text style={{fontSize : 12, color: item.status_limpeza === 'Limpa' ? 'green' : item.status_limpeza === 'Em Limpeza' ? 'white' : item.status_limpeza === 'limpeza Pendente' ? 'red' : 'red', marginLeft : 3,
+                                        backgroundColor : item.status_limpeza === 'Limpa' ? 'rgba(162, 255, 162, 0.56)'  : item.status_limpeza === 'Em Limpeza' ? 'rgba(42, 42, 241, 0.81)' : 'rgba(241, 130, 130, 0.5)', borderRadius : 5, padding : 4, fontFamily : 'NotoSansRegular'}}>
                                         {item.status_limpeza}
                                     </Text>
                                 </View>

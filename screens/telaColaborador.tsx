@@ -445,11 +445,13 @@ export default function TelaColaborador(){
 
     return(
         <View>
-            <View style={{height : 110, justifyContent: 'center', borderBottomWidth: 1, borderBottomColor : '#F7941D'}}>
-                <Text style={{paddingLeft : 10, fontSize : 20, fontWeight : 'bold', color: '#004A8D'}}>
+            <View style={{height : '18%', justifyContent: 'center', borderBottomWidth: 1, borderBottomColor : '#F7941D'}}>
+                <Text style={{paddingLeft : 15, fontSize : 24, fontWeight : 'bold', color: '#004A8D', marginTop : 30}}>
                     Salas
                 </Text>
-                <TextInput style={{width : '100%', height : 50, backgroundColor : 'rgba(146, 146, 146, 0.5)', borderRadius : 20}} placeholder="Procure por uma sala" value={search} onChangeText={setSearch}></TextInput>
+                <View style={{alignItems : 'center'}}>
+                    <TextInput style={{width : '95%', height : 50, backgroundColor : 'rgba(146, 146, 146, 0.5)', borderRadius : 20}} placeholder="Procure por uma sala" value={search} onChangeText={setSearch}></TextInput>
+                </View>
             </View>
             <FlatList 
                 style={style.flatList}

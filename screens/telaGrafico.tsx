@@ -35,10 +35,10 @@ export default function GraficoPizza() {
                 }
                 
                 const filtroNomes = filter.filter(nome => nome)
-                
                 const contagem = filtroNomes.reduce((contador, nomeAtual) => {
                     contador[nomeAtual] = (contador[nomeAtual] || 0) +1
                     return contador
+                    
                 }, {})
 
                 setContagensLimpezas(contagem)

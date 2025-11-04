@@ -1,4 +1,4 @@
-import { StyleSheet, View, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, ActivityIndicator, Text } from 'react-native';
 import React from 'react';
 import { useState, useEffect } from 'react';
 import {
@@ -20,6 +20,7 @@ import Salas from './screens/telaAdminSalas';
 import Users from './screens/telaUsers';
 import TelaDetalhesSalas from './screens/telaDetalhesSalas';
 import GraficoPizza from './screens/telaGrafico';
+import { black } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
 
 const tab = createMaterialTopTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -41,27 +42,29 @@ function AdminTabNavigator({Logout} : {Logout : () => Promise<void>}) {
           } else if (route.name === 'Perfil') {
             iconName = focused ? 'settings' : 'settings-outline';
           }
-          else if (route.name === 'Infos') {
+          else if (route.name === 'Dados') {
             iconName = focused ? 'bar-chart' : 'bar-chart-outline';
           }
           return (
-            <View style={{backgroundColor : focused ? '#F7941D' : 'transparent', padding : 12, borderRadius : 10}}>
-                <Ionicons name={iconName} size={size} color={'black'} />
+            <View style={{backgroundColor : focused ? '#F7941D' : 'transparent', padding : 8, width : 65, borderRadius : 10, alignItems : 'center'}}>
+                <Ionicons name={iconName} size={22} color={color} />
+                <Text style={{color: focused ? 'black' : 'rgba(65, 64, 64, 0.81)', fontSize : 12}}>{route.name}</Text>
             </View>
 
           );
         },
-        tabBarActiveTintColor: '#F7941D',
-        tabBarInactiveTintColor: 'black',
+        tabBarShowLabel : false,
+        tabBarActiveTintColor: 'black',
+        tabBarInactiveTintColor: 'gray',
         tabBarIndicatorStyle:{backgroundColor : 'transparent'},
-        tabBarStyle: { height: 100, backgroundColor: 'white', borderTopWidth : 0.15, width : '100%', alignItems : 'center'},
-        tabBarItemStyle : {borderWidth : 2, borderColor : 'transparent', borderRadius : 8, paddingHorizontal : 5, marginBottom : 10},
+        tabBarStyle: { height: 80, backgroundColor: 'white', width : '100%', alignItems : 'center'},
+        tabBarItemStyle : {borderWidth : 1, borderColor : 'transparent', alignItems : 'center'},
         swipeEnabled: true,
       })}
     >
       <tab.Screen name="Salas" component={Salas}/>
       <tab.Screen name="Usuários" component={Users} />
-      <tab.Screen name='Infos' component={GraficoPizza}/>
+      <tab.Screen name='Dados' component={GraficoPizza}/>
       <tab.Screen name="Perfil">
         {(props) => <Settings {...props} aoLogout={Logout}/>}
       </tab.Screen>
@@ -80,26 +83,28 @@ function UserTabNavigator({Logout} : {Logout : () => Promise<void>}) {
           let iconName;
           if (route.name === 'Sala') {
             iconName = focused ? 'school' : 'school-outline'
-          } else if (route.name === 'Configurações') {
+          } else if (route.name === 'Perfil') {
             iconName = focused ? 'settings' : 'settings-outline';
           }
           return (
-            <View style={{backgroundColor : focused ? '#F7941D' : 'transparent', padding : 12, borderRadius : 10, marginBottom : 5}}>
+            <View style={{backgroundColor : focused ? '#F7941D' : 'transparent', padding : 10, borderRadius : 10, marginBottom : 5, alignItems : 'center', width : 75}}>
                 <Ionicons name={iconName} size={size} color={'black'} />
+                <Text style={{color: 'black', fontSize : 12}}>{route.name}</Text>
             </View>
 
           );
         },
+        tabBarLabel : false,
         tabBarActiveTintColor: '#F7941D',
         tabBarInactiveTintColor: 'black',
         tabBarIndicatorStyle:{backgroundColor : 'transparent'},
-        tabBarStyle: { paddingBottom: 5, height: 70, backgroundColor: 'white', borderTopWidth : 0.15, borderTopColor: 'black'},
+        tabBarStyle: { paddingBottom: 5, height: 85, backgroundColor: 'white', borderTopWidth : 0.15, borderTopColor: 'black'},
         tabBarItemStyle : {borderWidth : 2, borderColor : 'transparent', borderRadius : 8, marginHorizontal : 6, flex : 1},
         swipeEnabled: true,
       })}
     >
       <tab.Screen name="Sala" component={TelaColaborador}/>
-      <tab.Screen name="Configurações">
+      <tab.Screen name="Perfil">
         {(props) => <Settings {...props} aoLogout={Logout}/>}
       </tab.Screen>
     </tab.Navigator>
