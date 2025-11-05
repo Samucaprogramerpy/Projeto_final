@@ -313,9 +313,10 @@ export default function Salas () {
         const group = async() => {
             try{
                 const resposta = await api.get('accounts/current_user')
-                const grupo_usuario = resposta.data.groups
+                const grupo_usuario = await resposta.data.groups
                 if (grupo_usuario.includes([1,2])) {
                     setGrupo(true)
+                    console.log(grupo_usuario)
                 } else {
                     setGrupo(false)
                 }
@@ -460,12 +461,18 @@ export default function Salas () {
                                                     </View>                                        
                                                 </View>
                                                     <TouchableOpacity onPress={concluirLimpeza} style={{backgroundColor : 'blue', width : 150, paddingVertical : 10, alignItems : 'center', borderRadius : 10, marginHorizontal : 'auto', marginTop : 50}}><Text style={{color : 'white'}}>Enviar</Text></TouchableOpacity>
+                                                    
                                             </View>
                                         ) : (
                                             <View style={{marginTop : '65%'}}>
                                                 <Text style={{paddingVertical : 10, backgroundColor : 'rgba(67, 66, 66, 0.38)', borderRadius : 20, width : 80, textAlign : 'center', bottom : '100%'}}>
                                                     Enviar
                                                 </Text>
+                                                <TouchableOpacity>
+                                                    <Text style={{paddingVertical : 10, backgroundColor : 'rgba(67, 66, 66, 0.38)', borderRadius : 20, width : 80, textAlign : 'center', bottom : '100%'}}>
+                                                        Cancelar
+                                                    </Text>
+                                                </TouchableOpacity>
                                             </View>
                                         )}
                                     </View>
@@ -496,30 +503,36 @@ export default function Salas () {
                                                     <MenuOption onSelect={() => marcarComoSuja(item.qr_code_id)}>
                                                         <Ionicons name="close-circle-outline" size={25}/>
                                                     </MenuOption>
-                                                    <MenuOption onSelect={() => abrirModal(item.qr_code_id)}>
-                                                        <Ionicons name="stop-circle-outline" size={25}/>
-                                                    </MenuOption>
+
                                                 </MenuOptions>
                                             </Menu>
                                         </View>
 
                                     </View>
-                                        <View style={{paddingLeft : 5, padding : 10}}>
-                                            <View>
-                                                <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}><Text>Capacidade : </Text>{item.capacidade}</Text>
-                                            </View>
-                                            <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}>Localização : {item.localizacao}</Text>
-                                            <View style={{flexDirection : 'row', alignItems : 'center', padding : 2}}>
-                                                <Text style={{fontSize : telaMobile ? 13 : 14, marginTop : 5, fontFamily : 'NotoSansRegular'}}>
-                                                    Status:
-                                                </Text>
-                                                <Text style={{fontSize : 12, color: item.status_limpeza === 'Limpa' ? 'green' : item.status_limpeza === 'Em Limpeza' ? 'white' : item.status_limpeza === 'limpeza Pendente' ? 'red' : 'red', 
-                                                    padding : 5, backgroundColor : item.status_limpeza === 'Limpa' ? 'rgba(162, 255, 162, 0.56)'  : item.status_limpeza === 'Em Limpeza' ? 'rgba(42, 42, 241, 0.81)' : 'rgba(241, 130, 130, 0.5)', borderRadius : 5, marginLeft : 5, marginTop : 5, 
-                                                    fontFamily : 'NotoSansRegular'}}>
-                                                    {item.status_limpeza}
-                                                </Text>
-                                            </View>
+                                    <View style={{paddingLeft : 5, padding : 10,  flex : 1, justifyContent : 'space-around'}}>
+                                        <View style={{flexDirection : 'row', flex : 1}}>
+                                            <Ionicons name="cube-outline" size={20}/>
+                                            <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}>Capacidade: {item.capacidade}</Text>
                                         </View>
+                                        <View style={{flexDirection : 'row', width : '95%'}}>
+                                            <Ionicons name="location-outline" size={20}/>
+                                            <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}>Localização: {item.localizacao}</Text>
+                                        </View>
+                                        <View style={{flexDirection : 'row', alignItems : 'center', flex : 1}}>
+                                            <Ionicons name="alert-circle-outline" size={20}/>
+                                            <Text style={{fontFamily : 'NotoSansRegular', fontSize : telaMobile ? 12 : 14}}>Estado : {item.ativa ? 'Ativa' : 'Não Ativa'}</Text>
+                                        </View>
+                                        <View style={{flexDirection : 'row', alignItems : 'center', flex : 1}}>
+                                            <Ionicons name="checkmark-circle-outline" size={20}/>
+                                            <Text style={{fontSize : telaMobile ? 12 : 14, marginTop : 5, fontFamily : 'NotoSansRegular'}}>
+                                                Status:
+                                            </Text>
+                                            <Text style={{fontSize : 12, color: item.status_limpeza === 'Limpa' ? 'green' : item.status_limpeza === 'Em Limpeza' ? 'white' : item.status_limpeza === 'limpeza Pendente' ? 'red' : 'red', marginLeft : 3,
+                                                backgroundColor : item.status_limpeza === 'Limpa' ? 'rgba(162, 255, 162, 0.56)'  : item.status_limpeza === 'Em Limpeza' ? 'rgba(42, 42, 241, 0.81)' : 'rgba(241, 130, 130, 0.5)', borderRadius : 5, padding : 4, fontFamily : 'NotoSansRegular'}}>
+                                                {item.status_limpeza}
+                                            </Text>
+                                        </View>
+                                    </View>
                                 </View>
                             </TouchableOpacity>
                         </View>
@@ -554,42 +567,188 @@ export default function Salas () {
                                             </MenuTrigger>
                                             <MenuOptions customStyles={{optionsContainer: style.menu}}>
                                                 <MenuOption onSelect={() => deletar(item.qr_code_id)}>
-                                                    <Ionicons name="trash-outline" size={25} color={'red'}></Ionicons>
+                                                    <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                                                        <Ionicons name="trash-outline" size={25} color={'red'}></Ionicons>
+                                                        <Text style={{fontFamily : 'NotoSansRegular'}}>Deletar</Text>
+                                                    </View>
                                                 </MenuOption>
                                                 <MenuOption onSelect={()=> encontrarSala(item.qr_code_id)}>
-                                                    <Ionicons name='color-wand-outline' size={25} color={'blue'}></Ionicons>
+                                                    <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                                                        <Ionicons name='color-wand-outline' size={25} color={'blue'}></Ionicons>
+                                                        <Text>Editar</Text>
+                                                    </View>
                                                 </MenuOption>
                                                 <MenuOption onSelect={() => marcarComoSuja(item.qr_code_id)}>
-                                                    <Ionicons name="close-circle-outline" size={25}/>
-                                                </MenuOption>
-                                                <MenuOption>
-                                                    <Image style={{height : 25, width : 25}} source={require('../img/vassoura.png')}/>
+                                                    <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                                                        <Ionicons name="close-circle-outline" size={25}/>
+                                                        <Text>Marcar Como Suja</Text>
+                                                    </View>
                                                 </MenuOption>
                                             </MenuOptions>
                                         </Menu>
                                     </View>
 
                                 </View>
-                                    <View style={{paddingLeft : 5, padding : 10}}>
-                                        <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}><Text>Capacidade : </Text>{item.capacidade}</Text>
-                                        <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}>Localização : {item.localizacao}</Text>
-                                        <View style={{flexDirection : 'row', alignItems : 'center', padding : 2}}>
-                                            <Text style={{fontSize : telaMobile ? 13 : 14, marginTop : 5, fontFamily : 'NotoSansRegular'}}>
-                                                Status:
-                                            </Text>
-                                            <Text style={{fontSize : 12, color: item.status_limpeza === 'Limpa' ? 'green' : item.status_limpeza === 'Em Limpeza' ? 'white' : item.status_limpeza === 'limpeza Pendente' ? 'red' : 'red', 
-                                                padding : 5, backgroundColor : item.status_limpeza === 'Limpa' ? 'rgba(162, 255, 162, 0.56)'  : item.status_limpeza === 'Em Limpeza' ? 'rgba(42, 42, 241, 0.81)' : 'rgba(241, 130, 130, 0.5)', borderRadius : 5, marginLeft : 5, marginTop : 5, 
-                                                fontFamily : 'NotoSansRegular'}}>
-                                                {item.status_limpeza}
-                                            </Text>
-                                        </View>
+                                <View style={{paddingLeft : 5, padding : 10,  flex : 1, justifyContent : 'space-around'}}>
+                                    <View style={{flexDirection : 'row', flex : 1}}>
+                                        <Ionicons name="cube-outline" size={20}/>
+                                        <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}>Capacidade: {item.capacidade}</Text>
                                     </View>
+                                    <View style={{flexDirection : 'row', width : '95%'}}>
+                                        <Ionicons name="location-outline" size={20}/>
+                                        <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}>Localização: {item.localizacao}</Text>
+                                    </View>
+                                    <View style={{flexDirection : 'row', alignItems : 'center', flex : 1}}>
+                                        <Ionicons name="alert-circle-outline" size={20}/>
+                                        <Text style={{fontFamily : 'NotoSansRegular', fontSize : telaMobile ? 12 : 14}}>Estado : {item.ativa ? 'Ativa' : 'Não Ativa'}</Text>
+                                    </View>
+                                    <View style={{flexDirection : 'row', alignItems : 'center', flex : 1}}>
+                                        <Ionicons name="checkmark-circle-outline" size={20}/>
+                                        <Text style={{fontSize : telaMobile ? 12 : 14, marginTop : 5, fontFamily : 'NotoSansRegular'}}>
+                                            Status:
+                                        </Text>
+                                        <Text style={{fontSize : 12, color: item.status_limpeza === 'Limpa' ? 'green' : item.status_limpeza === 'Em Limpeza' ? 'white' : item.status_limpeza === 'limpeza Pendente' ? 'red' : 'red', marginLeft : 3,
+                                            backgroundColor : item.status_limpeza === 'Limpa' ? 'rgba(162, 255, 162, 0.56)'  : item.status_limpeza === 'Em Limpeza' ? 'rgba(42, 42, 241, 0.81)' : 'rgba(241, 130, 130, 0.5)', borderRadius : 5, padding : 4, fontFamily : 'NotoSansRegular'}}>
+                                            {item.status_limpeza}
+                                        </Text>
+                                    </View>
+                                </View>
                             </View>
                         </TouchableOpacity>
                     </View>
                 </View>
         )}
+    
+    if (item.status_limpeza === 'Em Limpeza'){
+                return (
+                    <View>
+                        <View style={style.flatList}>
+                            <TouchableOpacity onPress={() => navigation.navigate("DetalhesSalas", {IdSala : item.qr_code_id}) } style={{backgroundColor : "white",flexDirection : 'row', borderRadius : 10, margin : 10, height : telaMobile ? 170 : 190, width : '90%'}}>
+                                <View style={{height : '100%', width : 100, borderRightWidth : 0, borderRadius : 10}}>
+                                    {item.imagem ? (
+                                        <Image style={{flex : 1, resizeMode : 'cover', borderTopLeftRadius : 10, borderBottomLeftRadius : 10}} source={{uri : `https://zeladoria.tsr.net.br/${item.imagem}`}}></Image>
+                                    ) : (
+                                        <Image style={{flex : 1, resizeMode: 'cover', width : '100%' }} source={require('../img/Image-not-found.png')}/>
+                                    )}
+                                    
 
+                                </View>
+
+                                {modal ? 
+                                <Modal transparent={true}>
+                                    <View style={{flex : 1, alignItems : 'center', justifyContent : 'center', backgroundColor : 'white'}}>
+                                        <View style={{borderWidth : 1, backgroundColor : 'white', padding : 20, alignItems : 'center', height : '50%', width : '90%', justifyContent : 'center'}}>
+                                            <TouchableOpacity style={{alignItems : 'center', borderWidth : 1, padding : 30, backgroundColor : 'rgba(0,0,0,0.05)'}} onPress={abrirCamera}>
+                                                <Ionicons name="camera-outline" size={30} color={'gray'}/>
+                                                <Text>Clique aqui para tirar fotos</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                        {fotoTirada ? (
+                                            <View style={{ width : '100%'}}>
+                                                <View style={{marginTop : 10, marginRight : 92}}>
+                                                    <View style={{borderWidth : 1, width : 100, marginLeft : '20%'}}>
+                                                        <Image style={{width : 100, height : 100, resizeMode : 'cover'}} source={{uri : fotoTirada}}/>
+                                                        <TouchableOpacity style={{position : 'absolute', left : '85%'}} onPress={()=>setFotoTirada(null)}>
+                                                            <Ionicons name="close-circle" size={15} color={'black'}/>
+                                                        </TouchableOpacity>
+                                                    </View>                                        
+                                                </View>
+                                                    <TouchableOpacity onPress={concluirLimpeza} style={{backgroundColor : 'blue', width : 150, paddingVertical : 10, alignItems : 'center', borderRadius : 10, marginHorizontal : 'auto', marginTop : 50}}><Text style={{color : 'white'}}>Enviar</Text></TouchableOpacity>
+                                                    <TouchableOpacity>
+                                                        <Text style={{paddingVertical : 10, backgroundColor : 'rgba(67, 66, 66, 0.38)', borderRadius : 20, width : 80, textAlign : 'center', bottom : '100%'}}>
+                                                            Cancelar
+                                                        </Text>
+                                                    </TouchableOpacity>
+                                            </View>
+                                        ) : (
+                                            <View style={{marginTop : '65%', flexDirection : 'row', width : '90%', alignItems: 'center', justifyContent : 'space-around'}}>
+                                                <Text style={{paddingVertical : 10, backgroundColor : 'rgba(67, 66, 66, 0.38)', borderRadius : 20, width : 80, textAlign : 'center'}}>
+                                                    Enviar
+                                                </Text>
+                                                <TouchableOpacity onPress={() => setModal(false)}>
+                                                    <Text style={{paddingVertical : 10, backgroundColor : '#F7941D', borderRadius : 20, width : 80, textAlign : 'center'}}>
+                                                        Cancelar
+                                                    </Text>
+                                                </TouchableOpacity>
+                                            </View>
+                                        )}
+                                    </View>
+                                </Modal> : null
+                            }
+
+
+                                {/* view com o nome das salas */}
+                                <View style={{flex : 1,flexDirection : 'column'}}>
+                                    <View style={{ width : '100%', flexDirection : 'row', justifyContent : 'space-around', borderBottomWidth : 1, paddingLeft : 10, paddingVertical : 5}}>
+                                        <Text style={{fontSize : 14, flexShrink : 1, width : '85%', fontFamily : 'NotoSansBold'}}>{item.nome_numero}</Text>
+
+                                        {/* View com as demais informações das salas */}
+                                        <View style={{flex : 1, alignItems : 'flex-end', justifyContent : 'center', position : 'static'}}>
+                                            <Menu style={{marginRight : 5}}>
+                                                <MenuTrigger>
+                                                    <View>
+                                                        <Ionicons name="ellipsis-horizontal-outline" size={15}></Ionicons>
+                                                    </View>
+                                                </MenuTrigger>
+                                                <MenuOptions customStyles={{optionsContainer: style.menu}}>
+                                                    <MenuOption onSelect={() => deletar(item.qr_code_id)}>
+                                                    <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                                                        <Ionicons name="trash-outline" size={25} color={'red'}></Ionicons>
+                                                        <Text style={{fontFamily : 'NotoSansRegular'}}>Deletar</Text>
+                                                    </View>
+                                                    </MenuOption>
+                                                    <MenuOption onSelect={()=> encontrarSala(item.qr_code_id)}>
+                                                        <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                                                            <Ionicons name='color-wand-outline' size={25} color={'blue'}></Ionicons>
+                                                            <Text>Editar</Text>
+                                                        </View>
+                                                    </MenuOption>
+                                                    <MenuOption onSelect={() => marcarComoSuja(item.qr_code_id)}>
+                                                        <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                                                            <Ionicons name="close-circle-outline" size={25}/>
+                                                            <Text>Marcar Como Suja</Text>
+                                                        </View>
+                                                    </MenuOption>
+                                                    <MenuOption onSelect={() => abrirModal(item.qr_code_id)}>
+                                                        <View style={{alignItems : 'center', flexDirection : 'row'}}>
+                                                            <Ionicons name="stop-circle-outline" size={25}/>
+                                                            <Text>Terminar Limpeza</Text>
+                                                        </View>
+                                                    </MenuOption>
+                                                </MenuOptions>
+                                            </Menu>
+                                        </View>
+
+                                    </View>
+                                    <View style={{paddingLeft : 5, padding : 10,  flex : 1, justifyContent : 'space-around'}}>
+                                        <View style={{flexDirection : 'row', flex : 1}}>
+                                            <Ionicons name="cube-outline" size={20}/>
+                                            <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}>Capacidade: {item.capacidade}</Text>
+                                        </View>
+                                        <View style={{flexDirection : 'row', width : '95%'}}>
+                                            <Ionicons name="location-outline" size={20}/>
+                                            <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}>Localização: {item.localizacao}</Text>
+                                        </View>
+                                        <View style={{flexDirection : 'row', alignItems : 'center', flex : 1}}>
+                                            <Ionicons name="alert-circle-outline" size={20}/>
+                                            <Text style={{fontFamily : 'NotoSansRegular', fontSize : telaMobile ? 12 : 14}}>Estado : {item.ativa ? 'Ativa' : 'Não Ativa'}</Text>
+                                        </View>
+                                        <View style={{flexDirection : 'row', alignItems : 'center', flex : 1, height : 50}}>
+                                            <Ionicons name="checkmark-circle-outline" size={20}/>
+                                            <Text style={{fontSize : telaMobile ? 12 : 14, marginTop : 5, fontFamily : 'NotoSansRegular'}}>
+                                                Status:
+                                            </Text>
+                                            <Text style={{fontSize : 12, color: item.status_limpeza === 'Limpa' ? 'green' : item.status_limpeza === 'Em Limpeza' ? 'white' : item.status_limpeza === 'limpeza Pendente' ? 'red' : 'red', marginLeft : 3,
+                                                backgroundColor : item.status_limpeza === 'Limpa' ? 'rgba(162, 255, 162, 0.56)'  : item.status_limpeza === 'Em Limpeza' ? 'rgba(42, 42, 241, 0.81)' : 'rgba(241, 130, 130, 0.5)', borderRadius : 5, padding : 5, fontFamily : 'NotoSansRegular'}}>
+                                                {item.status_limpeza}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                </View>
+            )}
         
     return (
         <View>
@@ -614,19 +773,32 @@ export default function Salas () {
                             <View style={{flex : 1, alignItems : 'flex-end', justifyContent : 'center', position : 'static'}}>
                                 <Menu style={{marginRight : 5}}>
                                     <MenuTrigger>
-                                        <View>
                                             <Ionicons name="ellipsis-horizontal-outline" size={15}></Ionicons>
-                                        </View>
                                     </MenuTrigger>
                                     <MenuOptions customStyles={{optionsContainer: style.menu}}>
                                         <MenuOption onSelect={() => deletar(item.qr_code_id)}>
-                                            <Ionicons name="trash-outline" size={25} color={'red'}></Ionicons>
+                                            <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                                                <Ionicons name="trash-outline" size={25} color={'red'}></Ionicons>
+                                                <Text style={{fontFamily : 'NotoSansRegular'}}>Deletar</Text>
+                                            </View>
                                         </MenuOption>
                                         <MenuOption onSelect={()=> encontrarSala(item.qr_code_id)}>
-                                            <Ionicons name='color-wand-outline' size={25} color={'blue'}></Ionicons>
+                                            <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                                                <Ionicons name='color-wand-outline' size={25} color={'blue'}></Ionicons>
+                                                <Text>Editar</Text>
+                                            </View>
                                         </MenuOption>
                                         <MenuOption onSelect={() => marcarComoSuja(item.qr_code_id)}>
-                                            <Ionicons name="close-circle-outline" size={25}/>
+                                            <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                                                <Ionicons name="close-circle-outline" size={25}/>
+                                                <Text>Marcar Como Suja</Text>
+                                            </View>
+                                        </MenuOption>
+                                        <MenuOption onSelect={() => comecarLimpeza(item.qr_code_id)}>
+                                            <View style={{flexDirection : 'row',alignItems : 'center'}}>
+                                                <Image style={{height : 25, width : 25}} source={require('../img/vassoura.png')}/>
+                                                <Text>Limpar</Text>
+                                            </View>
                                         </MenuOption>
                                     </MenuOptions>
                                 </Menu>
@@ -634,25 +806,25 @@ export default function Salas () {
 
                         </View>
                             <View style={{paddingLeft : 5, padding : 10,  flex : 1, justifyContent : 'space-around'}}>
-                                <View style={{flexDirection : 'row'}}>
+                                <View style={{flexDirection : 'row', flex : 1}}>
                                     <Ionicons name="cube-outline" size={20}/>
                                     <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}>Capacidade: {item.capacidade}</Text>
                                 </View>
-                                <View style={{flexDirection : 'row', width : '95%'}}>
+                                <View style={{flexDirection : 'row', flex : 1}}>
                                     <Ionicons name="location-outline" size={20}/>
-                                    <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular'}}>Localização: {item.localizacao}</Text>
+                                    <Text style={{fontSize : telaMobile ? 12 : 14, padding : 2, fontFamily : 'NotoSansRegular', flexShrink : 1}}>Localização: {item.localizacao}</Text>
                                 </View>
-                                <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                                <View style={{flexDirection : 'row', alignItems : 'center', flex : 1}}>
                                     <Ionicons name="alert-circle-outline" size={20}/>
                                     <Text style={{fontFamily : 'NotoSansRegular', fontSize : telaMobile ? 12 : 14}}>Estado : {item.ativa ? 'Ativa' : 'Não Ativa'}</Text>
                                 </View>
-                                <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                                <View style={{flexDirection : 'row', alignItems : 'center', flex : 1}}>
                                     <Ionicons name="checkmark-circle-outline" size={20}/>
                                     <Text style={{fontSize : telaMobile ? 12 : 14, marginTop : 5, fontFamily : 'NotoSansRegular'}}>
                                         Status:
                                     </Text>
                                     <Text style={{fontSize : 12, color: item.status_limpeza === 'Limpa' ? 'green' : item.status_limpeza === 'Em Limpeza' ? 'white' : item.status_limpeza === 'limpeza Pendente' ? 'red' : 'red', marginLeft : 3,
-                                        backgroundColor : item.status_limpeza === 'Limpa' ? 'rgba(162, 255, 162, 0.56)'  : item.status_limpeza === 'Em Limpeza' ? 'rgba(42, 42, 241, 0.81)' : 'rgba(241, 130, 130, 0.5)', borderRadius : 5, padding : 4, fontFamily : 'NotoSansRegular'}}>
+                                        backgroundColor : item.status_limpeza === 'Limpa' ? 'rgba(162, 255, 162, 0.56)'  : item.status_limpeza === 'Em Limpeza' ? 'rgba(42, 42, 241, 0.81)' : 'rgba(241, 130, 130, 0.5)', borderRadius : 5, padding : 5, fontFamily : 'NotoSansRegular'}}>
                                         {item.status_limpeza}
                                     </Text>
                                 </View>
@@ -792,8 +964,7 @@ const style = StyleSheet.create({
         alignItems : 'center'
     }, 
     menu : {
-        width : 50,
-        alignItems : 'center',
+        width : '50%',
         borderRadius : 5
     }
 });

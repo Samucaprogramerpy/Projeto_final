@@ -111,10 +111,10 @@ export default function Users () {
                     ) : (
                         <View></View>
                     )}
-                    <View style={{flex : 1}}>
+                    <View style={{flex : 1, alignItems : 'center'}}>
                         <Text style={style.nome}>{item.username}</Text>
                         <Text>grupo : {item.groups}</Text>
-                        <Text style={style.nome}>{item.email}</Text>
+                        <Text style={style.nome}>Email: {item.email}</Text>
                     </View>
                     
                 </View>
