@@ -12,6 +12,6 @@ export async function realizarLogin(credenciais : CredenciaisLogin) : Promise<Re
         
 
     } catch (error : any) {  
-        throw new Error('Erro ao conectar com o servidor. Tente novamente mais tarde.');  
+        console.error(error.response.data)
     }
 }
