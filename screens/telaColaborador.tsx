@@ -322,7 +322,10 @@ export default function TelaColaborador(){
                                         </MenuTrigger>
                                         <MenuOptions customStyles={{optionsContainer : style.menu}}>
                                             <MenuOption onSelect={() => abrirModal(item.qr_code_id)}>
-                                                <Ionicons name="stop-circle-outline" size={25}/>
+                                                <View style={{flexDirection : 'row', alignItems : 'center'}}>
+                                                    <Ionicons name="stop-circle-outline" size={25}/>
+                                                    <Text>Encerrar Limpeza</Text>
+                                                </View>
                                             </MenuOption>
                                         </MenuOptions>
                                     </Menu>
@@ -410,7 +413,10 @@ export default function TelaColaborador(){
                                         </MenuTrigger>
                                         <MenuOptions customStyles={{optionsContainer : style.menu}}>
                                             <MenuOption onSelect={() => comecarLimpeza(item.qr_code_id)}>
-                                                <Image style={{width : 25, height : 25}} source={require('../img/vassoura.png')}/>
+                                                <View style={{flexDirection : 'row', padding : 5}}>
+                                                    <Image style={{width : 25, height : 25}} source={require('../img/vassoura.png')}/>
+                                                    <Text>Começar a limpeza</Text>
+                                                </View>
                                             </MenuOption>
                                         </MenuOptions>
                                     </Menu>
@@ -503,7 +509,7 @@ const style = StyleSheet.create({
         color : 'white',
     },
     menu : {
-        width : 50,
+        width : 150,
         alignItems : 'center'
     }
 })
