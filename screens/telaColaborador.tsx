@@ -264,7 +264,10 @@ export default function TelaColaborador(){
                                             </MenuTrigger>
                                             <MenuOptions customStyles={{optionsContainer : style.menu}}>
                                                 <MenuOption onSelect={() => marcarComoSuja(item.qr_code_id)}>
-                                                    <Ionicons name="close-circle-outline" size={25}/>
+                                                    <View style={{flexDirection : 'row',  alignItems : 'center'}}>
+                                                        <Ionicons name="close-circle-outline" size={25}/>
+                                                        <Text>Marcar como Suja</Text>
+                                                    </View>
                                                 </MenuOption>
                                             </MenuOptions>
                                         </Menu>
